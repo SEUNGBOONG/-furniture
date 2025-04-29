@@ -1,6 +1,6 @@
 package com.example.demo.login.member.controller.auth;
 
-
+import com.example.demo.common.Setting;
 import com.example.demo.login.email.service.EmailService;
 import com.example.demo.login.member.controller.auth.dto.LoginRequest;
 import com.example.demo.login.member.controller.auth.dto.LoginResponse;
@@ -32,15 +32,27 @@ import java.net.URI;
 @Slf4j
 public class AuthController {
 
+    public static final String AUTHENTICATED = "AUTHENTICATED_";
+    public static final String AUTHENTICATED1 = "AUTHENTICATED_";
     private final AuthService authService;
     private final EmailService emailService;
 
     @PostMapping("/members")
-    public ResponseEntity<SignUpResponse> signUp(@RequestBody SignUpRequest signUpRequest) {
-        SignUpResponse signUpResponse = AuthMapper.toSignUpResponse(authService.signUp(signUpRequest));
-        URI location = URI.create("/members/" + signUpResponse.id());
-        log.info("유저 생성 - {}번 유저 : {}", signUpResponse.id(), signUpResponse.memberNickname());
-        return ResponseEntity.created(location).body(signUpResponse);
+    public ResponseEntity<?> signUp(@RequestBody SignUpRequest signUpRequest, HttpSession session) {
+        Boolean isAuthenticated = (Boolean) session.getAttribute(AUTHENTICATED1 + signUpRequest.memberEmail());
+
+        if (isAuthenticated == null || !isAuthenticated) {
+            return ResponseEntity.status(403).body(Setting.PLEASE_COMPLETE_EMAIL_VERIFICATION_FIRST.toString());
+        }
+
+        SignUpResponse response = AuthMapper.toSignUpResponse(authService.signUp(signUpRequest));
+        URI location = URI.create("/members/" + response.id());
+        log.info("회원가입 완료 - ID: {}, 닉네임: {}", response.id(), response.memberNickname());
+
+        // 인증 정보 제거
+        session.removeAttribute(AUTHENTICATED1 + signUpRequest.memberEmail());
+
+        return ResponseEntity.created(location).body(response);
     }
 
     @PostMapping("/login")
@@ -51,18 +63,34 @@ public class AuthController {
     }
 
     @PostMapping("/send-auth-code")
-    public String sendAuthCode(@RequestBody EmailAuthRequestDto emailDto, HttpSession session) throws MessagingException, UnsupportedEncodingException {
-        return emailService.sendEmail(emailDto.getEmail(), session);
+    public ResponseEntity<String> sendAuthCode(@RequestBody EmailAuthRequestDto emailDto, HttpSession session)
+            throws MessagingException, UnsupportedEncodingException {
+        // 이메일로 인증 코드 전송
+        String code = emailService.sendEmail(emailDto.getEmail(), session);
+
+        // 인증 코드 저장 (이메일을 키로 사용)
+        session.setAttribute(emailDto.getEmail(), code);
+        session.setAttribute(AUTHENTICATED + emailDto.getEmail(), false);
+
+        return ResponseEntity.ok(Setting.SUCCEED_SENDER_CERTIFICATION_NUMBER.toString());
     }
+
 
     @PostMapping("/verify-auth-code")
     public ResponseEntity<String> verifyAuthCode(@RequestBody AuthRequestDTO request, HttpSession session) {
+        // 이메일 주소로 세션에서 인증 코드 가져오기
         String storedCode = (String) session.getAttribute(request.getEmail());
+
+        // 세션에서 가져온 인증 코드 로그로 출력하여 확인
+        // 입력한 코드와 세션에 저장된 코드 비교
         if (storedCode != null && storedCode.equals(request.getAuthCode())) {
-            session.removeAttribute(request.getEmail());
-            return ResponseEntity.ok("인증 성공!");
+            session.removeAttribute(request.getEmail());  // 인증 성공 후 세션에서 인증 코드 삭제
+            session.setAttribute(AUTHENTICATED1 + request.getEmail(), true);  // 인증 완료 상태 저장
+            return ResponseEntity.ok(Setting.SUCCEED_CERTIFICATION_NUMBER.toString());
         }
-        return ResponseEntity.badRequest().body("인증번호가 틀립니다.");
+
+        // 인증 실패 시
+        return ResponseEntity.badRequest().body(Setting.FAIL_CERTIFICATION_NUMBER.toString());
     }
 
 
