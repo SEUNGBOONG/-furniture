@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class JwtTokenService {
 
+    public static final String MEMBER_ID = "memberId";
     private final JwtTokenProvider jwtTokenProvider;
 
     public DecodedJWT verifyJwtToken(String token) {
@@ -34,7 +35,7 @@ public class JwtTokenService {
     }
 
     private Long extractJwtToken(String token) {
-        return verifyJwtToken(token).getClaim("memberId")
+        return verifyJwtToken(token).getClaim(MEMBER_ID)
                 .asLong();
     }
 }
