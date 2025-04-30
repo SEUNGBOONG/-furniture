@@ -1,5 +1,6 @@
 package com.example.demo.online.controller;
 
+import com.example.demo.common.Setting;
 import com.example.demo.online.controller.dto.ContactRequest;
 import com.example.demo.online.service.ContactEmailService;
 
@@ -22,9 +23,9 @@ public class ContactController {
     public ResponseEntity<String> submitContactForm(@RequestBody ContactRequest request) {
         try {
             emailService.sendContactEmail(request);
-            return ResponseEntity.ok("문의가 성공적으로 전송되었습니다.");
+            return ResponseEntity.ok(Setting.CONTACT_SUCCEED_MAIL.toString());
         } catch (MessagingException e) {
-            return ResponseEntity.status(500).body("문의 전송 중 오류가 발생했습니다.");
+            return ResponseEntity.status(500).body(Setting.CONTACT_FAILED_MAIL.toString());
         }
     }
 }
