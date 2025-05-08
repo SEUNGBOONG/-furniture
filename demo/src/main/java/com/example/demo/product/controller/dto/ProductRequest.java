@@ -8,4 +8,5 @@ public class ProductRequest {
     private String description;
     private Long categoryId;
     private int price;
+    private String tag;
 }
