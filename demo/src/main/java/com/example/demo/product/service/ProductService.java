@@ -30,9 +30,16 @@ public class ProductService {
                 .description(request.getDescription())
                 .price(request.getPrice())
                 .category(category)
+                .tagName(request.getTag())
                 .build();
 
         productRepository.save(product);
+    }
+
+    public List<ProductResponse> getProductsByTagName(String tagName) {
+        return productRepository.findByTagName(tagName).stream()
+                .map(p -> new ProductResponse(p.getId(), p.getName(), p.getDescription(), p.getPrice(), p.getCategory().getName()))
+                .collect(Collectors.toList());
     }
 
     public List<CategoryResponse> getAllCategories() {
@@ -66,6 +73,7 @@ public class ProductService {
                 .description(request.getDescription())
                 .price(request.getPrice())
                 .category(category)
+                .tagName(request.getTag())
                 .build();
 
         productRepository.save(product);

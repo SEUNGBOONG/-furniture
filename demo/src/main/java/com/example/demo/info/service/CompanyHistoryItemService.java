@@ -18,6 +18,7 @@ public class CompanyHistoryItemService {
     public List<CompanyHistoryItemDTO> getAllHistoryItems() {
         return repository.findAllByOrderByIdAsc().stream()
                 .map(item -> new CompanyHistoryItemDTO(
+                        item.getId(),
                         item.getTitle(),
                         item.getContent(),
                         item.getImageUrl1(),
