@@ -10,10 +10,12 @@ import com.example.demo.product.domain.repository.CategoryRepository;
 import com.example.demo.product.domain.entity.Product;
 import com.example.demo.product.domain.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,49 +26,15 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final S3Uploader s3Uploader;
 
-    public void createProduct(ProductRequest request, MultipartFile imageFile) {
+    // 상품 생성
+    public void createProduct(ProductRequest request, String imageUrl) {
         Category category = getCategory(request);
-        String imageUrl = s3Uploader.uploadFile(imageFile);
-
         Product product = getProduct(Product.builder(), request, category, imageUrl);
 
         productRepository.save(product);
     }
 
-    private static Product getProduct(final Product.ProductBuilder builder, final ProductRequest request, final Category category, final String imageUrl) {
-        return builder
-                .name(request.getName())
-                .description(request.getDescription())
-                .price(request.getPrice())
-                .category(category)
-                .tagName(request.getTag())
-                .image(imageUrl)
-                .build();
-    }
-
-    public List<ProductResponse> getProductsByTagName(String tagName) {
-        return productRepository.findByTagName(tagName).stream()
-                .map(p -> new ProductResponse(p.getId(), p.getName(), p.getDescription(), p.getPrice(), p.getCategory().getName(),p.getImage()))
-                .collect(Collectors.toList());
-    }
-
-    public List<CategoryResponse> getAllCategories() {
-        return categoryRepository.findAll().stream()
-                .map(cat -> new CategoryResponse(cat.getId(), cat.getName()))
-                .collect(Collectors.toList());
-    }
-
-    public List<ProductResponse> getProductsByCategory(Long categoryId) {
-        return productRepository.findByCategoryId(categoryId).stream()
-                .map(p -> new ProductResponse(p.getId(), p.getName(), p.getDescription(), p.getPrice(), p.getCategory().getName(),p.getImage()))
-                .collect(Collectors.toList());
-    }
-
-    public ProductResponse getProductDetail(Long productId) {
-        Product product = getProduct(productId);
-        return new ProductResponse(product.getId(), product.getName(), product.getDescription(), product.getPrice(), product.getCategory().getName(), product.getImage());
-    }
-
+    // 상품 업데이트
     public void updateProduct(Long productId, ProductRequest request, MultipartFile imageFile) {
         Product product = getProduct(productId);
         Category category = getCategory(request);
@@ -80,23 +48,67 @@ public class ProductService {
         productRepository.save(updated);
     }
 
-    private Category getCategory(final ProductRequest request) {
-        return categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new IllegalArgumentException(Setting.CATEGORY_NOT_FOUND.toString()));
+    // 비동기 이미지 업로드 처리
+    @Async
+    public CompletableFuture<String> uploadImageAsync(MultipartFile imageFile) {
+        String imageUrl = s3Uploader.uploadFile(imageFile);  // S3 업로드 후 URL 반환
+        return CompletableFuture.completedFuture(imageUrl);
     }
 
-    private Product getProduct(final Long productId) {
-        return productRepository.findById(productId)
-                .orElseThrow(() -> new IllegalArgumentException(Setting.PRODUCT_NOT_FOUND.toString()));
+    // 기타 서비스 메서드
+    public List<ProductResponse> getProductsByTagName(String tagName) {
+        return productRepository.findByTagName(tagName).stream()
+                .map(p -> new ProductResponse(p.getId(), p.getName(), p.getDescription(), p.getPrice(), p.getCategory().getName(), p.getImage()))
+                .collect(Collectors.toList());
     }
 
+    public List<CategoryResponse> getAllCategories() {
+        return categoryRepository.findAll().stream()
+                .map(cat -> new CategoryResponse(cat.getId(), cat.getName()))
+                .collect(Collectors.toList());
+    }
+
+    public List<ProductResponse> getProductsByCategory(Long categoryId) {
+        return productRepository.findByCategoryId(categoryId).stream()
+                .map(p -> new ProductResponse(p.getId(), p.getName(), p.getDescription(), p.getPrice(), p.getCategory().getName(), p.getImage()))
+                .collect(Collectors.toList());
+    }
+
+    public ProductResponse getProductDetail(Long productId) {
+        Product product = getProduct(productId);
+        return new ProductResponse(product.getId(), product.getName(), product.getDescription(), product.getPrice(), product.getCategory().getName(), product.getImage());
+    }
 
     public void deleteProduct(Long productId) {
         Product product = getProduct(productId);
         productRepository.delete(product);
     }
 
-    private record Result(Product product, Category category) {
+    // 카테고리 조회
+    private Category getCategory(final ProductRequest request) {
+        return categoryRepository.findById(request.getCategoryId())
+                .orElseThrow(() -> new IllegalArgumentException(Setting.CATEGORY_NOT_FOUND.toString()));
     }
 
+    // 상품 조회
+    private Product getProduct(final Long productId) {
+        return productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException(Setting.PRODUCT_NOT_FOUND.toString()));
+    }
+
+    // 상품 빌더
+    private static Product getProduct(final Product.ProductBuilder builder, final ProductRequest request, final Category category, final String imageUrl) {
+        return builder
+                .name(request.getName())
+                .description(request.getDescription())
+                .price(request.getPrice())
+                .category(category)
+                .tagName(request.getTag())
+                .image(imageUrl)
+                .build();
+    }
+
+    // 결과 클래스 (상품, 카테고리)
+    private record Result(Product product, Category category) {
+    }
 }
