@@ -9,40 +9,45 @@ version = '0.0.1-SNAPSHOT'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)  // Java 20으로 변경
+        languageVersion = JavaLanguageVersion.of(17)
     }
 }
 
 repositories {
     mavenCentral()
 }
+
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-mail'
-
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
-    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'com.fasterxml.jackson.core:jackson-core'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
+    implementation 'com.auth0:java-jwt:4.2.1'
+    implementation 'org.json:json:20231013'
+
+    // Lombok
     compileOnly 'org.projectlombok:lombok:1.18.30'
     annotationProcessor 'org.projectlombok:lombok:1.18.30'
+
+    // AWS S3
+    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.603'
+
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'com.h2database:h2'
     runtimeOnly 'com.mysql:mysql-connector-j'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    implementation 'org.json:json:20231013'
-    implementation 'com.fasterxml.jackson.core:jackson-databind'
-    implementation 'com.fasterxml.jackson.core:jackson-core'
-    implementation 'com.fasterxml.jackson.core:jackson-annotations'
-    implementation 'org.springframework.boot:spring-boot-starter-websocket'
-
-    // jwt
-    implementation 'com.auth0:java-jwt:4.2.1'
-
 }
+
 tasks.named('test') {
     useJUnitPlatform()
 }

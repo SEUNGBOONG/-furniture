@@ -17,13 +17,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-
+import java.util.concurrent.CompletableFuture;
 @RestController
 @RequestMapping("/products")
 @RequiredArgsConstructor
@@ -31,11 +32,24 @@ public class ProductController {
 
     private final ProductService productService;
 
-    @PostMapping
-    public ResponseEntity<String> createProduct(@RequestBody ProductRequest dto, @Member Long memberId) {
+    @PostMapping(consumes = "multipart/form-data")
+    public ResponseEntity<String> createProduct(
+            @RequestPart("product") ProductRequest dto,
+            @RequestPart("image") MultipartFile image,
+            @Member Long memberId) {
+        // 관리자 권한 체크
         ResponseEntity<String> FORBIDDEN = getStringResponseEntity(memberId);
         if (FORBIDDEN != null) return FORBIDDEN;
-        productService.createProduct(dto);
+
+        // 비동기 이미지 업로드
+        CompletableFuture<String> imageUrlFuture = productService.uploadImageAsync(image);
+
+        // 이미지 URL을 비동기적으로 받음
+        String imageUrl = imageUrlFuture.join();  // join()으로 비동기 완료 대기
+
+        // 상품 생성
+        productService.createProduct(dto, imageUrl);
+
         return ResponseEntity.ok(Setting.PRODUCT_CREATE_SUCCESS.toString());
     }
 
@@ -59,27 +73,31 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductDetail(productId));
     }
 
-    @PutMapping("/{productId}")
+    @PutMapping(value = "/{productId}", consumes = "multipart/form-data")
     public ResponseEntity<String> updateProduct(@PathVariable Long productId,
-                                           @RequestBody ProductRequest dto,
-                                           @Member Long memberId) {
+                                                @RequestPart("product") ProductRequest dto,
+                                                @RequestPart("image") MultipartFile image,
+                                                @Member Long memberId) {
+        // 관리자 권한 체크
         ResponseEntity<String> FORBIDDEN = getStringResponseEntity(memberId);
         if (FORBIDDEN != null) return FORBIDDEN;
 
-        productService.updateProduct(productId, dto);
+        // 상품 업데이트
+        productService.updateProduct(productId, dto, image);
         return ResponseEntity.ok(Setting.PRODUCT_UPDATE_SUCCESS.toString());
     }
 
     @DeleteMapping("/{productId}")
     public ResponseEntity<String> deleteProduct(@PathVariable Long productId,
-                                           @Member Long memberId) {
+                                                @Member Long memberId) {
+        // 관리자 권한 체크
         ResponseEntity<String> FORBIDDEN = getStringResponseEntity(memberId);
         if (FORBIDDEN != null) return FORBIDDEN;
 
+        // 상품 삭제
         productService.deleteProduct(productId);
         return ResponseEntity.ok(Setting.PRODUCT_DELETE_SUCCESS.toString());
     }
-
 
     private static ResponseEntity<String> getStringResponseEntity(final Long memberId) {
         if (!memberId.equals(5L)) {
