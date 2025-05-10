@@ -33,4 +33,7 @@ public class Product {
     private Category category;
 
     private String tagName;
+
+    private String image;
+
 }
