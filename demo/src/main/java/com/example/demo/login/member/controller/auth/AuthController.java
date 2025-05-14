@@ -16,12 +16,15 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -37,21 +40,22 @@ public class AuthController {
     private final AuthService authService;
     private final EmailService emailService;
 
-    @PostMapping("/members")
-    public ResponseEntity<?> signUp(@RequestBody SignUpRequest signUpRequest, HttpSession session) {
+    @PostMapping(value = "/members", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> signUp(
+            @RequestPart("signUpRequest") SignUpRequest signUpRequest,
+            @RequestPart(value = "corporationImage", required = false) MultipartFile corporationImage,
+            HttpSession session) {
+
         Boolean isAuthenticated = (Boolean) session.getAttribute(AUTHENTICATED1 + signUpRequest.memberEmail());
 
         if (isAuthenticated == null || !isAuthenticated) {
             return ResponseEntity.status(403).body(Setting.PLEASE_COMPLETE_EMAIL_VERIFICATION_FIRST.toString());
         }
 
-        SignUpResponse response = AuthMapper.toSignUpResponse(authService.signUp(signUpRequest));
-        URI location = URI.create("/members/" + response.id());
-        log.info("회원가입 완료 - ID: {}, 닉네임: {}", response.id(), response.memberNickname());
-
-        // 인증 정보 제거
+        SignUpResponse response = AuthMapper.toSignUpResponse(authService.signUp(signUpRequest, corporationImage));
         session.removeAttribute(AUTHENTICATED1 + signUpRequest.memberEmail());
 
+        URI location = URI.create("/members/" + response.id());
         return ResponseEntity.created(location).body(response);
     }
 
