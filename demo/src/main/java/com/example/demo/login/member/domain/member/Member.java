@@ -8,15 +8,17 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.Objects;
-
-
 @Entity(name = "member")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@Builder
+@AllArgsConstructor
 public class Member {
 
     @Id
@@ -35,12 +37,21 @@ public class Member {
     @Column(nullable = false)
     private String memberNickName;
 
-    public Member(final String memberEmail, final String memberName, final String memberPassword, final String memberNickName) {
-        this.memberEmail = memberEmail;
-        this.memberName = memberName;
-        this.memberPassword = memberPassword;
-        this.memberNickName = memberNickName;
-    }
+    @Column(nullable = false)
+    private String roadAddress;
+
+    @Column(nullable = false)
+    private String jibunAddress;
+
+    @Column(nullable = false)
+    private String zipCode;
+
+    private boolean checkCorporation;
+
+    private String corporationNumber;
+
+    private String corporationImageURL;
+
 
     public void checkPassword(String requestPassword) {
         if (!Objects.equals(memberPassword, requestPassword)) {

@@ -4,6 +4,11 @@ public record SignUpRequest(
         String memberEmail,
         String memberName,
         String memberPassword,
-        String memberNickName
+        String memberNickName,
+        String roadAddress,
+        String jibunAddress,
+        String zipCode,
+        boolean checkCorporation,
+        String corporationNumber
 ) {
 }

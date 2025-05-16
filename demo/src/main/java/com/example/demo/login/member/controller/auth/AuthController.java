@@ -10,18 +10,23 @@ import com.example.demo.login.member.controller.dto.AuthRequestDTO;
 import com.example.demo.login.member.controller.dto.EmailAuthRequestDto;
 import com.example.demo.login.member.mapper.auth.AuthMapper;
 import com.example.demo.login.member.service.auth.AuthService;
+import com.example.demo.login.util.CorporationValidator;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpSession;
+import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -33,27 +38,45 @@ import java.net.URI;
 public class AuthController {
 
     public static final String AUTHENTICATED = "AUTHENTICATED_";
-    public static final String AUTHENTICATED1 = "AUTHENTICATED_";
+    public static final String BUSINESS_CHECK = "사업자인증";
+    public static final String SUCCESS = "인증에 성공했습니다.";
+    public static final String NOT_FOUND_BUSINESS_NUMBER = "없는 사업자 번호입니다.";
+
     private final AuthService authService;
     private final EmailService emailService;
+    private final CorporationValidator corporationValidator;
 
-    @PostMapping("/members")
-    public ResponseEntity<?> signUp(@RequestBody SignUpRequest signUpRequest, HttpSession session) {
-        Boolean isAuthenticated = (Boolean) session.getAttribute(AUTHENTICATED1 + signUpRequest.memberEmail());
+    @PostMapping(value = "/members", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> signUp(
+            @RequestPart("signUpRequest") SignUpRequest signUpRequest,
+            @RequestPart(value = "corporationImage", required = false) MultipartFile corporationImage,
+            HttpSession session) {
+
+        Boolean isAuthenticated = (Boolean) session.getAttribute(AUTHENTICATED + signUpRequest.memberEmail());
 
         if (isAuthenticated == null || !isAuthenticated) {
             return ResponseEntity.status(403).body(Setting.PLEASE_COMPLETE_EMAIL_VERIFICATION_FIRST.toString());
         }
 
-        SignUpResponse response = AuthMapper.toSignUpResponse(authService.signUp(signUpRequest));
+        // 사업자 인증 여부 확인 (유효성 검사 외에 실제 인증 여부 확인 필수)
+        ResponseEntity<String> body = getStringResponseEntity(signUpRequest, session);
+        if (body != null) return body;
+
+        SignUpResponse response = AuthMapper.toSignUpResponse(authService.signUp(signUpRequest, corporationImage));
+        session.removeAttribute(AUTHENTICATED + signUpRequest.memberEmail());
+        session.removeAttribute("CORPORATION_AUTHENTICATED_" + signUpRequest.corporationNumber());
+
         URI location = URI.create("/members/" + response.id());
-        log.info("회원가입 완료 - ID: {}, 닉네임: {}", response.id(), response.memberNickname());
-
-        // 인증 정보 제거
-        session.removeAttribute(AUTHENTICATED1 + signUpRequest.memberEmail());
-
         return ResponseEntity.created(location).body(response);
     }
+
+
+    @PostMapping("/validate-corporation")
+    public ResponseEntity<String> validateCorporationNumber(@RequestBody BusinessNumberRequest request, HttpSession session) {
+        String businessNumber = request.getBusinessNumber();
+        return getStringResponseEntity(session, businessNumber);
+    }
+
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
@@ -81,11 +104,9 @@ public class AuthController {
         // 이메일 주소로 세션에서 인증 코드 가져오기
         String storedCode = (String) session.getAttribute(request.getEmail());
 
-        // 세션에서 가져온 인증 코드 로그로 출력하여 확인
-        // 입력한 코드와 세션에 저장된 코드 비교
         if (storedCode != null && storedCode.equals(request.getAuthCode())) {
             session.removeAttribute(request.getEmail());  // 인증 성공 후 세션에서 인증 코드 삭제
-            session.setAttribute(AUTHENTICATED1 + request.getEmail(), true);  // 인증 완료 상태 저장
+            session.setAttribute(AUTHENTICATED + request.getEmail(), true);  // 인증 완료 상태 저장
             return ResponseEntity.ok(Setting.SUCCEED_CERTIFICATION_NUMBER.toString());
         }
 
@@ -93,13 +114,38 @@ public class AuthController {
         return ResponseEntity.badRequest().body(Setting.FAIL_CERTIFICATION_NUMBER.toString());
     }
 
+    private ResponseEntity<String> getStringResponseEntity(final HttpSession session, final String businessNumber) {
+        boolean isValid = corporationValidator.isValidCorporationNumber(businessNumber);
 
-    // EmailRequest 클래스
+        if (isValid) {
+            session.setAttribute(BUSINESS_CHECK + businessNumber, true);  // 사업자 인증 완료 플래그 세션에 저장
+            return ResponseEntity.ok(SUCCESS);
+        } else {
+            return ResponseEntity.badRequest().body(NOT_FOUND_BUSINESS_NUMBER);
+        }
+    }
+    private static ResponseEntity<String> getStringResponseEntity(final SignUpRequest signUpRequest, final HttpSession session) {
+        Boolean isCorpAuthenticated = (Boolean) session.getAttribute("CORPORATION_AUTHENTICATED_" + signUpRequest.corporationNumber());
+        if (signUpRequest.checkCorporation()) {  // 사업자인 경우만 검사
+            if (isCorpAuthenticated == null || !isCorpAuthenticated) {
+                return ResponseEntity.status(403).body("사업자 인증을 먼저 완료해주세요.");
+            }
+        }
+        return null;
+    }
+
     @Getter
     public static class EmailRequest {
+
         private String email;
+
         public void setEmail(String email) {
             this.email = email;
         }
+    }
+    @Data
+    public static class BusinessNumberRequest {
+        private String businessNumber;
+
     }
 }
