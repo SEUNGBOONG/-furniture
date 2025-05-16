@@ -1,6 +1,6 @@
 package com.example.demo.login.member.service.auth;
 
-
+import com.example.demo.config.s3.S3Uploader;
 import com.example.demo.login.member.controller.auth.dto.LoginRequest;
 import com.example.demo.login.member.controller.auth.dto.LoginResponse;
 import com.example.demo.login.member.controller.auth.dto.SignUpRequest;
@@ -15,11 +15,12 @@ import com.example.demo.login.member.exception.exceptions.auth.NotFoundMemberByE
 import com.example.demo.login.member.infrastructure.auth.JwtTokenProvider;
 import com.example.demo.login.member.infrastructure.member.MemberJpaRepository;
 
-
 import com.example.demo.login.member.mapper.auth.AuthMapper;
+import com.example.demo.login.util.CorporationValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.regex.Pattern;
 
@@ -31,18 +32,35 @@ public class AuthService {
 
     private final MemberJpaRepository memberJpaRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final CorporationValidator corporationValidator;
+    private final S3Uploader s3Uploader;
+
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
 
-    @Transactional
-    public Member signUp(SignUpRequest signUpRequest) {
+    public Member signUp(SignUpRequest signUpRequest, MultipartFile corporationImage) {
         validateSignupRequestFormat(signUpRequest);
         validateEmailFormat(signUpRequest.memberEmail());
         checkPasswordLength(signUpRequest.memberPassword());
-        Member member = AuthMapper.toMember(signUpRequest);
-        checkDuplicateMemberNickName(member.getMemberNickName());
-        checkDuplicateMemberEmail(member.getMemberEmail());
+        checkDuplicateMemberNickName(signUpRequest.memberNickName());
+        checkDuplicateMemberEmail(signUpRequest.memberEmail());
 
+        if (signUpRequest.checkCorporation()) {
+            checkBusinessNumber(signUpRequest, corporationImage);
+            return checkBusinessMember(signUpRequest, corporationImage);
+        }
+
+        Member member = AuthMapper.toNormalMember(signUpRequest);
         return memberJpaRepository.save(member);
+    }
+
+    @Transactional(readOnly = true)
+    public LoginResponse login(LoginRequest loginRequest) {
+        validateLoginRequestFormat(loginRequest);
+        Member member = findMemberByEmail(loginRequest.memberEmail());
+        member.checkPassword(loginRequest.memberPassword());
+
+        String token = jwtTokenProvider.createToken(member.getId());
+        return AuthMapper.toLoginResponse(token, member);
     }
 
     private void validateSignupRequestFormat(SignUpRequest signUpRequest) {
@@ -67,6 +85,22 @@ public class AuthService {
         }
     }
 
+    private Member checkBusinessMember(final SignUpRequest signUpRequest, final MultipartFile corporationImage) {
+        String imageUrl = s3Uploader.uploadFile(corporationImage);
+        Member member = AuthMapper.toMember(signUpRequest, imageUrl);
+        return memberJpaRepository.save(member);
+    }
+
+    private void checkBusinessNumber(final SignUpRequest signUpRequest, final MultipartFile corporationImage) {
+        if (!corporationValidator.isValidCorporationNumber(signUpRequest.corporationNumber())) {
+            throw new IllegalArgumentException("유효하지 않은 사업자등록번호입니다.");
+        }
+
+        if (corporationImage == null || corporationImage.isEmpty()) {
+            throw new IllegalArgumentException("사업자등록증 이미지를 첨부해주세요.");
+        }
+    }
+
     private void checkDuplicateMemberEmail(String email) {
         if (memberJpaRepository.existsByMemberEmail(email)) {
             throw new DuplicateEmailException();
@@ -77,16 +111,6 @@ public class AuthService {
         if (password.length() <= 7) {
             throw new InvalidPasswordFormatException();
         }
-    }
-
-    @Transactional(readOnly = true)
-    public LoginResponse login(LoginRequest loginRequest) {
-        validateLoginRequestFormat(loginRequest);
-        Member member = findMemberByEmail(loginRequest.memberEmail());
-        member.checkPassword(loginRequest.memberPassword());
-
-        String token = jwtTokenProvider.createToken(member.getId());
-        return AuthMapper.toLoginResponse(token, member);
     }
 
 
