@@ -33,13 +33,13 @@ import java.net.URI;
 public class AuthController {
 
     public static final String AUTHENTICATED = "AUTHENTICATED_";
-    public static final String AUTHENTICATED1 = "AUTHENTICATED_";
+
     private final AuthService authService;
     private final EmailService emailService;
 
     @PostMapping("/members")
     public ResponseEntity<?> signUp(@RequestBody SignUpRequest signUpRequest, HttpSession session) {
-        Boolean isAuthenticated = (Boolean) session.getAttribute(AUTHENTICATED1 + signUpRequest.memberEmail());
+        Boolean isAuthenticated = (Boolean) session.getAttribute(AUTHENTICATED + signUpRequest.memberEmail());
 
         if (isAuthenticated == null || !isAuthenticated) {
             return ResponseEntity.status(403).body(Setting.PLEASE_COMPLETE_EMAIL_VERIFICATION_FIRST.toString());
@@ -50,7 +50,7 @@ public class AuthController {
         log.info("회원가입 완료 - ID: {}, 닉네임: {}", response.id(), response.memberNickname());
 
         // 인증 정보 제거
-        session.removeAttribute(AUTHENTICATED1 + signUpRequest.memberEmail());
+        session.removeAttribute(AUTHENTICATED + signUpRequest.memberEmail());
 
         return ResponseEntity.created(location).body(response);
     }
@@ -85,7 +85,7 @@ public class AuthController {
         // 입력한 코드와 세션에 저장된 코드 비교
         if (storedCode != null && storedCode.equals(request.getAuthCode())) {
             session.removeAttribute(request.getEmail());  // 인증 성공 후 세션에서 인증 코드 삭제
-            session.setAttribute(AUTHENTICATED1 + request.getEmail(), true);  // 인증 완료 상태 저장
+            session.setAttribute(AUTHENTICATED + request.getEmail(), true);  // 인증 완료 상태 저장
             return ResponseEntity.ok(Setting.SUCCEED_CERTIFICATION_NUMBER.toString());
         }
 
