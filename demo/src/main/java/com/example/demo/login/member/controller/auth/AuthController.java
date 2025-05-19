@@ -11,8 +11,10 @@ import com.example.demo.login.member.controller.dto.EmailAuthRequestDto;
 import com.example.demo.login.member.mapper.auth.AuthMapper;
 import com.example.demo.login.member.service.auth.AuthService;
 import com.example.demo.login.util.CorporationValidator;
+
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpSession;
+
 import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
