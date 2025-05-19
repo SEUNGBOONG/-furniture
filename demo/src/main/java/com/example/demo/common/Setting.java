@@ -29,9 +29,10 @@ public enum Setting {
     SET_SUBJECT("새로운 온라인 문의가 도착했습니다"),
     CONTACT_SUCCEED_MAIL("문의가 성공적으로 전송되었습니다."),
     CONTACT_FAILED_MAIL("문의 전송 중 오류가 발생했습니다."),
-    CATEGORY_NOT_FOUND("존재하지 않는 카테고리입니다.");
+    CATEGORY_NOT_FOUND("존재하지 않는 카테고리입니다."),
 
     //
+    AUTHENTICATED("AUTHENTICATED_");
 
 
     private final String setting;

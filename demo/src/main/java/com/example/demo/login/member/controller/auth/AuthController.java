@@ -43,6 +43,8 @@ public class AuthController {
     public static final String BUSINESS_CHECK = "사업자인증";
     public static final String SUCCESS = "인증에 성공했습니다.";
     public static final String NOT_FOUND_BUSINESS_NUMBER = "없는 사업자 번호입니다.";
+    public static final String PLEASE_COMPLETE_THE_BUSINESS_CERTIFICATION_FIRST = "사업자 인증을 먼저 완료해주세요.";
+    public static final String CORPORATION_AUTHENTICATED = "CORPORATION_AUTHENTICATED_";
 
     private final AuthService authService;
     private final EmailService emailService;
@@ -78,8 +80,7 @@ public class AuthController {
         String businessNumber = request.getBusinessNumber();
         return getStringResponseEntity(session, businessNumber);
     }
-
-
+    
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
         LoginResponse loginResponse = authService.login(loginRequest);
@@ -127,10 +128,10 @@ public class AuthController {
         }
     }
     private static ResponseEntity<String> getStringResponseEntity(final SignUpRequest signUpRequest, final HttpSession session) {
-        Boolean isCorpAuthenticated = (Boolean) session.getAttribute("CORPORATION_AUTHENTICATED_" + signUpRequest.corporationNumber());
+        Boolean isCorpAuthenticated = (Boolean) session.getAttribute(CORPORATION_AUTHENTICATED + signUpRequest.corporationNumber());
         if (signUpRequest.checkCorporation()) {  // 사업자인 경우만 검사
             if (isCorpAuthenticated == null || !isCorpAuthenticated) {
-                return ResponseEntity.status(403).body("사업자 인증을 먼저 완료해주세요.");
+                return ResponseEntity.status(403).body(PLEASE_COMPLETE_THE_BUSINESS_CERTIFICATION_FIRST);
             }
         }
         return null;
