@@ -15,9 +15,7 @@ public class AddressApiResponse {
     public static class Results {
         private List<Juso> juso;
 
-
     }
-
 
     @Data
     public static class Juso {
