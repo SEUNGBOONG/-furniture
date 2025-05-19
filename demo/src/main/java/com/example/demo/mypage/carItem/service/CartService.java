@@ -27,7 +27,7 @@ public class CartService {
     private final MemberJpaRepository memberRepository;
 
     public void addToCart(Long productId, int quantity, Long memberId) {
-        Product product = findPorduct(productId);
+        Product product = findProduct(productId);
         Member member = findMemberId(memberId);
 
         CartItem cartItem = findCartItemProductId(member, product);
@@ -56,7 +56,7 @@ public class CartService {
                 .orElseThrow(() -> new RuntimeException(NOT_FOUND_MEMBER));
     }
 
-    private Product findPorduct(final Long productId) {
+    private Product findProduct(final Long productId) {
         return productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException(NOT_FOUND_PRODUCT));
     }
