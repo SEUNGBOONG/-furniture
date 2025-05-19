@@ -53,7 +53,7 @@ public class CorporationValidator {
                 JSONObject jsonResponse = new JSONObject(response.getBody());
                 JSONArray dataArray = jsonResponse.getJSONArray(DATA);
 
-                if (dataArray.length() > 0) {
+                if (!dataArray.isEmpty()) {
                     JSONObject businessInfo = dataArray.getJSONObject(0);
                     String status = businessInfo.getString(B_STT);
 
