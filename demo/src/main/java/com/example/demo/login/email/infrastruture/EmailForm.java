@@ -28,6 +28,10 @@ public class EmailForm {
     }
 
     public MimeMessage createEmailForm(String email, String authNum) throws MessagingException, UnsupportedEncodingException {
+        return getMimeMessage(email, authNum);
+    }
+
+    private MimeMessage getMimeMessage(final String email, final String authNum) throws MessagingException {
         MimeMessage message = emailSender.createMimeMessage();
         message.addRecipients(MimeMessage.RecipientType.TO, email);
         message.setSubject(String.valueOf(Setting.AUTH_NUMBER));
