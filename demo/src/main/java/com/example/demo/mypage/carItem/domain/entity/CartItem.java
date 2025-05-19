@@ -40,4 +40,12 @@ public class CartItem {
     public int getTotalPrice() {
         return product.getPrice() * quantity;
     }
+
+    public void changeQuantity(int newQuantity) {
+        if (newQuantity < 0) {
+            throw new IllegalArgumentException("수량은 음수가 될 수 없습니다.");
+        }
+        this.quantity = newQuantity;
+    }
+
 }
