@@ -29,12 +29,37 @@ public class CartService {
     public void addToCart(Long productId, int quantity, Long memberId) {
         Product product = findProduct(productId);
         Member member = findMemberId(memberId);
-
         CartItem cartItem = findCartItemProductId(member, product);
 
         cartItem.increaseQuantity(quantity);
         cartItemRepository.save(cartItem);
     }
+
+    public void updateQuantityByCartItemId(Long memberId, Long cartItemId, int newQuantity) {
+        Member member = findMemberId(memberId);
+        CartItem cartItem = getCartItem(cartItemId, member);
+        validateUpdateQuantity(newQuantity, cartItem);
+    }
+
+    private void validateUpdateQuantity(final int newQuantity, final CartItem cartItem) {
+        if (newQuantity <= 0) {
+            cartItemRepository.delete(cartItem);
+        } else {
+            cartItem.changeQuantity(newQuantity);
+            cartItemRepository.save(cartItem);
+        }
+    }
+
+    private CartItem getCartItem(final Long cartItemId, final Member member) {
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new RuntimeException("장바구니 아이템이 없습니다."));
+
+        if (!cartItem.getMember().equals(member)) {
+            throw new RuntimeException("해당 회원의 장바구니 아이템이 아닙니다.");
+        }
+        return cartItem;
+    }
+
 
     public List<CartItem> getCartItems(Long memberId) {
         return cartItemRepository.findAllByMemberId(memberId);
