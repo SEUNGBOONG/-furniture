@@ -45,7 +45,6 @@ public class AuthController {
     public static final String NOT_FOUND_BUSINESS_NUMBER = "없는 사업자 번호입니다.";
     public static final String PLEASE_COMPLETE_THE_BUSINESS_CERTIFICATION_FIRST = "사업자 인증을 먼저 완료해주세요.";
     public static final String CORPORATION_AUTHENTICATED = "CORPORATION_AUTHENTICATED_";
-    public static final String CORPORATION_AUTHENTICATED1 = "CORPORATION_AUTHENTICATED_";
 
     private final AuthService authService;
     private final EmailService emailService;
@@ -69,7 +68,7 @@ public class AuthController {
 
         SignUpResponse response = AuthMapper.toSignUpResponse(authService.signUp(signUpRequest, corporationImage));
         session.removeAttribute(AUTHENTICATED + signUpRequest.memberEmail());
-        session.removeAttribute(CORPORATION_AUTHENTICATED1 + signUpRequest.corporationNumber());
+        session.removeAttribute(CORPORATION_AUTHENTICATED + signUpRequest.corporationNumber());
 
         URI location = URI.create("/members/" + response.id());
         return ResponseEntity.created(location).body(response);
