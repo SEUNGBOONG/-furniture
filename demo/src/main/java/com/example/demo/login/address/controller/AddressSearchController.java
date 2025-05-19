@@ -15,7 +15,6 @@ public class AddressSearchController {
         this.service = service;
     }
 
-    // POST 방식으로 JSON 데이터를 받음
     @PostMapping("/search")
     public AddressApiResponse.Juso getAddress(@RequestBody AddressKeyword keyword) {
         return service.search(keyword.getKeyword());

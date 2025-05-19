@@ -7,16 +7,13 @@ import java.util.Random;
 @Component
 public class EmailCode {
 
+    private static final String CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
     public String createCode() {
         Random random = new Random();
-        StringBuilder key = new StringBuilder();
+        StringBuilder key = new StringBuilder(8);
         for (int i = 0; i < 8; i++) {
-            int index = random.nextInt(3);
-            switch (index) {
-                case 0: key.append((char) (random.nextInt(26) + 97)); break;
-                case 1: key.append((char) (random.nextInt(26) + 65)); break;
-                case 2: key.append(random.nextInt(10)); break;
-            }
+            key.append(CHARACTERS.charAt(random.nextInt(CHARACTERS.length())));
         }
         return key.toString();
     }
