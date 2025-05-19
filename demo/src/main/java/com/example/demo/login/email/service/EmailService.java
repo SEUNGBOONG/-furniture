@@ -32,5 +32,4 @@ public class EmailService {
         return authNum;
     }
 
-
 }
