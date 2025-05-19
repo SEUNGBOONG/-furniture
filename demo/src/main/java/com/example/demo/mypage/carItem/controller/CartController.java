@@ -57,14 +57,12 @@ public class CartController {
         return ResponseEntity.ok(new CartSummaryResponse(items, totalAmount));
     }
 
-    // ✅ DELETE /cart/clear
     @DeleteMapping("/clear")
     public ResponseEntity<Void> clearCart(@Member Long memberId) {
         cartService.clearCart(memberId);
         return ResponseEntity.ok().build();
     }
 
-    // ✅ DELETE /cart/delete
     @DeleteMapping("/delete")
     public ResponseEntity<Void> deleteSelectedItems(@Member Long memberId,
                                                     @RequestBody CartItemDeleteRequest request) {

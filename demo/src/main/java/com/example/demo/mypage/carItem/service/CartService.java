@@ -62,11 +62,12 @@ public class CartService {
     }
 
     private CartItem findCartItemProductId(final Member member, final Product product) {
-        return cartItemRepository.findByMemberAndProduct(member, product)
+        return cartItemRepository.findByMemberAndProductWithFetch(member, product)
                 .orElse(CartItem.builder()
                         .member(member)
                         .product(product)
                         .quantity(0)
                         .build());
     }
+
 }
