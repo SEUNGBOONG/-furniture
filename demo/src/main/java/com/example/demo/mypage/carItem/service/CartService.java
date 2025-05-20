@@ -1,0 +1,101 @@
+package com.example.demo.mypage.carItem.service;
+
+import com.example.demo.common.exception.CartItemAlreadyExistsException;
+import com.example.demo.common.exception.CartItemNotFoundException;
+import com.example.demo.common.exception.NotFoundMemberException;
+import com.example.demo.login.member.domain.member.Member;
+
+import com.example.demo.login.member.infrastructure.member.MemberJpaRepository;
+
+import com.example.demo.mypage.carItem.domain.entity.CartItem;
+import com.example.demo.mypage.carItem.domain.repository.CartItemRepository;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class CartService {
+
+    private final CartItemRepository cartItemRepository;
+    private final MemberJpaRepository memberRepository;
+
+    public void addToCart(Long productId, int quantity, Long memberId) {
+        Long exists = cartItemRepository.existsCartItem(memberId, productId);
+        if (exists != null && exists == 1L) {
+            throw new CartItemAlreadyExistsException();
+        }
+        cartItemRepository.upsertCartItem(productId, memberId, quantity);
+    }
+
+    public void increaseQuantity(Long memberId, Long cartItemId) {
+        int updated = cartItemRepository.updateQuantityByAmount(cartItemId, memberId, 1);
+        if (updated == 0) {
+            throw new RuntimeException();
+        }
+    }
+
+    public void decreaseQuantity(Long memberId, Long cartItemId) {
+        int updated = cartItemRepository.updateQuantityByAmount(cartItemId, memberId, -1);
+        if (updated == 0) {
+            throw new RuntimeException();
+        }
+        validateCartItem(cartItemId);
+    }
+
+    private void validateCartItem(final Long cartItemId) {
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(CartItemNotFoundException::new);
+        if (cartItem.getQuantity() <= 0) {
+            cartItemRepository.delete(cartItem);
+        }
+    }
+
+    public void updateQuantityByCartItemId(Long memberId, Long cartItemId, int newQuantity) {
+        Member member = findMemberId(memberId);
+        CartItem cartItem = getCartItem(cartItemId, member);
+        validateUpdateQuantity(newQuantity, cartItem);
+    }
+
+    public List<CartItem> getCartItems(Long memberId) {
+        return cartItemRepository.findDistinctByMemberId(memberId);
+    }
+
+    public void clearCart(Long memberId) {
+        cartItemRepository.deleteByMemberId(memberId);
+    }
+
+    public void deleteSelectedItems(Long memberId, List<Long> productIds) {
+        Member member = findMemberId(memberId);
+
+        List<CartItem> items = cartItemRepository.findByMemberAndProductIdIn(member, productIds);
+        cartItemRepository.deleteAll(items);
+    }
+
+    private void validateUpdateQuantity(final int newQuantity, final CartItem cartItem) {
+        if (newQuantity <= 0) {
+            cartItemRepository.delete(cartItem);
+        } else {
+            cartItem.changeQuantity(newQuantity);
+            cartItemRepository.save(cartItem);
+        }
+    }
+
+    private CartItem getCartItem(final Long cartItemId, final Member member) {
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(CartItemNotFoundException::new);
+
+        if (!cartItem.getMember().equals(member)) {
+            throw new CartItemNotFoundException();
+        }
+        return cartItem;
+    }
+
+    private Member findMemberId(final Long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(NotFoundMemberException::new);
+    }
+
+}
