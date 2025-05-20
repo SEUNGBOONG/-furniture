@@ -6,6 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class CartItemResponse {
+    private Long cartItemId;  // 추가됨
     private Long productId;
     private String productName;
     private int price;
