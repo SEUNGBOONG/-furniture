@@ -14,13 +14,16 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
 public class CartItem {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -33,19 +36,15 @@ public class CartItem {
 
     private int quantity;
 
-    public void increaseQuantity(int quantity) {
-        this.quantity += quantity;
-    }
-
-    public int getTotalPrice() {
-        return product.getPrice() * quantity;
-    }
-
     public void changeQuantity(int newQuantity) {
         if (newQuantity < 0) {
             throw new IllegalArgumentException("수량은 음수가 될 수 없습니다.");
         }
         this.quantity = newQuantity;
+    }
+
+    public int getTotalPrice() {
+        return product.getPrice() * quantity;
     }
 
 }
