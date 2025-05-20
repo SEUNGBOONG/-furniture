@@ -1,6 +1,8 @@
 package com.example.demo.login.member.service.auth;
 
 import com.example.demo.config.s3.S3Uploader;
+import com.example.demo.login.global.exception.PleaseAttachImage;
+import com.example.demo.login.global.exception.exceptions.InvalidRegistrationNumber;
 import com.example.demo.login.member.controller.auth.dto.LoginRequest;
 import com.example.demo.login.member.controller.auth.dto.LoginResponse;
 import com.example.demo.login.member.controller.auth.dto.SignUpRequest;
@@ -93,11 +95,11 @@ public class AuthService {
 
     private void checkBusinessNumber(final SignUpRequest signUpRequest, final MultipartFile corporationImage) {
         if (!corporationValidator.isValidCorporationNumber(signUpRequest.corporationNumber())) {
-            throw new IllegalArgumentException("유효하지 않은 사업자등록번호입니다.");
+            throw new InvalidRegistrationNumber();
         }
 
         if (corporationImage == null || corporationImage.isEmpty()) {
-            throw new IllegalArgumentException("사업자등록증 이미지를 첨부해주세요.");
+            throw new PleaseAttachImage();
         }
     }
 

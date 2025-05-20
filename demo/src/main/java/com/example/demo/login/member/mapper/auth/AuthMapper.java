@@ -36,7 +36,6 @@ public class AuthMapper {
                 .build();
     }
 
-
     public static SignUpResponse toSignUpResponse(Member member) {
         return new SignUpResponse(member.getId(), member.getMemberName(), member.getMemberEmail(),
                 member.getMemberPassword(), member.getMemberNickName());
