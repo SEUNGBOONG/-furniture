@@ -1,4 +1,4 @@
-package com.example.demo.online.service;
+package com.example.demo.online.util;
 
 import com.example.demo.common.Setting;
 import com.example.demo.online.controller.dto.ContactRequest;
@@ -7,11 +7,11 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-@Service
+@Component
 @RequiredArgsConstructor
-public class ContactEmailService {
+public class ContactEmailUtil {
 
     private final JavaMailSender mailSender;
 
@@ -19,7 +19,7 @@ public class ContactEmailService {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-        helper.setTo(Setting.EMAIL.toString()); // 관리자 이메일
+        helper.setTo(Setting.EMAIL.toString());
         helper.setFrom(Setting.EMAIL.toString());
         helper.setSubject(Setting.SET_SUBJECT.toString());
         String content = getString(request);

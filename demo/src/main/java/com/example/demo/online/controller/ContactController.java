@@ -2,7 +2,7 @@ package com.example.demo.online.controller;
 
 import com.example.demo.common.Setting;
 import com.example.demo.online.controller.dto.ContactRequest;
-import com.example.demo.online.service.ContactEmailService;
+import com.example.demo.online.util.ContactEmailUtil;
 
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ContactController {
 
-    private final ContactEmailService emailService;
+    private final ContactEmailUtil emailService;
 
     @PostMapping
     public ResponseEntity<String> submitContactForm(@RequestBody ContactRequest request) {
