@@ -1,7 +1,7 @@
 package com.example.demo.login.member.controller.auth;
 
 import com.example.demo.common.Setting;
-import com.example.demo.login.email.service.EmailService;
+import com.example.demo.login.email.util.EmailSenderUtil;
 import com.example.demo.login.member.controller.auth.dto.ChangePasswordRequest;
 import com.example.demo.login.member.controller.auth.dto.LoginRequest;
 import com.example.demo.login.member.controller.auth.dto.LoginResponse;
@@ -48,7 +48,7 @@ public class AuthController {
     public static final String CORPORATION_AUTHENTICATED = "CORPORATION_AUTHENTICATED_";
 
     private final AuthService authService;
-    private final EmailService emailService;
+    private final EmailSenderUtil emailSenderUtil;
     private final CorporationValidator corporationValidator;
 
     @PostMapping(value = "/members", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -93,7 +93,7 @@ public class AuthController {
     public ResponseEntity<String> sendAuthCode(@RequestBody EmailAuthRequestDto emailDto, HttpSession session)
             throws MessagingException, UnsupportedEncodingException {
         // 이메일로 인증 코드 전송
-        String code = emailService.sendEmail(emailDto.getEmail(), session);
+        String code = emailSenderUtil.sendEmail(emailDto.getEmail(), session);
 
         // 인증 코드 저장 (이메일을 키로 사용)
         session.setAttribute(emailDto.getEmail(), code);
