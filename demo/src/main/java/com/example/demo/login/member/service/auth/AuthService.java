@@ -1,6 +1,7 @@
 package com.example.demo.login.member.service.auth;
 
 import com.example.demo.config.s3.S3Uploader;
+import com.example.demo.login.email.service.EmailService;
 import com.example.demo.login.global.exception.PleaseAttachImage;
 import com.example.demo.login.global.exception.exceptions.InvalidRegistrationNumber;
 import com.example.demo.login.member.controller.auth.dto.LoginRequest;
@@ -14,16 +15,19 @@ import com.example.demo.login.member.exception.exceptions.auth.InvalidLoginReque
 import com.example.demo.login.member.exception.exceptions.auth.InvalidPasswordFormatException;
 import com.example.demo.login.member.exception.exceptions.auth.InvalidSignUpRequestException;
 import com.example.demo.login.member.exception.exceptions.auth.NotFoundMemberByEmailException;
+import com.example.demo.login.member.exception.exceptions.auth.NotSamePasswordException;
 import com.example.demo.login.member.infrastructure.auth.JwtTokenProvider;
 import com.example.demo.login.member.infrastructure.member.MemberJpaRepository;
-
 import com.example.demo.login.member.mapper.auth.AuthMapper;
 import com.example.demo.login.util.CorporationValidator;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.UnsupportedEncodingException;
+import java.util.Random;
 import java.util.regex.Pattern;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
@@ -63,6 +67,16 @@ public class AuthService {
 
         String token = jwtTokenProvider.createToken(member.getId());
         return AuthMapper.toLoginResponse(token, member);
+    }
+
+    @Transactional
+    public void changePassword(String email,String newPassword, String newPasswordConfirm) {
+        Member member = findMemberByEmail(email);
+        if (!newPassword.equals(newPasswordConfirm)) {
+            throw new NotSamePasswordException();
+        }
+        checkPasswordLength(newPassword);
+        member.updatePassword(newPassword);
     }
 
     private void validateSignupRequestFormat(SignUpRequest signUpRequest) {
@@ -114,7 +128,6 @@ public class AuthService {
             throw new InvalidPasswordFormatException();
         }
     }
-
 
     private void validateLoginRequestFormat(LoginRequest loginRequest) {
         if (loginRequest == null ||
