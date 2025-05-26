@@ -2,6 +2,7 @@ package com.example.demo.login.member.controller.auth;
 
 import com.example.demo.common.Setting;
 import com.example.demo.login.email.service.EmailService;
+import com.example.demo.login.member.controller.auth.dto.ChangePasswordRequest;
 import com.example.demo.login.member.controller.auth.dto.LoginRequest;
 import com.example.demo.login.member.controller.auth.dto.LoginResponse;
 import com.example.demo.login.member.controller.auth.dto.SignUpRequest;
@@ -101,9 +102,8 @@ public class AuthController {
         return ResponseEntity.ok(Setting.SUCCEED_SENDER_CERTIFICATION_NUMBER.toString());
     }
 
-
     @PostMapping("/verify-auth-code")
-    public ResponseEntity<String> verifyAuthCode(@RequestBody AuthRequestDTO request, HttpSession session) {
+    public ResponseEntity<String> verifyPasswordCode(@RequestBody AuthRequestDTO request, HttpSession session) {
         // 이메일 주소로 세션에서 인증 코드 가져오기
         String storedCode = (String) session.getAttribute(request.getEmail());
 
@@ -117,6 +117,36 @@ public class AuthController {
         return ResponseEntity.badRequest().body(Setting.FAIL_CERTIFICATION_NUMBER.toString());
     }
 
+    @PostMapping("/change-password")
+    public ResponseEntity<String> changePassword(@RequestBody ChangePasswordRequest request, HttpSession session) {
+        Boolean isAuthenticated = (Boolean) session.getAttribute(AuthController.AUTHENTICATED + request.getEmail());
+
+        if (isAuthenticated == null || !isAuthenticated) {
+            return ResponseEntity.status(403).body("이메일 인증을 먼저 완료해주세요.");
+        }
+
+        authService.changePassword(
+                request.getEmail(),
+                request.getNewPassword(),
+                request.getNewPasswordConfirm()
+        );
+
+        session.removeAttribute(AuthController.AUTHENTICATED + request.getEmail()); // 인증 플래그 삭제
+
+        return ResponseEntity.ok("비밀번호가 성공적으로 변경되었습니다.");
+    }
+
+
+    private static ResponseEntity<String> getStringResponseEntity(final SignUpRequest signUpRequest, final HttpSession session) {
+        Boolean isCorpAuthenticated = (Boolean) session.getAttribute(CORPORATION_AUTHENTICATED + signUpRequest.corporationNumber());
+        if (signUpRequest.checkCorporation()) {  // 사업자인 경우만 검사
+            if (isCorpAuthenticated == null || !isCorpAuthenticated) {
+                return ResponseEntity.status(403).body(PLEASE_COMPLETE_THE_BUSINESS_CERTIFICATION_FIRST);
+            }
+        }
+        return null;
+    }
+
     private ResponseEntity<String> getStringResponseEntity(final HttpSession session, final String businessNumber) {
         boolean isValid = corporationValidator.isValidCorporationNumber(businessNumber);
 
@@ -127,14 +157,11 @@ public class AuthController {
             return ResponseEntity.badRequest().body(NOT_FOUND_BUSINESS_NUMBER);
         }
     }
-    private static ResponseEntity<String> getStringResponseEntity(final SignUpRequest signUpRequest, final HttpSession session) {
-        Boolean isCorpAuthenticated = (Boolean) session.getAttribute(CORPORATION_AUTHENTICATED + signUpRequest.corporationNumber());
-        if (signUpRequest.checkCorporation()) {  // 사업자인 경우만 검사
-            if (isCorpAuthenticated == null || !isCorpAuthenticated) {
-                return ResponseEntity.status(403).body(PLEASE_COMPLETE_THE_BUSINESS_CERTIFICATION_FIRST);
-            }
-        }
-        return null;
+
+    @Data
+    public static class ResetPasswordRequest {
+        private String email;
+        private String nickName;
     }
 
     @Getter
