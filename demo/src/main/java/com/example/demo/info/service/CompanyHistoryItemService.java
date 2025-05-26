@@ -1,7 +1,7 @@
 package com.example.demo.info.service;
 
 import com.example.demo.info.controller.dto.CompanyHistoryItemDTO;
-import com.example.demo.info.domain.CompanyHistoryItemRepository;
+import com.example.demo.info.domain.repository.CompanyHistoryItemRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
