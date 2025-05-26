@@ -1,9 +1,13 @@
 package com.example.demo.info.controller;
 
-import com.example.demo.info.domain.AddressInfo;
-import com.example.demo.info.domain.AddressInfoRepository;
+import com.example.demo.info.domain.entity.AddressInfo;
+import com.example.demo.info.domain.repository.AddressInfoRepository;
+
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/address")
