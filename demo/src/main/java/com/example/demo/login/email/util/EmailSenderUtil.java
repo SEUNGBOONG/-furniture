@@ -1,4 +1,4 @@
-package com.example.demo.login.email.service;
+package com.example.demo.login.email.util;
 
 import com.example.demo.login.email.domain.EmailCode;
 
@@ -11,13 +11,13 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.io.UnsupportedEncodingException;
 
-@Service
+@Component
 @RequiredArgsConstructor
-public class EmailService {
+public class EmailSenderUtil {
 
     private final JavaMailSender emailSender;
 
@@ -25,6 +25,10 @@ public class EmailService {
     private final EmailForm form;
 
     public String sendEmail(String toEmail, HttpSession session) throws MessagingException, UnsupportedEncodingException {
+        return getString(toEmail, session);
+    }
+
+    private String getString(final String toEmail, final HttpSession session) throws MessagingException, UnsupportedEncodingException {
         String authNum = emailCode.createCode();
         session.setAttribute(toEmail, authNum);
         MimeMessage emailForm = form.createEmailForm(toEmail, authNum);

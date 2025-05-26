@@ -1,10 +1,16 @@
 package com.example.demo.login.member.service.auth;
 
 import com.example.demo.config.s3.S3Uploader;
+
+import com.example.demo.login.global.exception.PleaseAttachImage;
+import com.example.demo.login.global.exception.exceptions.InvalidRegistrationNumber;
+
 import com.example.demo.login.member.controller.auth.dto.LoginRequest;
 import com.example.demo.login.member.controller.auth.dto.LoginResponse;
 import com.example.demo.login.member.controller.auth.dto.SignUpRequest;
+
 import com.example.demo.login.member.domain.member.Member;
+
 import com.example.demo.login.member.exception.exceptions.auth.DuplicateEmailException;
 import com.example.demo.login.member.exception.exceptions.auth.DuplicateNickNameException;
 import com.example.demo.login.member.exception.exceptions.auth.InvalidEmailFormatException;
@@ -12,11 +18,15 @@ import com.example.demo.login.member.exception.exceptions.auth.InvalidLoginReque
 import com.example.demo.login.member.exception.exceptions.auth.InvalidPasswordFormatException;
 import com.example.demo.login.member.exception.exceptions.auth.InvalidSignUpRequestException;
 import com.example.demo.login.member.exception.exceptions.auth.NotFoundMemberByEmailException;
+import com.example.demo.login.member.exception.exceptions.auth.NotSamePasswordException;
+
 import com.example.demo.login.member.infrastructure.auth.JwtTokenProvider;
 import com.example.demo.login.member.infrastructure.member.MemberJpaRepository;
 
 import com.example.demo.login.member.mapper.auth.AuthMapper;
+
 import com.example.demo.login.util.CorporationValidator;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,6 +73,20 @@ public class AuthService {
         return AuthMapper.toLoginResponse(token, member);
     }
 
+    @Transactional
+    public void changePassword(String email,String newPassword, String newPasswordConfirm) {
+        Member member = findMemberByEmail(email);
+        validateNewPassword(newPassword, newPasswordConfirm);
+        checkPasswordLength(newPassword);
+        member.updatePassword(newPassword);
+    }
+
+    private static void validateNewPassword(final String newPassword, final String newPasswordConfirm) {
+        if (!newPassword.equals(newPasswordConfirm)) {
+            throw new NotSamePasswordException();
+        }
+    }
+
     private void validateSignupRequestFormat(SignUpRequest signUpRequest) {
         if (signUpRequest == null ||
                 isEmpty(signUpRequest.memberEmail()) ||
@@ -93,11 +117,11 @@ public class AuthService {
 
     private void checkBusinessNumber(final SignUpRequest signUpRequest, final MultipartFile corporationImage) {
         if (!corporationValidator.isValidCorporationNumber(signUpRequest.corporationNumber())) {
-            throw new IllegalArgumentException("유효하지 않은 사업자등록번호입니다.");
+            throw new InvalidRegistrationNumber();
         }
 
         if (corporationImage == null || corporationImage.isEmpty()) {
-            throw new IllegalArgumentException("사업자등록증 이미지를 첨부해주세요.");
+            throw new PleaseAttachImage();
         }
     }
 
@@ -112,7 +136,6 @@ public class AuthService {
             throw new InvalidPasswordFormatException();
         }
     }
-
 
     private void validateLoginRequestFormat(LoginRequest loginRequest) {
         if (loginRequest == null ||

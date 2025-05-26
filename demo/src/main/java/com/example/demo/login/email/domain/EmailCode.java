@@ -12,9 +12,13 @@ public class EmailCode {
     public String createCode() {
         Random random = new Random();
         StringBuilder key = new StringBuilder(8);
+        extracted(key, random);
+        return key.toString();
+    }
+
+    private static void extracted(final StringBuilder key, final Random random) {
         for (int i = 0; i < 8; i++) {
             key.append(CHARACTERS.charAt(random.nextInt(CHARACTERS.length())));
         }
-        return key.toString();
     }
 }

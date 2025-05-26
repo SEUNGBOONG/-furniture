@@ -1,7 +1,7 @@
 package com.example.demo.info.service;
 
-import com.example.demo.info.domain.AddressInfo;
-import com.example.demo.info.domain.AddressInfoRepository;
+import com.example.demo.info.domain.entity.AddressInfo;
+import com.example.demo.info.domain.repository.AddressInfoRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;

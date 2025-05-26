@@ -24,33 +24,25 @@ public class CartService {
 
     public void addToCart(Long productId, int quantity, Long memberId) {
         Long exists = cartItemRepository.existsCartItem(memberId, productId);
-        if (exists != null && exists == 1L) {
-            throw new CartItemAlreadyExistsException();
-        }
+        validateExists(exists);
         cartItemRepository.upsertCartItem(productId, memberId, quantity);
     }
 
     public void increaseQuantity(Long memberId, Long cartItemId) {
         int updated = cartItemRepository.updateQuantityByAmount(cartItemId, memberId, 1);
-        if (updated == 0) {
-            throw new RuntimeException();
-        }
+        validateUpdate(updated);
     }
 
     public void decreaseQuantity(Long memberId, Long cartItemId) {
         int updated = cartItemRepository.updateQuantityByAmount(cartItemId, memberId, -1);
-        if (updated == 0) {
-            throw new RuntimeException();
-        }
+        validateUpdate(updated);
         validateCartItem(cartItemId);
     }
 
     private void validateCartItem(final Long cartItemId) {
         CartItem cartItem = cartItemRepository.findById(cartItemId)
                 .orElseThrow(CartItemNotFoundException::new);
-        if (cartItem.getQuantity() <= 0) {
-            cartItemRepository.delete(cartItem);
-        }
+        validateQuantity(cartItem);
     }
 
     public void updateQuantityByCartItemId(Long memberId, Long cartItemId, int newQuantity) {
@@ -74,6 +66,18 @@ public class CartService {
         cartItemRepository.deleteAll(items);
     }
 
+    private static void validateUpdate(final int updated) {
+        if (updated == 0) {
+            throw new RuntimeException();
+        }
+    }
+
+    private void validateQuantity(final CartItem cartItem) {
+        if (cartItem.getQuantity() <= 0) {
+            cartItemRepository.delete(cartItem);
+        }
+    }
+
     private void validateUpdateQuantity(final int newQuantity, final CartItem cartItem) {
         if (newQuantity <= 0) {
             cartItemRepository.delete(cartItem);
@@ -91,6 +95,12 @@ public class CartService {
             throw new CartItemNotFoundException();
         }
         return cartItem;
+    }
+
+    private static void validateExists(final Long exists) {
+        if (exists != null && exists == 1L) {
+            throw new CartItemAlreadyExistsException();
+        }
     }
 
     private Member findMemberId(final Long memberId) {

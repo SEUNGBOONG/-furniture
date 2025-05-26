@@ -1,8 +1,8 @@
 package com.example.demo.info.service;
 import com.example.demo.info.controller.dto.CompanyDetailDTO;
 import com.example.demo.info.controller.dto.CompanyImageDTO;
-import com.example.demo.info.domain.CompanyInfo;
-import com.example.demo.info.domain.CompanyInfoRepository;
+import com.example.demo.info.domain.entity.CompanyInfo;
+import com.example.demo.info.domain.repository.CompanyInfoRepository;
 import org.springframework.stereotype.Service;
 @Service
 public class CompanyInfoService {
