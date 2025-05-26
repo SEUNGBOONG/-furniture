@@ -52,10 +52,14 @@ public class Member {
 
     private String corporationImageURL;
 
-
     public void checkPassword(String requestPassword) {
         if (!Objects.equals(memberPassword, requestPassword)) {
             throw new NotSamePasswordException();
         }
     }
+
+    public void updatePassword(String newPassword) {
+        this.memberPassword = newPassword;
+    }
+
 }
