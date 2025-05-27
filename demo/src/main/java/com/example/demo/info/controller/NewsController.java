@@ -1,6 +1,6 @@
-package com.example.demo.news.controller;
+package com.example.demo.info.controller;
 
-import com.example.demo.news.service.NewsService;
+import com.example.demo.info.service.NewsService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 

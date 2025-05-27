@@ -1,4 +1,4 @@
-package com.example.demo.news.service;
+package com.example.demo.info.service;
 
 import org.springframework.stereotype.Service;
 
