@@ -46,7 +46,8 @@ public class AuthMapper {
                 token,
                 member.getId(),
                 member.getMemberName(),
-                member.getMemberNickName()
+                member.getMemberNickName(),
+                member.isCheckCorporation()
         );
     }
 }
