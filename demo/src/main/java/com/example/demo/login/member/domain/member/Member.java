@@ -14,6 +14,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.Objects;
+
 @Entity(name = "member")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -51,12 +52,6 @@ public class Member {
     private String corporationNumber;
 
     private String corporationImageURL;
-
-    public void checkPassword(String requestPassword) {
-        if (!Objects.equals(memberPassword, requestPassword)) {
-            throw new NotSamePasswordException();
-        }
-    }
 
     public void updatePassword(String newPassword) {
         this.memberPassword = newPassword;

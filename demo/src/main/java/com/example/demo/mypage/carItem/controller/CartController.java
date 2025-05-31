@@ -36,14 +36,16 @@ public class CartController {
     @PostMapping("/add")
     public ResponseEntity<Void> addToCart(@RequestBody AddCartRequest request,
                                           @Member Long memberId) {
-        cartService.addToCart(request.getProductId(), request.getQuantity(), memberId);
+        putInAShoppingCart(request, memberId);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/update")
     public ResponseEntity<Void> updateQuantity(@RequestBody UpdateQuantityRequest request,
                                                @Member Long memberId) {
-        cartService.updateQuantityByCartItemId(memberId, request.getCartItemId(), request.getQuantity());
+        cartService.updateQuantityByCartItemId(memberId,
+                request.getCartItemId(),
+                request.getQuantity());
         return ResponseEntity.ok().build();
     }
 
@@ -58,14 +60,18 @@ public class CartController {
     @PostMapping("/increase")
     public ResponseEntity<Void> increaseQuantity(@RequestBody CartItemIdRequest request,
                                                  @Member Long memberId) {
-        cartService.increaseQuantity(memberId, request.getCartItemId());
+        cartService.increaseQuantity(
+                memberId,
+                request.getCartItemId());
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/decrease")
     public ResponseEntity<Void> decreaseQuantity(@RequestBody CartItemIdRequest request,
                                                  @Member Long memberId) {
-        cartService.decreaseQuantity(memberId, request.getCartItemId());
+        cartService.decreaseQuantity(
+                memberId,
+                request.getCartItemId());
         return ResponseEntity.ok().build();
     }
 
@@ -95,5 +101,12 @@ public class CartController {
                         item.getProduct().getImage()
                 ))
                 .collect(Collectors.toList());
+    }
+
+    private void putInAShoppingCart(final AddCartRequest request, final Long memberId) {
+        cartService.addToCart(
+                request.getProductId(),
+                request.getQuantity(),
+                memberId);
     }
 }
