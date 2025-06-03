@@ -1,0 +1,10 @@
+services:
+  app:
+    image: "${DOCKERHUB_USERNAME}/app-with-actions:latest"
+    container_name: backend-server
+    ports:
+      - 8080:8080
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://${RDS_ENDPOINT}:3306/app?serverTimezone=Asia/Seoul
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
