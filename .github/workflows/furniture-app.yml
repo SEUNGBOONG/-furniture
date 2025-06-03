@@ -26,7 +26,7 @@ jobs:
       - name: Build with Gradle
         working-directory: ./demo
         run: |
-        chmod +x gradlew
+          chmod +x gradlew
           # ./gradlew build --no-daemon -x test
           ./gradlew build --no-daemon
 
