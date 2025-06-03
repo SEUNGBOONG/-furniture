@@ -31,24 +31,24 @@ jobs:
           ./gradlew build --no-daemon
 
       - name: Check jar file
-        run: ls ./build/libs
+        run: ls ./demo/build/libs
 
       - name: Change jar file name
-        run: mv ./build/libs/demo-0.0.1-SNAPSHOT.jar ./build/libs/app.jar
+        run: mv ./demo/build/libs/demo-0.0.1-SNAPSHOT.jar ./demo/build/libs/app.jar
 
       - name: Check changed name
-        run: ls ./build/libs
+        run: ls ./demo/build/libs
 
       - uses: actions/upload-artifact@v4
         with:
           name: app
-          path: ./build/libs/app.jar
+          path: ./demo/build/libs/app.jar
 
       - name: Upload docker-compose.yml artifact
         uses: actions/upload-artifact@v4
         with:
           name: docker-compose.yml
-          path: ./docker-compose.yml
+          path: ./demo/docker-compose.yml
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
