@@ -1,0 +1,108 @@
+name: App With Github Actions with docker-compose CI/CD + RDS
+
+on: workflow_dispatch
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+          cache: gradle
+
+      - name: Make application-prod.properties
+        run: |
+          mkdir -p ./src/main/resources
+          cd ./src/main/resources
+          touch ./application.properties
+          echo "${{ secrets.PROPERTIES }}" > ./application.properties
+        shell: bash
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew clean build -x test
+
+      - name: Rename jar file
+        run: |
+          mkdir -p ./target
+          cp ./build/libs/*.jar ./target/app.jar
+
+      - name: Check jar file
+        run: ls ./target
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app
+          path: ./target/*.jar
+
+      - name: Upload docker-compose.yml artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-compose.yml
+          path: ./docker-compose.yml
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/app-with-actions-rds:latest
+
+  cd:
+    needs: ci
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download docker-compose.yml
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-compose.yml
+          path: ./
+
+      - name: Verify docker-compose.yml in Repository
+        run: ls -l ./docker-compose.yml
+
+      - name: Upload docker-compose.yml to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          source: ./docker-compose.yml
+          target: /home/${{ secrets.EC2_USERNAME }}/
+
+      - name: Execute Deployment Script on EC2
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script: |
+            export EC2_USERNAME=${{ secrets.EC2_USERNAME }}
+            export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
+            export RDS_ENDPOINT=${{ secrets.RDS_ENDPOINT }}
+            export DB_USERNAME=${{ secrets.DB_USERNAME }}
+            export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+
+            sudo cat <<EOF > /home/${{ secrets.EC2_USERNAME }}/.env
+            EC2_USERNAME=${{ secrets.EC2_USERNAME }}
+            DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERN
