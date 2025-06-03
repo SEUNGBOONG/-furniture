@@ -104,6 +104,7 @@ jobs:
             export RDS_ENDPOINT=${{ secrets.RDS_ENDPOINT }}
             export DB_USERNAME=${{ secrets.DB_USERNAME }}
             export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            echo ${RDS_ENDPOINT}
 
             sudo cat <<EOF > /home/${{ secrets.EC2_USERNAME }}/.env
             EC2_USERNAME=${{ secrets.EC2_USERNAME }}
