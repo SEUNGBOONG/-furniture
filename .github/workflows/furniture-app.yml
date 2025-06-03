@@ -64,8 +64,6 @@ jobs:
         with:
           context: .
           file: ./demo/Dockerfile  # Dockerfile이 /docker 디렉토리에 있을 경우
-          push: true
-          tags: your-dockerhub-username/furniture:latest
 
       - name: Build and push
         uses: docker/build-push-action@v6
