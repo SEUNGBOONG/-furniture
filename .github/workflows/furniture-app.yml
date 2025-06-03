@@ -33,7 +33,7 @@ jobs:
         run: ls ./build/libs
 
       - name: Change jar file name
-        run: mv ./build/libs/FlashBox-0.0.1-SNAPSHOT.jar ./build/libs/app.jar
+        run: mv ./build/libs/demo-0.0.1-SNAPSHOT.jar ./build/libs/app.jar
 
       - name: Check changed name
         run: ls ./build/libs
@@ -66,7 +66,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/app-with-actions-rds:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/furniture:latest
   cd:
     needs: ci
     runs-on: ubuntu-latest
@@ -142,7 +142,7 @@ jobs:
             cd /home/${EC2_USERNAME}
             if [[ -f "docker-compose.yml" ]]; then
               sudo docker-compose --env-file .env down
-              sudo docker pull ${DOCKERHUB_USERNAME}/app-with-actions-rds
+              sudo docker pull ${DOCKERHUB_USERNAME}/furniture
               sudo docker-compose --env-file .env up -d
               sudo docker image prune -a -f
               echo "Deployment completed."
