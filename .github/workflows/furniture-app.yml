@@ -61,16 +61,15 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        with:
-          name: Dockerfile
-          path: ./demo/Dockerfile  # Dockerfile이 /docker 디렉토리에 있을 경우
 
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: ./demo                      # 👈 이게 중요! 도커파일 기준 디렉토리
+          file: ./demo/Dockerfile             # 👈 도커파일 실제 위치
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/furniture:latest
+
   cd:
     needs: ci
     runs-on: ubuntu-latest
