@@ -112,9 +112,11 @@ jobs:
             DB_USERNAME=${{ secrets.DB_USERNAME }}
             DB_PASSWORD=${{ secrets.DB_PASSWORD }}
             EOF
-            echo "Environment variables set."
-
-            sudo chmod 600 .env
+            # 디버깅: .env 파일 내용 출력
+            echo "Contents of .env file:"
+            sudo cat /home/${{ secrets.EC2_USERNAME }}/.env
+      
+            sudo chmod 600 /home/${{ secrets.EC2_USERNAME }}/.env
 
             # JDK 설치 확인
             if ! java -version 2>&1 | grep -q "17"; then
