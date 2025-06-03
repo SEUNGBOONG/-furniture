@@ -8,3 +8,4 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://${RDS_ENDPOINT}:3306/app?serverTimezone=Asia/Seoul
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+    restart: always
