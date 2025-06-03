@@ -1,6 +1,6 @@
 services:
   app:
-    image: "${DOCKERHUB_USERNAME}/app-with-actions:latest"
+    image: "${DOCKERHUB_USERNAME}/furniture:latest"
     container_name: backend-server
     ports:
       - 8080:8080
