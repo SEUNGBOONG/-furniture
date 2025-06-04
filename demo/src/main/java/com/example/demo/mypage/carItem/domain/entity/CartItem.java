@@ -1,5 +1,6 @@
 package com.example.demo.mypage.carItem.domain.entity;
 
+import com.example.demo.common.exception.NegativeException;
 import com.example.demo.login.member.domain.member.Member;
 import com.example.demo.product.domain.entity.Product;
 import jakarta.persistence.Entity;
@@ -37,10 +38,14 @@ public class CartItem {
     private int quantity;
 
     public void changeQuantity(int newQuantity) {
-        if (newQuantity < 0) {
-            throw new IllegalArgumentException("수량은 음수가 될 수 없습니다.");
-        }
+        validateNegativeQuantityException(newQuantity);
         this.quantity = newQuantity;
+    }
+
+    private static void validateNegativeQuantityException(final int newQuantity) {
+        if (newQuantity < 0) {
+            throw new NegativeException();
+        }
     }
 
     public int getTotalPrice() {
