@@ -39,12 +39,6 @@ public class CartService {
         validateCartItem(cartItemId);
     }
 
-    private void validateCartItem(final Long cartItemId) {
-        CartItem cartItem = cartItemRepository.findById(cartItemId)
-                .orElseThrow(CartItemNotFoundException::new);
-        validateQuantity(cartItem);
-    }
-
     public void updateQuantityByCartItemId(Long memberId, Long cartItemId, int newQuantity) {
         Member member = findMemberId(memberId);
         CartItem cartItem = getCartItem(cartItemId, member);
@@ -61,9 +55,14 @@ public class CartService {
 
     public void deleteSelectedItems(Long memberId, List<Long> productIds) {
         Member member = findMemberId(memberId);
-
         List<CartItem> items = cartItemRepository.findByMemberAndProductIdIn(member, productIds);
         cartItemRepository.deleteAll(items);
+    }
+
+    private void validateCartItem(final Long cartItemId) {
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(CartItemNotFoundException::new);
+        validateQuantity(cartItem);
     }
 
     private static void validateUpdate(final int updated) {
@@ -107,5 +106,4 @@ public class CartService {
         return memberRepository.findById(memberId)
                 .orElseThrow(NotFoundMemberException::new);
     }
-
 }
