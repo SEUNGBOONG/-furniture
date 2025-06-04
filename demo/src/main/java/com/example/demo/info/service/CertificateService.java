@@ -16,11 +16,7 @@ public class CertificateService {
     }
 
     public CertificateImage saveCertificateImage(String imageUrl, String tag, String description) {
-        CertificateImage image = CertificateImage.builder()
-                .imageUrl(imageUrl)
-                .tag(tag)
-                .description(description)
-                .build();
+        CertificateImage image = getCertificateImage(imageUrl, tag, description);
         return repository.save(image);
     }
 
@@ -31,6 +27,14 @@ public class CertificateService {
 
     public List<CertificateImage> getCertificatesByTag(String tag) {
         return repository.findByTag(tag);
+    }
+
+    private static CertificateImage getCertificateImage(final String imageUrl, final String tag, final String description) {
+        return CertificateImage.builder()
+                .imageUrl(imageUrl)
+                .tag(tag)
+                .description(description)
+                .build();
     }
 
 }
