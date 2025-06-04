@@ -28,8 +28,7 @@ public class CategoryService {
     }
 
     public void updateCategory(Long categoryId, CategoryRequest request) {
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new IllegalArgumentException(Setting.NOT_FOUND_CATEGORY.toString()));
+        Category category = validateNotFoundCategory(categoryId);
         category.updateName(request.getName());
     }
 
@@ -47,5 +46,10 @@ public class CategoryService {
         if (request.getName() == null || request.getName().trim().isEmpty()) {
             throw new IllegalArgumentException(Setting.CATEGORY_NAME_REQUIRED.toString());
         }
+    }
+
+    private Category validateNotFoundCategory(final Long categoryId) {
+        return categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new IllegalArgumentException(Setting.NOT_FOUND_CATEGORY.toString()));
     }
 }

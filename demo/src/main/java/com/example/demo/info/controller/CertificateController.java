@@ -28,17 +28,23 @@ public class CertificateController {
 
     // 사진 업로드 (id는 서버에서 자동 생성)
     @PostMapping("/upload")
-    public ResponseEntity<CertificateImage> uploadCertificate(@RequestParam("file") MultipartFile file) throws IOException {
+    public ResponseEntity<CertificateImage> uploadCertificate(@RequestParam("file") MultipartFile file,
+                                                              @RequestParam("tag") String tag,
+                                                              @RequestParam("description") String description) throws IOException {
         String imageUrl = s3Uploader.uploadFile(file);
-
-        CertificateImage savedImage = certificateService.saveCertificateImage(imageUrl);
-
+        CertificateImage savedImage = certificateService.saveCertificateImage(imageUrl, tag, description);
         return ResponseEntity.ok(savedImage);
     }
 
     @GetMapping
     public ResponseEntity<List<CertificateImage>> getAllCertificates() {
         return ResponseEntity.ok(certificateService.getAllCertificates());
+    }
+
+    @GetMapping("/tag")
+    public ResponseEntity<List<CertificateImage>> getCertificatesByTag(@RequestParam String tag) {
+        List<CertificateImage> certificates = certificateService.getCertificatesByTag(tag);
+        return ResponseEntity.ok(certificates);
     }
 }
 

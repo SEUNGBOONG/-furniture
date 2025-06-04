@@ -1,9 +1,12 @@
 package com.example.demo.info.service;
+
+import com.example.demo.common.exception.NotFoundCompany;
 import com.example.demo.info.controller.dto.CompanyDetailDTO;
 import com.example.demo.info.controller.dto.CompanyImageDTO;
 import com.example.demo.info.domain.entity.CompanyInfo;
 import com.example.demo.info.domain.repository.CompanyInfoRepository;
 import org.springframework.stereotype.Service;
+
 @Service
 public class CompanyInfoService {
 
@@ -14,14 +17,12 @@ public class CompanyInfoService {
     }
 
     public CompanyImageDTO getCompanyImageInfo() {
-        CompanyInfo company = repository.findFirstBy()
-                .orElseThrow(() -> new RuntimeException("회사 정보가 없습니다."));
+        CompanyInfo company = NotFoundCompanyException();
         return new CompanyImageDTO(company.getImageUrl(), company.getDescription());
     }
 
     public CompanyDetailDTO getCompanyDetailInfo() {
-        CompanyInfo company = repository.findFirstBy()
-                .orElseThrow(() -> new RuntimeException("회사 정보가 없습니다."));
+        CompanyInfo company = NotFoundCompanyException();
         return new CompanyDetailDTO(
                 company.getCompanyName(),
                 company.getCeo(),
@@ -30,5 +31,10 @@ public class CompanyInfoService {
                 company.getScale(),
                 company.getMainClient()
         );
+    }
+
+    private CompanyInfo NotFoundCompanyException() {
+        return repository.findFirstBy()
+                .orElseThrow(NotFoundCompany::new);
     }
 }

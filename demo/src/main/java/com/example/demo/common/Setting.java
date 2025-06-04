@@ -36,7 +36,9 @@ public enum Setting {
     NOT_FOUND_BUSINESS_NUMBER("없는 사업자 번호입니다."),
     PLEASE_COMPLETE_THE_BUSINESS_CERTIFICATION_FIRST("사업자 인증을 먼저 완료해주세요."),
     CORPORATION_AUTHENTICATED("CORPORATION_AUTHENTICATED_"),
-    PASSWORD_CHANGE_SUCCESS("비밀번호가 성공적으로 변경되었습니다.");
+    PASSWORD_CHANGE_SUCCESS("비밀번호가 성공적으로 변경되었습니다."),
+    NOT_FOUND_COMPANY("회사 정보가 없습니다."),
+    NEGATIVE_QUANTITY("수량은 음수가 될수 없습니다.");
     // ----------------------------------------------------
 
     private final String setting;
