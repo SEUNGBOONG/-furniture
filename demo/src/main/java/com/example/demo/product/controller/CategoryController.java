@@ -34,7 +34,7 @@ public class CategoryController {
     @PostMapping
     public ResponseEntity<String> createCategory(@RequestBody CategoryRequest request,
                                             @Member Long memberId) {
-        ResponseEntity<String> FORBIDDEN = getStringResponseEntity(memberId);
+        ResponseEntity<String> FORBIDDEN = managementResponse(memberId);
         if (FORBIDDEN != null) return FORBIDDEN;
         categoryService.createCategory(request);
         return ResponseEntity.ok(Setting.CATEGORY_CREATE_SUCCESS.toString());
@@ -44,7 +44,7 @@ public class CategoryController {
     public ResponseEntity<String> updateCategory(@PathVariable Long categoryId,
                                             @RequestBody CategoryRequest request,
                                             @Member Long memberId) {
-        ResponseEntity<String> FORBIDDEN = getStringResponseEntity(memberId);
+        ResponseEntity<String> FORBIDDEN = managementResponse(memberId);
         if (FORBIDDEN != null) return FORBIDDEN;
 
         categoryService.updateCategory(categoryId, request);
@@ -54,7 +54,7 @@ public class CategoryController {
     @DeleteMapping("/{categoryId}")
     public ResponseEntity<String> deleteCategory(@PathVariable Long categoryId,
                                             @Member Long memberId) {
-        ResponseEntity<String> FORBIDDEN = getStringResponseEntity(memberId);
+        ResponseEntity<String> FORBIDDEN = managementResponse(memberId);
         if (FORBIDDEN != null) return FORBIDDEN;
         categoryService.deleteCategory(categoryId);
         return ResponseEntity.ok(Setting.CATEGORY_DELETE_SUCCESS.toString());
@@ -65,7 +65,7 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.getAllCategories());
     }
 
-    private static ResponseEntity<String> getStringResponseEntity(final Long memberId) {
+    private static ResponseEntity<String> managementResponse(final Long memberId) {
         if (!memberId.equals(5L)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Setting.FORBIDDEN_ONLY_ADMIN.toString());
         }

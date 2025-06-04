@@ -28,17 +28,19 @@ public class Category {
     private String name;
 
     public Category(String name) {
-        if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException(Setting.CATEGORY_NAME_NOT_EMPTY.toString());
-        }
+        validateCategoryName(name);
         this.name = name;
     }
 
     public void updateName(String name) {
+        validateCategoryName(name);
+        this.name = name;
+    }
+
+    private static void validateCategoryName(final String name) {
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException(Setting.CATEGORY_NAME_NOT_EMPTY.toString());
         }
-        this.name = name;
     }
 
 }
