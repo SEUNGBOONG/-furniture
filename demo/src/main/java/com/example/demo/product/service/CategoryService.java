@@ -4,6 +4,7 @@ import com.example.demo.common.Setting;
 
 import com.example.demo.product.controller.dto.CategoryRequest;
 import com.example.demo.product.controller.dto.CategoryResponse;
+import com.example.demo.product.domain.CategoryValidator;
 import com.example.demo.product.domain.entity.Category;
 import com.example.demo.product.domain.repository.CategoryRepository;
 
@@ -18,18 +19,18 @@ import java.util.stream.Collectors;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final CategoryValidator categoryValidator;
 
     public void createCategory(CategoryRequest request) {
         // 카테고리 이름이 비어 있는지 확인 하는 로직
-        validateEmptyCategory(request);
+        categoryValidator.validateEmptyCategory(request);
 
         Category category = new Category(request.getName());
         categoryRepository.save(category);
     }
 
     public void updateCategory(Long categoryId, CategoryRequest request) {
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new IllegalArgumentException(Setting.NOT_FOUND_CATEGORY.toString()));
+        Category category = validateFindByIdException(categoryId);
         category.updateName(request.getName());
     }
 
@@ -43,9 +44,8 @@ public class CategoryService {
                 .collect(Collectors.toList());
     }
 
-    private static void validateEmptyCategory(final CategoryRequest request) {
-        if (request.getName() == null || request.getName().trim().isEmpty()) {
-            throw new IllegalArgumentException(Setting.CATEGORY_NAME_REQUIRED.toString());
-        }
+    private Category validateFindByIdException(final Long categoryId) {
+        return categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new IllegalArgumentException(Setting.NOT_FOUND_CATEGORY.toString()));
     }
 }
