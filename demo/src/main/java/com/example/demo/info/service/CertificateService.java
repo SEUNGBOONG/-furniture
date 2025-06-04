@@ -20,7 +20,6 @@ public class CertificateService {
         return repository.save(image);
     }
 
-
     public List<CertificateImage> getAllCertificates() {
         return repository.findAll();
     }
