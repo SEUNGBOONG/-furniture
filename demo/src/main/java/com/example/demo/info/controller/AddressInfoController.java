@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/address")
+@RequestMapping("/address")
 public class AddressInfoController {
 
     private final AddressInfoRepository repository;
