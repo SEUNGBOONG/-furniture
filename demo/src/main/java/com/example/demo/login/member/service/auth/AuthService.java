@@ -10,14 +10,12 @@ import com.example.demo.login.member.controller.auth.dto.LoginResponse;
 import com.example.demo.login.member.controller.auth.dto.NormalSignUpRequest;
 import com.example.demo.login.member.controller.auth.dto.SignUpRequest;
 
+import com.example.demo.login.member.domain.auth.EmailValidator;
+import com.example.demo.login.member.domain.auth.SignUpValidator;
 import com.example.demo.login.member.domain.member.Member;
 
 import com.example.demo.login.member.exception.exceptions.auth.DuplicateEmailException;
 import com.example.demo.login.member.exception.exceptions.auth.DuplicateNickNameException;
-import com.example.demo.login.member.exception.exceptions.auth.InvalidEmailFormatException;
-import com.example.demo.login.member.exception.exceptions.auth.InvalidLoginRequestException;
-import com.example.demo.login.member.exception.exceptions.auth.InvalidPasswordFormatException;
-import com.example.demo.login.member.exception.exceptions.auth.InvalidSignUpRequestException;
 import com.example.demo.login.member.exception.exceptions.auth.NotFoundMemberByEmailException;
 import com.example.demo.login.member.exception.exceptions.auth.NotSamePasswordException;
 
@@ -34,8 +32,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.regex.Pattern;
-
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service
@@ -47,13 +43,13 @@ public class AuthService {
     private final CorporationValidator corporationValidator;
     private final S3Uploader s3Uploader;
     private final PasswordEncoder passwordEncoder;
-
-    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
+    private final SignUpValidator signUpValidator;
+    private final EmailValidator emailValidator;
 
     public Member signUp(SignUpRequest signUpRequest, MultipartFile corporationImage) {
-        validateSignupRequestFormat(signUpRequest);
-        validateEmailFormat(signUpRequest.memberEmail());
-        checkPasswordLength(signUpRequest.memberPassword());
+        signUpValidator.validateSignupRequestFormat(signUpRequest);
+        emailValidator.validateEmailFormat(signUpRequest.memberEmail());
+        signUpValidator.checkPasswordLength(signUpRequest.memberPassword());
         checkDuplicateMemberNickName(signUpRequest.memberNickName());
         checkDuplicateMemberEmail(signUpRequest.memberEmail());
 
@@ -66,9 +62,10 @@ public class AuthService {
     }
 
     public Member normalSignUp(NormalSignUpRequest signUpRequest) {
-        normalValidateSignupRequestFormat(signUpRequest);
-        validateEmailFormat(signUpRequest.memberEmail());
-        checkPasswordLength(signUpRequest.memberPassword());
+        signUpValidator.normalValidateSignupRequestFormat(signUpRequest);
+        emailValidator.validateEmailFormat(signUpRequest.memberEmail());
+        signUpValidator.checkPasswordLength(signUpRequest.memberPassword());
+
         checkDuplicateMemberNickName(signUpRequest.memberNickName());
         checkDuplicateMemberEmail(signUpRequest.memberEmail());
 
@@ -80,7 +77,7 @@ public class AuthService {
 
     @Transactional(readOnly = true)
     public LoginResponse login(LoginRequest loginRequest) {
-        validateLoginRequestFormat(loginRequest);
+        signUpValidator.validateLoginRequestFormat(loginRequest);
         Member member = findMemberByEmail(loginRequest.memberEmail());
 
         if (!passwordEncoder.matches(loginRequest.memberPassword(), member.getMemberPassword())) {
@@ -95,7 +92,7 @@ public class AuthService {
     public void changePassword(String email, String newPassword, String newPasswordConfirm) {
         Member member = findMemberByEmail(email);
         validateNewPassword(newPassword, newPasswordConfirm);
-        checkPasswordLength(newPassword);
+        signUpValidator.checkPasswordLength(newPassword);
         String encodedPassword = passwordEncoder.encode(newPassword);  // 암호화
         member.updatePassword(encodedPassword);
     }
@@ -103,32 +100,6 @@ public class AuthService {
     private static void validateNewPassword(final String newPassword, final String newPasswordConfirm) {
         if (!newPassword.equals(newPasswordConfirm)) {
             throw new NotSamePasswordException();
-        }
-    }
-
-    private void validateSignupRequestFormat(SignUpRequest signUpRequest) {
-        if (signUpRequest == null ||
-                isEmpty(signUpRequest.memberEmail()) ||
-                isEmpty(signUpRequest.memberName()) ||
-                isEmpty(signUpRequest.memberPassword()) ||
-                isEmpty(signUpRequest.memberNickName())) {
-            throw new InvalidSignUpRequestException();
-        }
-    }
-
-    private void normalValidateSignupRequestFormat(NormalSignUpRequest signUpRequest) {
-        if (signUpRequest == null ||
-                isEmpty(signUpRequest.memberEmail()) ||
-                isEmpty(signUpRequest.memberName()) ||
-                isEmpty(signUpRequest.memberPassword()) ||
-                isEmpty(signUpRequest.memberNickName())) {
-            throw new InvalidSignUpRequestException();
-        }
-    }
-
-    private void validateEmailFormat(String email) {
-        if (!EMAIL_PATTERN.matcher(email).matches()) {
-            throw new InvalidEmailFormatException();
         }
     }
 
@@ -151,20 +122,6 @@ public class AuthService {
     private void checkDuplicateMemberEmail(String email) {
         if (memberJpaRepository.existsByMemberEmail(email)) {
             throw new DuplicateEmailException();
-        }
-    }
-
-    private void checkPasswordLength(String password) {
-        if (password.length() <= 7) {
-            throw new InvalidPasswordFormatException();
-        }
-    }
-
-    private void validateLoginRequestFormat(LoginRequest loginRequest) {
-        if (loginRequest == null ||
-                isEmpty(loginRequest.memberEmail()) ||
-                isEmpty(loginRequest.memberPassword())) {
-            throw new InvalidLoginRequestException();
         }
     }
 
