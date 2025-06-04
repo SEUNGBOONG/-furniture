@@ -4,7 +4,6 @@ import com.example.demo.common.Setting;
 
 import com.example.demo.product.controller.dto.CategoryRequest;
 import com.example.demo.product.controller.dto.CategoryResponse;
-import com.example.demo.product.domain.CategoryValidator;
 import com.example.demo.product.domain.entity.Category;
 import com.example.demo.product.domain.repository.CategoryRepository;
 
