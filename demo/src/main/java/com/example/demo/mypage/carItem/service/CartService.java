@@ -107,5 +107,4 @@ public class CartService {
         return memberRepository.findById(memberId)
                 .orElseThrow(NotFoundMemberException::new);
     }
-
 }
