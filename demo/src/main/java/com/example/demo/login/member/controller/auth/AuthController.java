@@ -27,7 +27,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping
 @RequiredArgsConstructor
 @Slf4j
 public class AuthController {
