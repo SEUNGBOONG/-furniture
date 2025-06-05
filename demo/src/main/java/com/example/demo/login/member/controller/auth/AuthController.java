@@ -5,6 +5,7 @@ import com.example.demo.login.email.util.EmailSenderUtil;
 import com.example.demo.login.member.controller.auth.dto.AuthRequestDTO;
 import com.example.demo.login.member.controller.auth.dto.ChangePasswordRequest;
 import com.example.demo.login.member.controller.auth.dto.EmailAuthRequestDto;
+import com.example.demo.login.member.controller.auth.dto.EmailCheckRequest;
 import com.example.demo.login.member.controller.auth.dto.LoginRequest;
 import com.example.demo.login.member.controller.auth.dto.LoginResponse;
 import com.example.demo.login.member.controller.auth.dto.NormalSignUpRequest;
@@ -122,6 +123,16 @@ public class AuthController {
         authService.changePassword(request.getEmail(), request.getNewPassword(), request.getNewPasswordConfirm());
         session.removeAttribute(getAuthKey(request.getEmail()));
         return ResponseEntity.ok(Setting.PASSWORD_CHANGE_SUCCESS.toString());
+    }
+
+    @PostMapping("/check-email")
+    public ResponseEntity<String> checkEmail(@RequestBody EmailCheckRequest request) {
+        boolean isAvailable = authService.isEmailAvailable(request.getEmail());
+        if (isAvailable) {
+            return ResponseEntity.ok(Setting.EMAIL_AVAILABLE.toString());
+        } else {
+            return ResponseEntity.status(409).body(Setting.EMAIL_ALREADY_EXISTS.toString());
+        }
     }
 
     private String getAuthKey(String email) {

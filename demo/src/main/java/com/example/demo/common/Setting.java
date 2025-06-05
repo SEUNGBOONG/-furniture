@@ -19,6 +19,9 @@ public enum Setting {
     PRODUCT_UPDATE_SUCCESS("상품 수정 완료"),
     PRODUCT_DELETE_SUCCESS("상품 삭제 완료"),
 
+    EMAIL_AVAILABLE("사용 가능한 이메일입니다."),
+    EMAIL_ALREADY_EXISTS("이미 가입된 이메일입니다."),
+
     // Category 도메인 메시지
     CATEGORY_NAME_REQUIRED("카테고리 이름은 필수입니다."),
     CATEGORY_NAME_NOT_EMPTY("카테고리 이름은 비어 있을 수 없습니다."),

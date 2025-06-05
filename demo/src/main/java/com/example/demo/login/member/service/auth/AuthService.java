@@ -96,6 +96,11 @@ public class AuthService {
         member.updatePassword(encodedPassword);
     }
 
+    @Transactional(readOnly = true)
+    public boolean isEmailAvailable(String email) {
+        return !memberJpaRepository.existsByMemberEmail(email);
+    }
+
     private static void validateNewPassword(final String newPassword, final String newPasswordConfirm) {
         if (!newPassword.equals(newPasswordConfirm)) {
             throw new NotSamePasswordException();
