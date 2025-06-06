@@ -32,8 +32,6 @@ public class MapController {
         return ResponseEntity.ok().body(new Coordinates(lat, lon));
     }
 
-    // Coordinates DTO 클래스
-    @Getter
     public record Coordinates(double latitude, double longitude) {
     }
 }
