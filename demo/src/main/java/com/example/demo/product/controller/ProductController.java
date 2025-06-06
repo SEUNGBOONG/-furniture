@@ -4,8 +4,11 @@ import com.example.demo.common.Setting;
 import com.example.demo.login.global.annotation.Member;
 
 import com.example.demo.product.controller.dto.CategoryResponse;
+import com.example.demo.product.controller.dto.ProductDetailSimpleDTO;
 import com.example.demo.product.controller.dto.ProductRequest;
 import com.example.demo.product.controller.dto.ProductResponse;
+import com.example.demo.product.domain.entity.ProductDetail;
+import com.example.demo.product.service.ProductDetailService;
 import com.example.demo.product.service.ProductService;
 
 import lombok.RequiredArgsConstructor;
@@ -31,6 +34,7 @@ import java.util.concurrent.CompletableFuture;
 public class ProductController {
 
     private final ProductService productService;
+    private final ProductDetailService productDetailService;
 
     @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<String> createProduct(
@@ -68,9 +72,10 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductsByCategory(categoryId));
     }
 
-    @GetMapping("/{productId}")
-    public ResponseEntity<ProductResponse> getProductDetail(@PathVariable Long productId) {
-        return ResponseEntity.ok(productService.getProductDetail(productId));
+    @GetMapping("/product-details/by-product/{productId}")
+    public ResponseEntity<List<ProductDetailSimpleDTO>> getProductDetailsByProductId(@PathVariable Long productId) {
+        List<ProductDetailSimpleDTO> dtos = productDetailService.getProductDetailsByProductId(productId);
+        return ResponseEntity.ok(dtos);
     }
 
     @PutMapping(value = "/{productId}", consumes = "multipart/form-data")
