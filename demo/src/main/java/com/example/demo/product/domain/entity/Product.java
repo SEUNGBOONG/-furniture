@@ -7,11 +7,15 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Entity
@@ -35,5 +39,8 @@ public class Product {
     private String tagName;
 
     private String image;
+
+    @OneToMany(mappedBy = "product")
+    private List<ProductDetail> productDetails = new ArrayList<>();
 
 }
