@@ -2,6 +2,7 @@ package com.example.demo.info.service;
 
 import com.example.demo.info.controller.dto.CompanyHistoryItemDTO;
 import com.example.demo.info.domain.repository.CompanyHistoryItemRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,6 +16,7 @@ public class CompanyHistoryItemService {
         this.repository = repository;
     }
 
+    @Cacheable(value = "companyHistoryItems")
     public List<CompanyHistoryItemDTO> getAllHistoryItems() {
         return repository.findAllByOrderByIdAsc().stream()
                 .map(item -> new CompanyHistoryItemDTO(
