@@ -13,7 +13,7 @@ public class KakaoMapService {
 
     private final RestTemplate restTemplate;
 
-    @Value("${kakao.client.id}")  // application.properties에서 API 키를 읽어옴
+    @Value("${kakao.client.id}")
     private String apiKey;
 
     public KakaoMapService(RestTemplate restTemplate) {
