@@ -42,14 +42,14 @@ public class CartItem {
         this.quantity = newQuantity;
     }
 
+    public int getTotalPrice() {
+        return product.getPrice() * quantity;
+    }
+
     private static void validateNegativeQuantityException(final int newQuantity) {
         if (newQuantity < 0) {
             throw new NegativeException();
         }
-    }
-
-    public int getTotalPrice() {
-        return product.getPrice() * quantity;
     }
 
 }
