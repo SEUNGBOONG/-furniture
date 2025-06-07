@@ -19,14 +19,17 @@ public class CorporationValidator {
     public static final String DATA = "data";
     public static final String B_STT = "b_stt";
 
-    @Autowired
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
     @Value("${business.url}")
     private String apiUrl;
 
     @Value("${business.key}")
     private String serviceKey;
+
+    public CorporationValidator(final RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 
     public boolean isValidCorporationNumber(String businessNumber) {
         try {
@@ -42,12 +45,7 @@ public class CorporationValidator {
             String url = apiUrl + "?serviceKey=" + serviceKey;
 
             HttpEntity<String> requestEntity = new HttpEntity<>(body.toString(), headers);
-            ResponseEntity<String> response = restTemplate.exchange(
-                    url,
-                    HttpMethod.POST,
-                    requestEntity,
-                    String.class
-            );
+            ResponseEntity<String> response = exchangeResponse(url, requestEntity);
 
             if (response.getStatusCode() == HttpStatus.OK) {
                 JSONObject jsonResponse = new JSONObject(response.getBody());
@@ -66,6 +64,15 @@ public class CorporationValidator {
         }
 
         return false;
+    }
+
+    private ResponseEntity<String> exchangeResponse(final String url, final HttpEntity<String> requestEntity) {
+        return restTemplate.exchange(
+                url,
+                HttpMethod.POST,
+                requestEntity,
+                String.class
+        );
     }
 
 }

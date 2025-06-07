@@ -1,16 +1,16 @@
-package com.example.demo.login.address.service;
+package com.example.demo.login.address.util;
 
 import com.example.demo.login.address.controller.dto.AddressApiResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
-@Service
-public class AddressSearchService {
+@Component
+public class AddressProviderUtil {
 
     @Value("${juso.api.key}")
     private String apiKey;

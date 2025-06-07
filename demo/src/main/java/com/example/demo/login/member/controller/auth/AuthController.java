@@ -98,6 +98,7 @@ public class AuthController {
         if (storedCode != null && storedCode.equals(request.getAuthCode())) {
             session.removeAttribute(request.getEmail());
             session.setAttribute(getAuthKey(request.getEmail()), true);
+
             return ResponseEntity.ok(Setting.SUCCEED_CERTIFICATION_NUMBER.toString());
         }
         return ResponseEntity.badRequest().body(Setting.FAIL_CERTIFICATION_NUMBER.toString());

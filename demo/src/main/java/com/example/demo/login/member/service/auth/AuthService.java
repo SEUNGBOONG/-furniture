@@ -79,9 +79,7 @@ public class AuthService {
         signUpValidator.validateLoginRequestFormat(loginRequest);
         Member member = findMemberByEmail(loginRequest.memberEmail());
 
-        if (!passwordEncoder.matches(loginRequest.memberPassword(), member.getMemberPassword())) {
-            throw new NotSamePasswordException();
-        }
+        validatePasswordEncoderException(passwordEncoder.matches(loginRequest.memberPassword(), member.getMemberPassword()));
 
         String token = jwtTokenProvider.createToken(member.getId());
         return AuthMapper.toLoginResponse(token, member);
@@ -101,10 +99,14 @@ public class AuthService {
         return !memberJpaRepository.existsByMemberEmail(email);
     }
 
-    private static void validateNewPassword(final String newPassword, final String newPasswordConfirm) {
-        if (!newPassword.equals(newPasswordConfirm)) {
+    private static void validatePasswordEncoderException(final boolean passwordEncoder) {
+        if (!passwordEncoder) {
             throw new NotSamePasswordException();
         }
+    }
+
+    private static void validateNewPassword(final String newPassword, final String newPasswordConfirm) {
+        validatePasswordEncoderException(newPassword.equals(newPasswordConfirm));
     }
 
     private void checkDuplicateMemberNickName(String nickName) {

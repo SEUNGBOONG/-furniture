@@ -4,6 +4,7 @@ import com.example.demo.common.Setting;
 
 import com.example.demo.product.controller.dto.CategoryRequest;
 import com.example.demo.product.controller.dto.CategoryResponse;
+import com.example.demo.product.domain.ProductValidator;
 import com.example.demo.product.domain.entity.Category;
 import com.example.demo.product.domain.repository.CategoryRepository;
 
@@ -21,7 +22,7 @@ public class CategoryService {
 
     public void createCategory(CategoryRequest request) {
         // 카테고리 이름이 비어 있는지 확인 하는 로직
-        validateEmptyCategory(request);
+        ProductValidator.validateEmptyCategory(request);
 
         Category category = new Category(request.getName());
         categoryRepository.save(category);
@@ -40,12 +41,6 @@ public class CategoryService {
         return categoryRepository.findAll().stream()
                 .map(CategoryResponse::from)
                 .collect(Collectors.toList());
-    }
-
-    private static void validateEmptyCategory(final CategoryRequest request) {
-        if (request.getName() == null || request.getName().trim().isEmpty()) {
-            throw new IllegalArgumentException(Setting.CATEGORY_NAME_REQUIRED.toString());
-        }
     }
 
     private Category validateNotFoundCategory(final Long categoryId) {

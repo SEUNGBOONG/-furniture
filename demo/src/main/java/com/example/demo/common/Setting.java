@@ -41,8 +41,11 @@ public enum Setting {
     CORPORATION_AUTHENTICATED("CORPORATION_AUTHENTICATED_"),
     PASSWORD_CHANGE_SUCCESS("비밀번호가 성공적으로 변경되었습니다."),
     NOT_FOUND_COMPANY("회사 정보가 없습니다."),
+    ADDRESS("경기도 화성시 장안면 돌서지길 132-46"),
     NEGATIVE_QUANTITY("수량은 음수가 될수 없습니다.");
     // ----------------------------------------------------
+
+
 
     private final String setting;
 

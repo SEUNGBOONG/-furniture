@@ -2,16 +2,16 @@ package com.example.demo.login.address.controller;
 
 import com.example.demo.login.address.controller.dto.AddressApiResponse;
 import com.example.demo.login.address.controller.dto.AddressKeyword;
-import com.example.demo.login.address.service.AddressSearchService;
+import com.example.demo.login.address.util.AddressProviderUtil;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/address")
 public class AddressSearchController {
 
-    private final AddressSearchService service;
+    private final AddressProviderUtil service;
 
-    public AddressSearchController(AddressSearchService service) {
+    public AddressSearchController(AddressProviderUtil service) {
         this.service = service;
     }
 
