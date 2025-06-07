@@ -5,6 +5,7 @@ import com.example.demo.info.controller.dto.CompanyDetailDTO;
 import com.example.demo.info.controller.dto.CompanyImageDTO;
 import com.example.demo.info.domain.entity.CompanyInfo;
 import com.example.demo.info.domain.repository.CompanyInfoRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,6 +22,7 @@ public class CompanyInfoService {
         return new CompanyImageDTO(company.getImageUrl(), company.getDescription());
     }
 
+    @Cacheable(value = "CompanyDetailInfo")
     public CompanyDetailDTO getCompanyDetailInfo() {
         CompanyInfo company = NotFoundCompanyException();
         return new CompanyDetailDTO(
