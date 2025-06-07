@@ -25,12 +25,16 @@ public class S3Uploader {
         metadata.setContentType(file.getContentType());
         metadata.setContentLength(file.getSize());
 
+        validateUploadFile(file, fileName, metadata);
+
+        return amazonS3.getUrl(bucket, fileName).toString();
+    }
+
+    private void validateUploadFile(final MultipartFile file, final String fileName, final ObjectMetadata metadata) {
         try {
             amazonS3.putObject(bucket, fileName, file.getInputStream(), metadata);
         } catch (IOException e) {
             throw new RuntimeException("S3 업로드 실패", e);
         }
-
-        return amazonS3.getUrl(bucket, fileName).toString();
     }
 }
