@@ -1,6 +1,6 @@
 package com.example.demo.info.controller;
 
-import com.example.demo.info.util.VideUtilToYoutube;
+import com.example.demo.info.util.InformationProvider;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,9 +12,9 @@ import java.util.Map;
 @RequestMapping
 public class PromoteVideoController {
 
-    private final VideUtilToYoutube videoInfo;
+    private final InformationProvider videoInfo;
 
-    public PromoteVideoController(final VideUtilToYoutube videoInfo) {
+    public PromoteVideoController(final InformationProvider videoInfo) {
         this.videoInfo = videoInfo;
     }
 
