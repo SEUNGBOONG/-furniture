@@ -18,13 +18,13 @@ public class CompanyInfoService {
     }
 
     public CompanyImageDTO getCompanyImageInfo() {
-        CompanyInfo company = NotFoundCompanyException();
+        CompanyInfo company = notFoundCompanyException();
         return new CompanyImageDTO(company.getImageUrl(), company.getDescription());
     }
 
     @Cacheable(value = "CompanyDetailInfo")
     public CompanyDetailDTO getCompanyDetailInfo() {
-        CompanyInfo company = NotFoundCompanyException();
+        CompanyInfo company = notFoundCompanyException();
         return new CompanyDetailDTO(
                 company.getCompanyName(),
                 company.getCeo(),
@@ -35,7 +35,7 @@ public class CompanyInfoService {
         );
     }
 
-    private CompanyInfo NotFoundCompanyException() {
+    private CompanyInfo notFoundCompanyException() {
         return repository.findFirstBy()
                 .orElseThrow(NotFoundCompany::new);
     }
