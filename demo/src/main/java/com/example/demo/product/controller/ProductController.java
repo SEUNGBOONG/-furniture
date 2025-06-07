@@ -7,13 +7,12 @@ import com.example.demo.product.controller.dto.CategoryResponse;
 import com.example.demo.product.controller.dto.ProductDetailSimpleDTO;
 import com.example.demo.product.controller.dto.ProductRequest;
 import com.example.demo.product.controller.dto.ProductResponse;
-import com.example.demo.product.domain.entity.ProductDetail;
+import com.example.demo.product.domain.ProductValidator;
 import com.example.demo.product.service.ProductDetailService;
 import com.example.demo.product.service.ProductService;
 
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,7 +41,7 @@ public class ProductController {
             @RequestPart("image") MultipartFile image,
             @Member Long memberId) {
         // 관리자 권한 체크
-        ResponseEntity<String> FORBIDDEN = getStringResponseEntity(memberId);
+        ResponseEntity<String> FORBIDDEN = ProductValidator.getStringResponseEntity(memberId);
         if (FORBIDDEN != null) return FORBIDDEN;
 
         // 비동기 이미지 업로드
@@ -84,7 +83,7 @@ public class ProductController {
                                                 @RequestPart("image") MultipartFile image,
                                                 @Member Long memberId) {
         // 관리자 권한 체크
-        ResponseEntity<String> FORBIDDEN = getStringResponseEntity(memberId);
+        ResponseEntity<String> FORBIDDEN = ProductValidator.getStringResponseEntity(memberId);
         if (FORBIDDEN != null) return FORBIDDEN;
 
         // 상품 업데이트
@@ -96,7 +95,7 @@ public class ProductController {
     public ResponseEntity<String> deleteProduct(@PathVariable Long productId,
                                                 @Member Long memberId) {
         // 관리자 권한 체크
-        ResponseEntity<String> FORBIDDEN = getStringResponseEntity(memberId);
+        ResponseEntity<String> FORBIDDEN = ProductValidator.getStringResponseEntity(memberId);
         if (FORBIDDEN != null) return FORBIDDEN;
 
         // 상품 삭제
@@ -104,10 +103,4 @@ public class ProductController {
         return ResponseEntity.ok(Setting.PRODUCT_DELETE_SUCCESS.toString());
     }
 
-    private static ResponseEntity<String> getStringResponseEntity(final Long memberId) {
-        if (!memberId.equals(5L)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Setting.FORBIDDEN_ONLY_ADMIN.toString());
-        }
-        return null;
-    }
 }
