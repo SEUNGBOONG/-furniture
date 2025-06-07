@@ -6,7 +6,7 @@ import com.example.demo.login.member.controller.auth.dto.SignUpRequest;
 import com.example.demo.login.member.exception.exceptions.auth.InvalidLoginRequestException;
 import com.example.demo.login.member.exception.exceptions.auth.InvalidPasswordFormatException;
 import com.example.demo.login.member.exception.exceptions.auth.InvalidSignUpRequestException;
-import com.example.demo.login.member.exception.exceptions.auth.NotSamePasswordException;
+
 import org.springframework.stereotype.Component;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
