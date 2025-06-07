@@ -2,12 +2,12 @@ package com.example.demo.product.service;
 
 import com.example.demo.common.Setting;
 import com.example.demo.config.s3.S3Uploader;
+
 import com.example.demo.product.controller.dto.CategoryResponse;
-import com.example.demo.product.controller.dto.ProductDetailSimpleDTO;
 import com.example.demo.product.controller.dto.ProductRequest;
 import com.example.demo.product.controller.dto.ProductResponse;
+
 import com.example.demo.product.domain.entity.Category;
-import com.example.demo.product.domain.entity.ProductDetail;
 import com.example.demo.product.domain.repository.CategoryRepository;
 import com.example.demo.product.domain.entity.Product;
 import com.example.demo.product.domain.repository.ProductRepository;
