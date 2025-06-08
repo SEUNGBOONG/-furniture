@@ -35,10 +35,4 @@ public class ProductLike {
     @JoinColumn(name = "product_id")
     private Product product;
 
-    public static ProductLike of(Member member, Product product) {
-        return ProductLike.builder()
-                .member(member)
-                .product(product)
-                .build();
-    }
 }
