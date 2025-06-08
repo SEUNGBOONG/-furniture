@@ -50,10 +50,13 @@ public class ProductService {
         productRepository.save(updated);
     }
 
-    // 비동기 이미지 업로드 처리
+    public Product findById(Long productId) {
+        return getProduct(productId);
+    }
+
     @Async
     public CompletableFuture<String> uploadImageAsync(MultipartFile imageFile) {
-        String imageUrl = s3Uploader.uploadFile(imageFile);  // S3 업로드 후 URL 반환
+        String imageUrl = s3Uploader.uploadFile(imageFile);
         return CompletableFuture.completedFuture(imageUrl);
     }
 
