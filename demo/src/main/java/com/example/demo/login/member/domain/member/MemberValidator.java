@@ -1,0 +1,20 @@
+package com.example.demo.login.member.domain.member;
+
+import com.example.demo.common.exception.NotFoundMemberException;
+import com.example.demo.login.member.infrastructure.member.MemberJpaRepository;
+import org.springframework.stereotype.Component;
+
+@Component
+public class MemberValidator {
+
+    private final MemberJpaRepository memberJpaRepository;
+
+    public MemberValidator(final MemberJpaRepository memberJpaRepository) {
+        this.memberJpaRepository = memberJpaRepository;
+    }
+
+    public Member getMember(final Long memberId) {
+        return memberJpaRepository.findById(memberId)
+                .orElseThrow(NotFoundMemberException::new);
+    }
+}

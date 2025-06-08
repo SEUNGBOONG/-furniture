@@ -2,6 +2,7 @@ package com.example.demo.product.domain;
 
 import com.example.demo.common.Setting;
 import com.example.demo.product.controller.dto.CategoryRequest;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;

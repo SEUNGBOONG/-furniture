@@ -2,10 +2,9 @@ package com.example.demo.mypage.carItem.service;
 
 import com.example.demo.common.exception.CartItemAlreadyExistsException;
 import com.example.demo.common.exception.CartItemNotFoundException;
-import com.example.demo.common.exception.NotFoundMemberException;
 import com.example.demo.login.member.domain.member.Member;
 
-import com.example.demo.login.member.infrastructure.member.MemberJpaRepository;
+import com.example.demo.login.member.domain.member.MemberValidator;
 
 import com.example.demo.mypage.carItem.domain.entity.CartItem;
 import com.example.demo.mypage.carItem.domain.repository.CartItemRepository;
@@ -20,7 +19,7 @@ import java.util.List;
 public class CartService {
 
     private final CartItemRepository cartItemRepository;
-    private final MemberJpaRepository memberRepository;
+    private final MemberValidator memberValidator;
 
     public void addToCart(Long productId, int quantity, Long memberId) {
         Long exists = cartItemRepository.existsCartItem(memberId, productId);
@@ -46,7 +45,7 @@ public class CartService {
     }
 
     public void updateQuantityByCartItemId(Long memberId, Long cartItemId, int newQuantity) {
-        Member member = findMemberId(memberId);
+        Member member = memberValidator.getMember(memberId);
         CartItem cartItem = getCartItem(cartItemId, member);
         validateUpdateQuantity(newQuantity, cartItem);
     }
@@ -60,7 +59,7 @@ public class CartService {
     }
 
     public void deleteSelectedItems(Long memberId, List<Long> productIds) {
-        Member member = findMemberId(memberId);
+        Member member = memberValidator.getMember(memberId);
 
         List<CartItem> items = cartItemRepository.findByMemberAndProductIdIn(member, productIds);
         cartItemRepository.deleteAll(items);
@@ -101,10 +100,5 @@ public class CartService {
         if (exists != null && exists == 1L) {
             throw new CartItemAlreadyExistsException();
         }
-    }
-
-    private Member findMemberId(final Long memberId) {
-        return memberRepository.findById(memberId)
-                .orElseThrow(NotFoundMemberException::new);
     }
 }

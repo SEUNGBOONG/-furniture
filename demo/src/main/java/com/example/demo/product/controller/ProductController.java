@@ -8,12 +8,15 @@ import com.example.demo.product.controller.dto.ProductDetailSimpleDTO;
 import com.example.demo.product.controller.dto.ProductRequest;
 import com.example.demo.product.controller.dto.ProductResponse;
 import com.example.demo.product.domain.ProductValidator;
+import com.example.demo.product.domain.entity.Product;
 import com.example.demo.product.service.ProductDetailService;
+import com.example.demo.product.service.ProductLikeService;
 import com.example.demo.product.service.ProductService;
 
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 @RestController
 @RequestMapping("/products")
@@ -34,23 +38,20 @@ public class ProductController {
 
     private final ProductService productService;
     private final ProductDetailService productDetailService;
+    private final ProductLikeService productLikeService;
 
     @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<String> createProduct(
             @RequestPart("product") ProductRequest dto,
             @RequestPart("image") MultipartFile image,
             @Member Long memberId) {
-        // 관리자 권한 체크
         ResponseEntity<String> FORBIDDEN = ProductValidator.getStringResponseEntity(memberId);
         if (FORBIDDEN != null) return FORBIDDEN;
 
-        // 비동기 이미지 업로드
         CompletableFuture<String> imageUrlFuture = productService.uploadImageAsync(image);
 
-        // 이미지 URL을 비동기적으로 받음
         String imageUrl = imageUrlFuture.join();  // join()으로 비동기 완료 대기
 
-        // 상품 생성
         productService.createProduct(dto, imageUrl);
 
         return ResponseEntity.ok(Setting.PRODUCT_CREATE_SUCCESS.toString());
@@ -101,6 +102,30 @@ public class ProductController {
         // 상품 삭제
         productService.deleteProduct(productId);
         return ResponseEntity.ok(Setting.PRODUCT_DELETE_SUCCESS.toString());
+    }
+
+
+    @PostMapping("/{productId}/like-toggle")
+    public ResponseEntity<?> toggleLike(@PathVariable Long productId,
+                                        @AuthenticationPrincipal @Member Long memberId) {
+        Product product = productService.findById(productId);
+        boolean isLiked = productLikeService.toggleLike(memberId, product);
+
+        return ResponseEntity.ok(Map.of(
+                "liked", isLiked,
+                "message", isLiked ? "찜 추가됨" : "찜 해제됨"
+        ));
+    }
+
+    @GetMapping("/likes")
+    public ResponseEntity<?> getLikedProducts(@AuthenticationPrincipal @Member Long memberId) {
+        List<Product> likedProducts = productLikeService.getLikedProducts(memberId);
+
+        List<ProductResponse> response = likedProducts.stream()
+                .map(p -> new ProductResponse(p.getId(), p.getName(), p.getDescription(), p.getPrice(), p.getCategory().getName(), p.getImage()))
+                .toList();
+
+        return ResponseEntity.ok(response);
     }
 
 }
