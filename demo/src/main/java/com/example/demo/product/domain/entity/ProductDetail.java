@@ -26,6 +26,7 @@ public class ProductDetail {
     private Long id;
 
     private String model;
+
     private String size;
 
     @ManyToOne(fetch = FetchType.LAZY)
