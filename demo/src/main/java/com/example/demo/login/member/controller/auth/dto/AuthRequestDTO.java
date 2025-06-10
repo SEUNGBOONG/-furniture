@@ -7,8 +7,4 @@ public class AuthRequestDTO {
     private String email;
     private String authCode;
 
-    public String getAuthCode() {
-        return authCode != null ? authCode.replaceAll("\\p{Cntrl}", "") : null;
-    }
-
 }
