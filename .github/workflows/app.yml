@@ -1,0 +1,176 @@
+name: App With Github Actions with docker-compose CI/CD + RDS
+
+on: workflow_dispatch
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+          cache: 'gradle'
+
+      - name: Build with Gradle
+        working-directory: ./demo
+        run: |
+          chmod +x gradlew
+          ./gradlew build --no-daemon
+
+      - name: Check jar file
+        run: ls ./demo/build/libs
+
+      - name: Change jar file name
+        run: mv ./demo/build/libs/demo-0.0.1-SNAPSHOT.jar ./demo/build/libs/app.jar
+
+      - name: Check changed name
+        run: ls ./demo/build/libs
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app
+          path: ./demo/build/libs/app.jar
+
+      - name: Upload docker-compose.yml artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-compose.yml
+          path: ./demo/docker-compose.yml
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: ./demo
+          file: ./demo/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/furniture:latest
+
+  cd:
+    needs: ci
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download docker-compose.yml
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-compose.yml
+          path: ./
+
+      - name: Verify docker-compose.yml in Repository
+        run: ls -l ./docker-compose.yml
+
+      - name: Upload docker-compose.yml to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          source: ./docker-compose.yml
+          target: /home/${{ secrets.EC2_USERNAME }}/
+
+      - name: Upload app.jar to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          source: ./demo/build/libs/app.jar
+          target: /home/${{ secrets.EC2_USERNAME }}/
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script: |
+            export EC2_USERNAME=${{ secrets.EC2_USERNAME }}
+            export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
+
+            echo "DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}" > .env
+            echo "SPRING_DATASOURCE_URL=${{ secrets.RDS_ENDPOINT }}" >> .env
+            echo "SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
+            echo "SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+            echo "SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect" >> .env
+
+            # application.properties 생성
+            echo "${{ secrets.PROPERTIES }}" > /home/${EC2_USERNAME}/application.properties
+
+            # JDK 17 설치 확인
+            if ! java -version 2>&1 | grep -q "17"; then
+              sudo apt update
+              sudo apt install -y openjdk-17-jdk
+              echo 'JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"' | sudo tee -a /etc/environment
+              source /etc/environment
+              echo "JDK 17 installed and JAVA_HOME set."
+            fi
+
+            # Docker 설치 확인
+            if ! command -v docker &> /dev/null; then
+              echo "Installing Docker..."
+              sudo apt update
+              sudo apt install -y docker.io
+              sudo systemctl start docker
+              sudo systemctl enable docker
+            fi
+
+            # Docker Compose 설치 확인
+            if ! command -v docker-compose &> /dev/null; then
+              echo "Installing Docker Compose..."
+              sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+              sudo chmod +x /usr/local/bin/docker-compose
+            fi
+
+            # docker-compose 실행
+            if [[ -f "docker-compose.yml" ]]; then
+              echo "docker-compose.yml:"
+              cat docker-compose.yml
+
+              echo ".env:"
+              cat .env
+
+              sudo docker-compose --env-file .env down
+              sudo docker pull ${DOCKERHUB_USERNAME}/furniture:latest
+              sudo docker-compose --env-file .env up -d
+
+              CONTAINER_ID=$(sudo docker ps -q -f name=backend-server)
+
+              # application.properties를 컨테이너 내부로 복사
+              sudo docker cp /home/${EC2_USERNAME}/application.properties $CONTAINER_ID:/app/application.properties
+
+              # 백엔드 서버 강제 재시작
+              sudo docker exec $CONTAINER_ID pkill -f 'java'
+
+              # Spring Boot 실행: 외부 설정 지정
+              sudo docker exec -d $CONTAINER_ID java -jar app.jar --spring.config.location=application.properties
+
+              # 확인
+              echo "Environment variables in container:"
+              sudo docker exec $CONTAINER_ID env
+
+              echo "Container logs:"
+              sudo docker logs $CONTAINER_ID
+
+              sudo docker image prune -a -f
+              echo "Deployment completed."
+            else
+              echo "Error: docker-compose.yml not found!"
+              exit 1
+            fi
