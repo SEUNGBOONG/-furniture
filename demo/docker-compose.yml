@@ -10,6 +10,10 @@ services:
       - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
       - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
       - SPRING_JPA_DATABASE_PLATFORM=${SPRING_JPA_DATABASE_PLATFORM}
+
+    volumes:
+      - ./application.properties:/app/config/application.properties
+    command: ["java", "-jar", "app.jar", "--spring.config.location=file:/app/config/application.properties"]
     # restart: always
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
