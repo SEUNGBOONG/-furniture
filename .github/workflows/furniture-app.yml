@@ -100,18 +100,13 @@ jobs:
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
             export EC2_USERNAME=${{ secrets.EC2_USERNAME }}
-            export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
-            export SPRING_DATASOURCE_URL=jdbc:mysql://${{ secrets.RDS_ENDPOINT }}
-            export SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USERNAME }}
-            export SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }}
-            export SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect
-
-            # 디버깅: 환경 변수 출력
-            echo "Exported environment variables:"
-            echo "SPRING_DATASOURCE_URL=$SPRING_DATASOURCE_URL"
-            echo "SPRING_DATASOURCE_USERNAME=$SPRING_DATASOURCE_USERNAME"
-            echo "SPRING_DATASOURCE_PASSWORD=$SPRING_DATASOURCE_PASSWORD"
-            echo "SPRING_JPA_DATABASE_PLATFORM=$SPRING_JPA_DATABASE_PLATFORM"
+            export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}# .env 파일 생성
+            
+            echo "DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}" > .env
+            echo "SPRING_DATASOURCE_URL=jdbc:mysql://${{ secrets.RDS_ENDPOINT }}" >> .env
+            echo "SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
+            echo "SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+            echo "SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect" >> .env
 
             # RDS 연결 테스트
             echo "Testing RDS connectivity:"
@@ -142,18 +137,23 @@ jobs:
               sudo chmod +x /usr/local/bin/docker-compose
             fi
 
-            # docker-compose.yml 확인 및 실행
-            cd /home/${EC2_USERNAME}
+            # docker-compose 실행
             if [[ -f "docker-compose.yml" ]]; then
               echo "Contents of docker-compose.yml:"
               cat docker-compose.yml
-              sudo docker-compose down
-              sudo docker pull ${DOCKERHUB_USERNAME}/furniture
-              sudo docker-compose up -d
+              echo "Contents of .env:"
+              cat .env
+
+              sudo docker-compose --env-file .env down
+              sudo docker pull ${DOCKERHUB_USERNAME}/furniture:latest
+              sudo docker-compose --env-file .env up -d
+
               echo "Environment variables in container:"
-              sudo docker exec $(sudo docker ps -q -f name=app) env
+              sudo docker exec $(sudo docker ps -q -f name=backend-server) env
+
               echo "Container logs:"
-              sudo docker logs $(sudo docker ps -q -f name=app)
+              sudo docker logs $(sudo docker ps -q -f name=backend-server)
+
               sudo docker image prune -a -f
               echo "Deployment completed."
             else
