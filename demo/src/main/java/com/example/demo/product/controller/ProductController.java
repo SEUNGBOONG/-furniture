@@ -57,6 +57,20 @@ public class ProductController {
         return ResponseEntity.ok(Setting.PRODUCT_CREATE_SUCCESS.toString());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductResponse> getProductById(@PathVariable Long id) {
+        Product product = productService.findById(id);
+        ProductResponse response = new ProductResponse(
+                product.getId(),
+                product.getName(),
+                product.getDescription(),
+                product.getPrice(),
+                product.getCategory().getName(),
+                product.getImage()
+        );
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/search")
     public ResponseEntity<List<ProductResponse>> getProductsByTagName(@RequestParam String tagName) {
         return ResponseEntity.ok(productService.getProductsByTagName(tagName));
@@ -103,7 +117,6 @@ public class ProductController {
         productService.deleteProduct(productId);
         return ResponseEntity.ok(Setting.PRODUCT_DELETE_SUCCESS.toString());
     }
-
 
     @PostMapping("/{productId}/like-toggle")
     public ResponseEntity<?> toggleLike(@PathVariable Long productId,
