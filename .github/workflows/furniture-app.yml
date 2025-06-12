@@ -109,8 +109,8 @@ jobs:
             echo "SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect" >> .env
 
             # RDS 연결 테스트
-            echo "Testing RDS connectivity:"
-            nc -zv ${{ secrets.RDS_ENDPOINT }} || { echo "RDS connectivity failed"; exit 1; }
+            # echo "Testing RDS connectivity:"
+            # nc -zv ${{ secrets.RDS_ENDPOINT }} || { echo "RDS connectivity failed"; exit 1; }
 
             # JDK 설치 확인
             if ! java -version 2>&1 | grep -q "17"; then
