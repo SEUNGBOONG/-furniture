@@ -101,7 +101,7 @@ jobs:
           script: |
             export EC2_USERNAME=${{ secrets.EC2_USERNAME }}
             export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
-            export SPRING_DATASOURCE_URL=jdbc:mysql://${{ secrets.RDS_ENDPOINT }}:3306/your_database_name
+            export SPRING_DATASOURCE_URL=jdbc:mysql://${{ secrets.RDS_ENDPOINT }}
             export SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USERNAME }}
             export SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }}
             export SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect
