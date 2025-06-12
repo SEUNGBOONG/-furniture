@@ -103,7 +103,7 @@ jobs:
             export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}# .env 파일 생성
             
             echo "DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}" > .env
-            echo "SPRING_DATASOURCE_URL=jdbc:mysql://${{ secrets.RDS_ENDPOINT }}" >> .env
+            echo "SPRING_DATASOURCE_URL=${{ secrets.RDS_ENDPOINT }}" >> .env
             echo "SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
             echo "SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
             echo "SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect" >> .env
