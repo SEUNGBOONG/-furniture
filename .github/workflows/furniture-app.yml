@@ -108,6 +108,9 @@ jobs:
             echo "SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
             echo "SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect" >> .env
 
+            # application.properties 생성
+            echo "${{ secrets.PROPERTIES }}" > application.properties
+
             # JDK 설치 확인
             if ! java -version 2>&1 | grep -q "17"; then
               sudo apt update
