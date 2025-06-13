@@ -5,8 +5,8 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum CustomErrorCode {
 
-    NOT_FIND_TOKEN(HttpStatus.NOT_FOUND, "T001", "토큰을 찾을 수 없습니다."),
-    EXPIRED_TOKEN(HttpStatus.NOT_FOUND, "T002", "토큰 시간이 만료됐습니다.");
+    NOT_FIND_TOKEN(HttpStatus.UNAUTHORIZED, "T001", "토큰을 찾을 수 없습니다."),
+    EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "T002", "토큰 시간이 만료됐습니다.");
 
     private final HttpStatus httpStatus;
     private final String customCode;
