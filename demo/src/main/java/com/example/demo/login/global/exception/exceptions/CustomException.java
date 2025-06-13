@@ -1,4 +1,5 @@
 package com.example.demo.login.global.exception.exceptions;
+
 import lombok.Getter;
 
 @Getter
