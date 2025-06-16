@@ -129,7 +129,7 @@ public class ProductController {
         List<Product> likedProducts = productLikeService.getLikedProducts(memberId);
 
         List<ProductResponse> response = likedProducts.stream()
-                .map(p -> new ProductResponse(p.getId(), p.getName(), p.getDescription(), p.getPrice(), p.getCategory().getName(), p.getImage()))
+                .map(p -> new ProductResponse(p.getId(), p.getName(), p.getDescription(), p.getPrice(), p.getCategory().getName(), p.getTagName(), p.getImage()))
                 .toList();
 
         return ResponseEntity.ok(response);
@@ -142,6 +142,7 @@ public class ProductController {
                 product.getDescription(),
                 product.getPrice(),
                 product.getCategory().getName(),
+                product.getTagName(),
                 product.getImage()
         );
     }
