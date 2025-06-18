@@ -1,11 +1,11 @@
 package com.example.demo.mypage.carItem.service;
 
-import com.example.demo.common.exception.CartItemAlreadyExistsException;
 import com.example.demo.common.exception.CartItemNotFoundException;
 import com.example.demo.login.member.domain.member.Member;
 
 import com.example.demo.login.member.domain.member.MemberValidator;
 
+import com.example.demo.mypage.carItem.domain.CartValidator;
 import com.example.demo.mypage.carItem.domain.entity.CartItem;
 import com.example.demo.mypage.carItem.domain.repository.CartItemRepository;
 
@@ -20,34 +20,29 @@ public class CartService {
 
     private final CartItemRepository cartItemRepository;
     private final MemberValidator memberValidator;
+    private final CartValidator cartValidator;
 
     public void addToCart(Long productId, int quantity, Long memberId) {
         Long exists = cartItemRepository.existsCartItem(memberId, productId);
-        validateExists(exists);
+        CartValidator.validateExists(exists);
         cartItemRepository.upsertCartItem(productId, memberId, quantity);
     }
 
     public void increaseQuantity(Long memberId, Long cartItemId) {
         int updated = cartItemRepository.updateQuantityByAmount(cartItemId, memberId, 1);
-        validateUpdate(updated);
+        CartValidator.validateUpdate(updated);
     }
 
     public void decreaseQuantity(Long memberId, Long cartItemId) {
         int updated = cartItemRepository.updateQuantityByAmount(cartItemId, memberId, -1);
-        validateUpdate(updated);
-        validateCartItem(cartItemId);
-    }
-
-    private void validateCartItem(final Long cartItemId) {
-        CartItem cartItem = cartItemRepository.findById(cartItemId)
-                .orElseThrow(CartItemNotFoundException::new);
-        validateQuantity(cartItem);
+        CartValidator.validateUpdate(updated);
+        cartValidator.validateCartItem(cartItemId);
     }
 
     public void updateQuantityByCartItemId(Long memberId, Long cartItemId, int newQuantity) {
         Member member = memberValidator.getMember(memberId);
         CartItem cartItem = getCartItem(cartItemId, member);
-        validateUpdateQuantity(newQuantity, cartItem);
+        cartValidator.validateUpdateQuantity(newQuantity, cartItem);
     }
 
     public List<CartItem> getCartItems(Long memberId) {
@@ -65,27 +60,6 @@ public class CartService {
         cartItemRepository.deleteAll(items);
     }
 
-    private static void validateUpdate(final int updated) {
-        if (updated == 0) {
-            throw new RuntimeException();
-        }
-    }
-
-    private void validateQuantity(final CartItem cartItem) {
-        if (cartItem.getQuantity() <= 0) {
-            cartItemRepository.delete(cartItem);
-        }
-    }
-
-    private void validateUpdateQuantity(final int newQuantity, final CartItem cartItem) {
-        if (newQuantity <= 0) {
-            cartItemRepository.delete(cartItem);
-        } else {
-            cartItem.changeQuantity(newQuantity);
-            cartItemRepository.save(cartItem);
-        }
-    }
-
     private CartItem getCartItem(final Long cartItemId, final Member member) {
         CartItem cartItem = cartItemRepository.findById(cartItemId)
                 .orElseThrow(CartItemNotFoundException::new);
@@ -94,11 +68,5 @@ public class CartService {
             throw new CartItemNotFoundException();
         }
         return cartItem;
-    }
-
-    private static void validateExists(final Long exists) {
-        if (exists != null && exists == 1L) {
-            throw new CartItemAlreadyExistsException();
-        }
     }
 }
