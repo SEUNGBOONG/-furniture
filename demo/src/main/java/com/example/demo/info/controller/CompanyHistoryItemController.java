@@ -1,5 +1,6 @@
 package com.example.demo.info.controller;
 
+import com.example.demo.info.controller.dto.CompanyHistoryImageDTO;
 import com.example.demo.info.controller.dto.CompanyHistoryItemDTO;
 import com.example.demo.info.service.CompanyHistoryItemService;
 import org.springframework.http.ResponseEntity;
@@ -23,4 +24,10 @@ public class CompanyHistoryItemController {
     public ResponseEntity<List<CompanyHistoryItemDTO>> getHistoryItems() {
         return ResponseEntity.ok(service.getAllHistoryItems());
     }
+
+    @GetMapping("/historyImage")
+    public ResponseEntity<List<CompanyHistoryImageDTO>> getHistoryImage() {
+        return ResponseEntity.ok(service.getAllHistoryImage());
+    }
+
 }

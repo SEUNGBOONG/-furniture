@@ -1,5 +1,6 @@
 package com.example.demo.info.service;
 
+import com.example.demo.info.controller.dto.CompanyHistoryImageDTO;
 import com.example.demo.info.controller.dto.CompanyHistoryItemDTO;
 import com.example.demo.info.domain.repository.CompanyHistoryItemRepository;
 import org.springframework.cache.annotation.Cacheable;
@@ -22,9 +23,17 @@ public class CompanyHistoryItemService {
                 .map(item -> new CompanyHistoryItemDTO(
                         item.getId(),
                         item.getTitle(),
-                        item.getContent(),
+                        item.getContent()
+                ))
+                .toList();
+    }
+
+    public List<CompanyHistoryImageDTO> getAllHistoryImage() {
+        return repository.findAllByOrderById().stream()
+                .map(item -> new CompanyHistoryImageDTO(
                         item.getImageUrl1(),
-                        item.getImageUrl2()))
+                        item.getImageUrl2()
+                ))
                 .toList();
     }
 }
