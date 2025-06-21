@@ -16,7 +16,7 @@ public class CompanyHistoryItemController {
 
     private final CompanyHistoryItemService service;
 
-    public CompanyHistoryItemController(CompanyHistoryItemService service) {
+    public CompanyHistoryItemController(final CompanyHistoryItemService service) {
         this.service = service;
     }
 
@@ -26,8 +26,12 @@ public class CompanyHistoryItemController {
     }
 
     @GetMapping("/historyImage")
-    public ResponseEntity<List<CompanyHistoryImageDTO>> getHistoryImage() {
-        return ResponseEntity.ok(service.getAllHistoryImage());
+    public ResponseEntity<CompanyHistoryImageDTO> getHistoryImage() {
+        CompanyHistoryImageDTO imageDTO = service.getHistoryImageById(1L);
+        if (imageDTO == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(imageDTO);
     }
 
 }
