@@ -1,11 +1,11 @@
 package com.example.demo.common.exception;
 
-public class CartItemAlreadyExistsException extends RuntimeException {
-    public CartItemAlreadyExistsException() {
-        super("이미 장바구니에 담긴 상품입니다.");
-    }
+import com.example.demo.login.global.exception.exceptions.CustomErrorCode;
+import com.example.demo.login.global.exception.exceptions.CustomException;
 
-    public CartItemAlreadyExistsException(String message) {
-        super(message);
+public class CartItemAlreadyExistsException extends CustomException {
+
+    public CartItemAlreadyExistsException() {
+        super(CustomErrorCode.CART_ITEM_ALREADY_EXISTS);
     }
 }
