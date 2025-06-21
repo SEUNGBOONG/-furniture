@@ -1,11 +1,10 @@
 package com.example.demo.common.exception;
 
-public class CartItemNotFoundException extends RuntimeException {
-    public CartItemNotFoundException() {
-        super("장바구니 아이템이 없습니다.");
-    }
+import com.example.demo.login.global.exception.exceptions.CustomErrorCode;
+import com.example.demo.login.global.exception.exceptions.CustomException;
 
-    public CartItemNotFoundException(String message) {
-        super(message);
+public class CartItemNotFoundException extends CustomException {
+    public CartItemNotFoundException() {
+        super(CustomErrorCode.CART_NOT_FOUND_ITEM);
     }
 }
