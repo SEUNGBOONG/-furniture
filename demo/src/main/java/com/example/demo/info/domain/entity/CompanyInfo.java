@@ -34,4 +34,7 @@ public class CompanyInfo {
     private String businessArea;
     private String scale;
     private String mainClient;
+
+    private String businessNumber;
+
 }

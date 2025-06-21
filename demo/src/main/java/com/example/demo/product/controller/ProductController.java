@@ -31,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+
 @RestController
 @RequestMapping("/products")
 @RequiredArgsConstructor
@@ -50,7 +51,7 @@ public class ProductController {
 
         CompletableFuture<String> imageUrlFuture = productService.uploadImageAsync(image);
 
-        String imageUrl = imageUrlFuture.join();  // join()으로 비동기 완료 대기
+        String imageUrl = imageUrlFuture.join();
 
         productService.createProduct(dto, imageUrl);
 
@@ -60,14 +61,7 @@ public class ProductController {
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponse> getProductById(@PathVariable Long id) {
         Product product = productService.findById(id);
-        ProductResponse response = new ProductResponse(
-                product.getId(),
-                product.getName(),
-                product.getDescription(),
-                product.getPrice(),
-                product.getCategory().getName(),
-                product.getImage()
-        );
+        ProductResponse response = getProductResponse(product);
         return ResponseEntity.ok(response);
     }
 
@@ -135,10 +129,21 @@ public class ProductController {
         List<Product> likedProducts = productLikeService.getLikedProducts(memberId);
 
         List<ProductResponse> response = likedProducts.stream()
-                .map(p -> new ProductResponse(p.getId(), p.getName(), p.getDescription(), p.getPrice(), p.getCategory().getName(), p.getImage()))
+                .map(p -> new ProductResponse(p.getId(), p.getName(), p.getDescription(), p.getPrice(), p.getCategory().getName(), p.getTagName(), p.getImage()))
                 .toList();
 
         return ResponseEntity.ok(response);
     }
 
+    private static ProductResponse getProductResponse(final Product product) {
+        return new ProductResponse(
+                product.getId(),
+                product.getName(),
+                product.getDescription(),
+                product.getPrice(),
+                product.getCategory().getName(),
+                product.getTagName(),
+                product.getImage()
+        );
+    }
 }
