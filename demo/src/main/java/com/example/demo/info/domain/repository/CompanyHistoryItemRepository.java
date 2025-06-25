@@ -7,5 +7,4 @@ import java.util.List;
 
 public interface CompanyHistoryItemRepository extends JpaRepository<CompanyHistoryItem, Long> {
     List<CompanyHistoryItem> findAllByOrderByIdAsc();
-    List<CompanyHistoryItem> findAllByOrderById();
 }
