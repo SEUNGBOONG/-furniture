@@ -30,7 +30,6 @@ public class CompanyHistoryItemService {
                 .toList();
     }
 
-    // 여기 @Cacheable 추가해서 Redis에 캐시 생성되도록 해야 합니다.
     @Cacheable(value = "companyHistoryImage")
     public CompanyHistoryImageDTO getHistoryImageById(Long id) {
         return repository.findById(id)
@@ -40,8 +39,4 @@ public class CompanyHistoryItemService {
                 .orElse(null);
     }
 
-    @CacheEvict(value = "companyHistoryImage", key = "1")  // id=1 캐시 삭제
-    public void evictImageCache() {
-        // 캐시 삭제용 빈 메서드
-    }
 }
