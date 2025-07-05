@@ -1,4 +1,4 @@
-package com.example.demo.common;
+package com.example.demo.common.exception;
 
 public enum Setting {
     EMAIL("tmdduqflfl@naver.com"),

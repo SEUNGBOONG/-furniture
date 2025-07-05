@@ -1,6 +1,6 @@
 package com.example.demo.info.controller;
 
-import com.example.demo.common.Setting;
+import com.example.demo.common.exception.Setting;
 import com.example.demo.info.domain.MapValidator;
 import com.example.demo.info.service.KakaoMapService;
 
