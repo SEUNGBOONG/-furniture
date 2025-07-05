@@ -1,6 +1,6 @@
 package com.example.demo.product.service;
 
-import com.example.demo.common.Setting;
+import com.example.demo.common.exception.Setting;
 
 import com.example.demo.product.controller.dto.CategoryRequest;
 import com.example.demo.product.controller.dto.CategoryResponse;

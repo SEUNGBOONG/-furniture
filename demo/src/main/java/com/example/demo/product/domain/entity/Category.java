@@ -1,6 +1,6 @@
 package com.example.demo.product.domain.entity;
 
-import com.example.demo.common.Setting;
+import com.example.demo.common.exception.Setting;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;

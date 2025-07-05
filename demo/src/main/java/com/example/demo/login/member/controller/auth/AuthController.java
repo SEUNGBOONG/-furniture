@@ -1,6 +1,6 @@
 package com.example.demo.login.member.controller.auth;
 
-import com.example.demo.common.Setting;
+import com.example.demo.common.exception.Setting;
 import com.example.demo.login.email.util.EmailSenderUtil;
 import com.example.demo.login.member.controller.auth.dto.AuthRequestDTO;
 import com.example.demo.login.member.controller.auth.dto.ChangePasswordRequest;

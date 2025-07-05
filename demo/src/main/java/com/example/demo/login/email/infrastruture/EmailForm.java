@@ -1,6 +1,6 @@
 package com.example.demo.login.email.infrastruture;
 
-import com.example.demo.common.Setting;
+import com.example.demo.common.exception.Setting;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
