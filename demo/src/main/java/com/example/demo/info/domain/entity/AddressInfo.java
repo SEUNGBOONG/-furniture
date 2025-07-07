@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "address_i'nfo") // 실제 MySQL 테이블명
+@Table(name = "address_info")
 public class AddressInfo {
 
     @Id

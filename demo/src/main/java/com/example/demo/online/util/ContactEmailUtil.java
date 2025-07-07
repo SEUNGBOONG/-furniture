@@ -1,6 +1,6 @@
 package com.example.demo.online.util;
 
-import com.example.demo.common.Setting;
+import com.example.demo.common.exception.Setting;
 import com.example.demo.online.controller.dto.ContactRequest;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;

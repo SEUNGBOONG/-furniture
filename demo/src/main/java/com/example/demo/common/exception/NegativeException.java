@@ -1,6 +1,6 @@
 package com.example.demo.common.exception;
 
-import static com.example.demo.common.Setting.NEGATIVE_QUANTITY;
+import static com.example.demo.common.exception.Setting.NEGATIVE_QUANTITY;
 
 public class NegativeException extends IllegalArgumentException{
     public NegativeException() {

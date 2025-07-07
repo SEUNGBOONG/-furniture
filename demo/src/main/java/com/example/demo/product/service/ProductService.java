@@ -1,6 +1,6 @@
 package com.example.demo.product.service;
 
-import com.example.demo.common.Setting;
+import com.example.demo.common.exception.Setting;
 import com.example.demo.config.s3.S3Uploader;
 
 import com.example.demo.product.controller.dto.CategoryResponse;
@@ -12,6 +12,7 @@ import com.example.demo.product.domain.repository.CategoryRepository;
 import com.example.demo.product.domain.entity.Product;
 import com.example.demo.product.domain.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
