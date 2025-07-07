@@ -11,14 +11,8 @@ public class EmailCode {
 
     public String createCode() {
         Random random = new Random();
-        StringBuilder key = new StringBuilder(8);
-        extracted(key, random);
-        return key.toString();
+        int code = 100000 + random.nextInt(900000); // 100000 ~ 999999 범위의 6자리 정수
+        return String.valueOf(code); // 여전히 String으로 반환 (비교, 보관 편리)
     }
 
-    private static void extracted(final StringBuilder key, final Random random) {
-        for (int i = 0; i < 8; i++) {
-            key.append(CHARACTERS.charAt(random.nextInt(CHARACTERS.length())));
-        }
-    }
 }
