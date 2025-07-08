@@ -19,6 +19,7 @@ public class AuthMapper {
                 .checkCorporation(true)
                 .corporationNumber(signUpRequest.corporationNumber())
                 .corporationImageURL(imageUrl)
+                .phoneNumber(signUpRequest.phoneNumber())
                 .build();
     }
 
@@ -32,6 +33,7 @@ public class AuthMapper {
                 .jibunAddress(request.jibunAddress())
                 .zipCode(request.zipCode())
                 .checkCorporation(false)
+                .phoneNumber(request.phoneNumber())
                 .build();
     }
 
