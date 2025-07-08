@@ -9,6 +9,7 @@ public record SignUpRequest(
         String jibunAddress,
         String zipCode,
         boolean checkCorporation,
-        String corporationNumber
+        String corporationNumber,
+        String phoneNumber
 ) {
 }

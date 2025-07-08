@@ -7,6 +7,7 @@ public record NormalSignUpRequest(
         String memberNickName,
         String roadAddress,
         String jibunAddress,
-        String zipCode
+        String zipCode,
+        String phoneNumber
 ) {
 }
