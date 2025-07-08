@@ -2,7 +2,7 @@ package com.example.demo.mypage.carItem.domain.entity;
 
 import com.example.demo.common.exception.NegativeException;
 import com.example.demo.login.member.domain.member.Member;
-import com.example.demo.product.domain.entity.Product;
+import com.example.demo.product.domain.entity.product.Product;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;

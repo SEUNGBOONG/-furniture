@@ -1,4 +1,4 @@
-package com.example.demo.product.domain;
+package com.example.demo.product.util;
 
 import com.example.demo.common.exception.Setting;
 import com.example.demo.product.controller.category.dto.CategoryRequest;

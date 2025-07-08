@@ -1,10 +1,10 @@
-package com.example.demo.product.service;
+package com.example.demo.product.service.product;
 
 import com.example.demo.login.member.domain.member.Member;
-import com.example.demo.login.member.domain.member.MemberValidator;
-import com.example.demo.product.domain.entity.Product;
-import com.example.demo.product.domain.entity.ProductLike;
-import com.example.demo.product.domain.repository.ProductLikeRepository;
+import com.example.demo.login.util.MemberValidator;
+import com.example.demo.product.domain.entity.product.Product;
+import com.example.demo.product.domain.entity.product.ProductLike;
+import com.example.demo.product.domain.repository.product.ProductLikeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

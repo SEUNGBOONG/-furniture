@@ -6,7 +6,7 @@ import com.example.demo.login.global.annotation.Member;
 
 import com.example.demo.product.controller.category.dto.CategoryRequest;
 import com.example.demo.product.controller.category.dto.CategoryResponse;
-import com.example.demo.product.service.CategoryService;
+import com.example.demo.product.service.category.CategoryService;
 
 import lombok.RequiredArgsConstructor;
 

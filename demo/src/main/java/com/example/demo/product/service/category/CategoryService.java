@@ -1,12 +1,12 @@
-package com.example.demo.product.service;
+package com.example.demo.product.service.category;
 
 import com.example.demo.common.exception.Setting;
 
 import com.example.demo.product.controller.category.dto.CategoryRequest;
 import com.example.demo.product.controller.category.dto.CategoryResponse;
-import com.example.demo.product.domain.ProductValidator;
-import com.example.demo.product.domain.entity.Category;
-import com.example.demo.product.domain.repository.CategoryRepository;
+import com.example.demo.product.util.ProductValidator;
+import com.example.demo.product.domain.entity.category.Category;
+import com.example.demo.product.domain.repository.category.CategoryRepository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

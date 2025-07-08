@@ -1,9 +1,9 @@
-package com.example.demo.product.domain.repository;
+package com.example.demo.product.domain.repository.product;
 
 
 import com.example.demo.login.member.domain.member.Member;
-import com.example.demo.product.domain.entity.Product;
-import com.example.demo.product.domain.entity.ProductLike;
+import com.example.demo.product.domain.entity.product.Product;
+import com.example.demo.product.domain.entity.product.ProductLike;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

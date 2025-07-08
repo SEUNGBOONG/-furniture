@@ -24,6 +24,7 @@ import com.example.demo.login.member.infrastructure.member.MemberJpaRepository;
 
 import com.example.demo.login.member.mapper.auth.AuthMapper;
 
+import com.example.demo.login.util.AuthValidator;
 import com.example.demo.login.util.CorporationValidator;
 
 import lombok.RequiredArgsConstructor;
@@ -39,18 +40,22 @@ public class AuthService {
 
     private final MemberJpaRepository memberJpaRepository;
     private final JwtTokenProvider jwtTokenProvider;
-    private final CorporationValidator corporationValidator;
+
     private final S3Uploader s3Uploader;
     private final PasswordEncoder passwordEncoder;
+
     private final SignUpValidator signUpValidator;
     private final EmailValidator emailValidator;
+    private final CorporationValidator corporationValidator;
+
+    private final AuthValidator authValidator;
 
     public Member signUp(SignUpRequest signUpRequest, MultipartFile corporationImage) {
         signUpValidator.validateSignupRequestFormat(signUpRequest);
         emailValidator.validateEmailFormat(signUpRequest.memberEmail());
         signUpValidator.checkPasswordLength(signUpRequest.memberPassword());
-        checkDuplicateMemberNickName(signUpRequest.memberNickName());
-        checkDuplicateMemberEmail(signUpRequest.memberEmail());
+        authValidator.checkDuplicateMemberNickName(signUpRequest.memberNickName());
+        authValidator.checkDuplicateMemberEmail(signUpRequest.memberEmail());
 
         String encodedPassword = passwordEncoder.encode(signUpRequest.memberPassword());  // 암호화
         String imageUrl = s3Uploader.uploadFile(corporationImage);
@@ -65,8 +70,8 @@ public class AuthService {
         emailValidator.validateEmailFormat(signUpRequest.memberEmail());
         signUpValidator.checkPasswordLength(signUpRequest.memberPassword());
 
-        checkDuplicateMemberNickName(signUpRequest.memberNickName());
-        checkDuplicateMemberEmail(signUpRequest.memberEmail());
+        authValidator.checkDuplicateMemberNickName(signUpRequest.memberNickName());
+        authValidator.checkDuplicateMemberEmail(signUpRequest.memberEmail());
 
         String encodedPassword = passwordEncoder.encode(signUpRequest.memberPassword());  // 암호화
 
@@ -77,9 +82,9 @@ public class AuthService {
     @Transactional(readOnly = true)
     public LoginResponse login(LoginRequest loginRequest) {
         signUpValidator.validateLoginRequestFormat(loginRequest);
-        Member member = findMemberByEmail(loginRequest.memberEmail());
+        Member member = authValidator.findMemberByEmail(loginRequest.memberEmail());
 
-        validatePasswordEncoderException(passwordEncoder.matches(loginRequest.memberPassword(), member.getMemberPassword()));
+        AuthValidator.validatePasswordEncoderException(passwordEncoder.matches(loginRequest.memberPassword(), member.getMemberPassword()));
 
         String token = jwtTokenProvider.createToken(member.getId());
         return AuthMapper.toLoginResponse(token, member);
@@ -87,7 +92,7 @@ public class AuthService {
 
     @Transactional
     public void changePassword(String email, String newPassword, String newPasswordConfirm) {
-        Member member = findMemberByEmail(email);
+        Member member = authValidator.findMemberByEmail(email);
         validateNewPassword(newPassword, newPasswordConfirm);
         signUpValidator.checkPasswordLength(newPassword);
         String encodedPassword = passwordEncoder.encode(newPassword);  // 암호화
@@ -109,12 +114,6 @@ public class AuthService {
         validatePasswordEncoderException(newPassword.equals(newPasswordConfirm));
     }
 
-    private void checkDuplicateMemberNickName(String nickName) {
-        if (memberJpaRepository.existsByMemberNickName(nickName)) {
-            throw new DuplicateNickNameException();
-        }
-    }
-
     private void checkBusinessNumber(final SignUpRequest signUpRequest, final MultipartFile corporationImage) {
         if (!corporationValidator.isValidCorporationNumber(signUpRequest.corporationNumber())) {
             throw new InvalidRegistrationNumber();
@@ -123,16 +122,5 @@ public class AuthService {
         if (corporationImage == null || corporationImage.isEmpty()) {
             throw new PleaseAttachImage();
         }
-    }
-
-    private void checkDuplicateMemberEmail(String email) {
-        if (memberJpaRepository.existsByMemberEmail(email)) {
-            throw new DuplicateEmailException();
-        }
-    }
-
-    private Member findMemberByEmail(String email) {
-        return memberJpaRepository.findMemberByMemberEmail(email)
-                .orElseThrow(NotFoundMemberByEmailException::new);
     }
 }
