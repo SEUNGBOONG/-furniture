@@ -18,7 +18,7 @@ public record MemberAdminResponse(
                 member.getMemberEmail(),
                 member.getMemberName(),
                 member.getMemberNickName(),
-                member.getPhoneNumber(),  // 전화번호 필드가 있다고 가정
+                member.getPhoneNumber(),
                 member.isCheckCorporation(),
                 member.getCorporationNumber(),
                 member.getCorporationImageURL()

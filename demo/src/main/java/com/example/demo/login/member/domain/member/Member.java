@@ -1,7 +1,5 @@
 package com.example.demo.login.member.domain.member;
 
-import com.example.demo.login.member.exception.exceptions.auth.NotSamePasswordException;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -13,7 +11,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.Objects;
 
 @Entity(name = "member")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
