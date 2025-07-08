@@ -12,12 +12,12 @@ import com.example.demo.product.domain.repository.CategoryRepository;
 import com.example.demo.product.domain.entity.Product;
 import com.example.demo.product.domain.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -83,6 +83,18 @@ public class ProductService {
     public void deleteProduct(Long productId) {
         Product product = getProduct(productId);
         productRepository.delete(product);
+    }
+
+    public Map<String, Object> getCategoryNameAndTags(Long categoryId) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new IllegalArgumentException(String.valueOf(Setting.CATEGORY_NOT_FOUND)));
+
+        List<String> tagNames = productRepository.findDistinctTagNamesByCategoryId(categoryId);
+
+        return Map.of(
+                "categoryName", category.getName(),
+                "tagNames", tagNames
+        );
     }
 
     // 카테고리 조회
