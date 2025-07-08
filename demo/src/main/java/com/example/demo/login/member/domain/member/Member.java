@@ -47,6 +47,9 @@ public class Member {
     @Column(nullable = false)
     private String zipCode;
 
+    @Column(nullable = false)
+    private String phoneNumber;
+
     private boolean checkCorporation;
 
     private String corporationNumber;
