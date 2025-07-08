@@ -3,9 +3,9 @@ package com.example.demo.product.service;
 import com.example.demo.common.exception.Setting;
 import com.example.demo.config.s3.S3Uploader;
 
-import com.example.demo.product.controller.dto.CategoryResponse;
-import com.example.demo.product.controller.dto.ProductRequest;
-import com.example.demo.product.controller.dto.ProductResponse;
+import com.example.demo.product.controller.category.dto.CategoryResponse;
+import com.example.demo.product.controller.product.dto.ProductRequest;
+import com.example.demo.product.controller.product.dto.ProductResponse;
 
 import com.example.demo.product.domain.entity.Category;
 import com.example.demo.product.domain.repository.CategoryRepository;

@@ -1,4 +1,4 @@
-package com.example.demo.product.controller.dto;
+package com.example.demo.product.controller.category.dto;
 
 import com.example.demo.product.domain.entity.Category;
 import lombok.AllArgsConstructor;

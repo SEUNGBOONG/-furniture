@@ -1,7 +1,7 @@
 package com.example.demo.product.domain;
 
 import com.example.demo.common.exception.Setting;
-import com.example.demo.product.controller.dto.CategoryRequest;
+import com.example.demo.product.controller.category.dto.CategoryRequest;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

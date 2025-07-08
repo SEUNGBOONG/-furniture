@@ -1,12 +1,11 @@
-package com.example.demo.product.controller;
+package com.example.demo.product.controller.category;
 
 import com.example.demo.common.exception.Setting;
 
 import com.example.demo.login.global.annotation.Member;
 
-import com.example.demo.product.controller.dto.CategoryRequest;
-import com.example.demo.product.controller.dto.CategoryResponse;
-
+import com.example.demo.product.controller.category.dto.CategoryRequest;
+import com.example.demo.product.controller.category.dto.CategoryResponse;
 import com.example.demo.product.service.CategoryService;
 
 import lombok.RequiredArgsConstructor;

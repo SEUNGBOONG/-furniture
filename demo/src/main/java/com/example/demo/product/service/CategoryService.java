@@ -2,8 +2,8 @@ package com.example.demo.product.service;
 
 import com.example.demo.common.exception.Setting;
 
-import com.example.demo.product.controller.dto.CategoryRequest;
-import com.example.demo.product.controller.dto.CategoryResponse;
+import com.example.demo.product.controller.category.dto.CategoryRequest;
+import com.example.demo.product.controller.category.dto.CategoryResponse;
 import com.example.demo.product.domain.ProductValidator;
 import com.example.demo.product.domain.entity.Category;
 import com.example.demo.product.domain.repository.CategoryRepository;

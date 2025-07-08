@@ -1,6 +1,6 @@
 package com.example.demo.product.service;
 
-import com.example.demo.product.controller.dto.ProductDetailSimpleDTO;
+import com.example.demo.product.controller.product.dto.ProductDetailSimpleDTO;
 import com.example.demo.product.domain.entity.ProductDetail;
 import com.example.demo.product.domain.repository.ProductDetailRepository;
 import lombok.RequiredArgsConstructor;
