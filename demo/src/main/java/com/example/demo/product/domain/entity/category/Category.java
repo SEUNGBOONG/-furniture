@@ -1,4 +1,4 @@
-package com.example.demo.product.domain.entity;
+package com.example.demo.product.domain.entity.category;
 
 import com.example.demo.common.exception.Setting;
 import jakarta.persistence.Entity;

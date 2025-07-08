@@ -1,16 +1,16 @@
-package com.example.demo.product.service;
+package com.example.demo.product.service.product;
 
 import com.example.demo.common.exception.Setting;
 import com.example.demo.config.s3.S3Uploader;
 
-import com.example.demo.product.controller.dto.CategoryResponse;
-import com.example.demo.product.controller.dto.ProductRequest;
-import com.example.demo.product.controller.dto.ProductResponse;
+import com.example.demo.product.controller.category.dto.CategoryResponse;
+import com.example.demo.product.controller.product.dto.ProductRequest;
+import com.example.demo.product.controller.product.dto.ProductResponse;
 
-import com.example.demo.product.domain.entity.Category;
-import com.example.demo.product.domain.repository.CategoryRepository;
-import com.example.demo.product.domain.entity.Product;
-import com.example.demo.product.domain.repository.ProductRepository;
+import com.example.demo.product.domain.entity.category.Category;
+import com.example.demo.product.domain.repository.category.CategoryRepository;
+import com.example.demo.product.domain.entity.product.Product;
+import com.example.demo.product.domain.repository.product.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;

@@ -1,5 +1,6 @@
-package com.example.demo.product.domain.entity;
+package com.example.demo.product.domain.entity.product;
 
+import com.example.demo.product.domain.entity.category.Category;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;

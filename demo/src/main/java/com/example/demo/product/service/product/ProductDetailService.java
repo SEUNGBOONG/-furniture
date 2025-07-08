@@ -1,8 +1,8 @@
-package com.example.demo.product.service;
+package com.example.demo.product.service.product;
 
-import com.example.demo.product.controller.dto.ProductDetailSimpleDTO;
-import com.example.demo.product.domain.entity.ProductDetail;
-import com.example.demo.product.domain.repository.ProductDetailRepository;
+import com.example.demo.product.controller.product.dto.ProductDetailSimpleDTO;
+import com.example.demo.product.domain.entity.product.ProductDetail;
+import com.example.demo.product.domain.repository.product.ProductDetailRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;

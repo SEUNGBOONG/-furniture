@@ -1,17 +1,17 @@
-package com.example.demo.product.controller;
+package com.example.demo.product.controller.product;
 
 import com.example.demo.common.exception.Setting;
 import com.example.demo.login.global.annotation.Member;
 
-import com.example.demo.product.controller.dto.CategoryResponse;
-import com.example.demo.product.controller.dto.ProductDetailSimpleDTO;
-import com.example.demo.product.controller.dto.ProductRequest;
-import com.example.demo.product.controller.dto.ProductResponse;
-import com.example.demo.product.domain.ProductValidator;
-import com.example.demo.product.domain.entity.Product;
-import com.example.demo.product.service.ProductDetailService;
-import com.example.demo.product.service.ProductLikeService;
-import com.example.demo.product.service.ProductService;
+import com.example.demo.product.controller.category.dto.CategoryResponse;
+import com.example.demo.product.controller.product.dto.ProductDetailSimpleDTO;
+import com.example.demo.product.controller.product.dto.ProductRequest;
+import com.example.demo.product.controller.product.dto.ProductResponse;
+import com.example.demo.product.util.ProductValidator;
+import com.example.demo.product.domain.entity.product.Product;
+import com.example.demo.product.service.product.ProductDetailService;
+import com.example.demo.product.service.product.ProductLikeService;
+import com.example.demo.product.service.product.ProductService;
 
 import lombok.RequiredArgsConstructor;
 

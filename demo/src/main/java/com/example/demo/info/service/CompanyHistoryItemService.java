@@ -3,8 +3,7 @@ package com.example.demo.info.service;
 import com.example.demo.info.controller.dto.CompanyHistoryImageDTO;
 import com.example.demo.info.controller.dto.CompanyHistoryItemDTO;
 import com.example.demo.info.domain.repository.CompanyHistoryItemRepository;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CacheEvict;
+
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 

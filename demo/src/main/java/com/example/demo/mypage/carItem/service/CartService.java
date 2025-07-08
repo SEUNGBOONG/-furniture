@@ -4,7 +4,7 @@ import com.example.demo.common.exception.CartItemAlreadyExistsException;
 import com.example.demo.common.exception.CartItemNotFoundException;
 import com.example.demo.login.member.domain.member.Member;
 
-import com.example.demo.login.member.domain.member.MemberValidator;
+import com.example.demo.login.util.MemberValidator;
 
 import com.example.demo.mypage.carItem.domain.entity.CartItem;
 import com.example.demo.mypage.carItem.domain.repository.CartItemRepository;

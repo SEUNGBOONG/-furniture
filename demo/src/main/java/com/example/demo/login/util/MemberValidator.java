@@ -1,6 +1,7 @@
-package com.example.demo.login.member.domain.member;
+package com.example.demo.login.util;
 
 import com.example.demo.common.exception.NotFoundMemberException;
+import com.example.demo.login.member.domain.member.Member;
 import com.example.demo.login.member.infrastructure.member.MemberJpaRepository;
 import org.springframework.stereotype.Component;
 

@@ -66,6 +66,7 @@ public class CorporationValidator {
         return false;
     }
 
+
     private ResponseEntity<String> exchangeResponse(final String url, final HttpEntity<String> requestEntity) {
         return restTemplate.exchange(
                 url,
