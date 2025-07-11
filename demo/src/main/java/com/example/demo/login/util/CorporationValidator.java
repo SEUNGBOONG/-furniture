@@ -1,8 +1,10 @@
 package com.example.demo.login.util;
 
+import com.example.demo.login.global.exception.PleaseAttachImage;
+import com.example.demo.login.global.exception.exceptions.InvalidRegistrationNumber;
+import com.example.demo.login.member.controller.auth.dto.SignUpRequest;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -12,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 @Component
 public class CorporationValidator {
@@ -29,6 +32,16 @@ public class CorporationValidator {
 
     public CorporationValidator(final RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
+    }
+
+    public void checkBusinessNumber(final SignUpRequest signUpRequest, final MultipartFile corporationImage) {
+        if (!isValidCorporationNumber(signUpRequest.corporationNumber())) {
+            throw new InvalidRegistrationNumber();
+        }
+
+        if (corporationImage == null || corporationImage.isEmpty()) {
+            throw new PleaseAttachImage();
+        }
     }
 
     public boolean isValidCorporationNumber(String businessNumber) {
