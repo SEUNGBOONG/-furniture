@@ -35,7 +35,7 @@ public class SignUpValidator {
     }
 
     public void checkPasswordLength(String password) {
-        if (password.length() <= 7) {
+        if (password.length() <= 10) {
             throw new InvalidPasswordFormatException();
         }
     }
