@@ -14,9 +14,6 @@ import com.example.demo.login.member.domain.auth.EmailValidator;
 import com.example.demo.login.member.domain.auth.SignUpValidator;
 import com.example.demo.login.member.domain.member.Member;
 
-import com.example.demo.login.member.exception.exceptions.auth.DuplicateEmailException;
-import com.example.demo.login.member.exception.exceptions.auth.DuplicateNickNameException;
-import com.example.demo.login.member.exception.exceptions.auth.NotFoundMemberByEmailException;
 import com.example.demo.login.member.exception.exceptions.auth.NotSamePasswordException;
 
 import com.example.demo.login.member.infrastructure.auth.JwtTokenProvider;
@@ -52,14 +49,16 @@ public class AuthService {
 
     public Member signUp(SignUpRequest signUpRequest, MultipartFile corporationImage) {
         signUpValidator.validateSignupRequestFormat(signUpRequest);
-        emailValidator.validateEmailFormat(signUpRequest.memberEmail());
         signUpValidator.checkPasswordLength(signUpRequest.memberPassword());
+
+        emailValidator.validateEmailFormat(signUpRequest.memberEmail());
         authValidator.checkDuplicateMemberNickName(signUpRequest.memberNickName());
         authValidator.checkDuplicateMemberEmail(signUpRequest.memberEmail());
 
         String encodedPassword = passwordEncoder.encode(signUpRequest.memberPassword());  // 암호화
         String imageUrl = s3Uploader.uploadFile(corporationImage);
-        checkBusinessNumber(signUpRequest, corporationImage);
+
+        corporationValidator.checkBusinessNumber(signUpRequest, corporationImage);
         Member member = AuthMapper.toMember(signUpRequest, encodedPassword, imageUrl);  // 암호화된 비밀번호 전달
 
         return memberJpaRepository.save(member);
@@ -114,13 +113,4 @@ public class AuthService {
         validatePasswordEncoderException(newPassword.equals(newPasswordConfirm));
     }
 
-    private void checkBusinessNumber(final SignUpRequest signUpRequest, final MultipartFile corporationImage) {
-        if (!corporationValidator.isValidCorporationNumber(signUpRequest.corporationNumber())) {
-            throw new InvalidRegistrationNumber();
-        }
-
-        if (corporationImage == null || corporationImage.isEmpty()) {
-            throw new PleaseAttachImage();
-        }
-    }
 }
