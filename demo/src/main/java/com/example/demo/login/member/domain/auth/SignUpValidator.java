@@ -7,12 +7,15 @@ import com.example.demo.login.member.exception.exceptions.auth.InvalidLoginReque
 import com.example.demo.login.member.exception.exceptions.auth.InvalidPasswordFormatException;
 import com.example.demo.login.member.exception.exceptions.auth.InvalidSignUpRequestException;
 
+import com.example.demo.login.member.exception.exceptions.auth.InvalidSpecialPasswordException;
 import org.springframework.stereotype.Component;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Component
 public class SignUpValidator {
+
+    public static final String REGEX = ".*[a-zA-Z].*";
 
     public void validateSignupRequestFormat(SignUpRequest signUpRequest) {
         if (signUpRequest == null ||
@@ -37,6 +40,15 @@ public class SignUpValidator {
     public void checkPasswordLength(String password) {
         if (password.length() <= 10) {
             throw new InvalidPasswordFormatException();
+        }
+    }
+
+    public void checkSpecialLetter(String password){
+        boolean hasLetter = password.matches(REGEX);
+        boolean hasSpecialChar = password.matches(".*[!@#$%^&*()\\-_=+\\[{\\]};:'\"\\\\|,.<>/?].*");
+
+        if (!hasLetter || !hasSpecialChar) {
+            throw new InvalidSpecialPasswordException();
         }
     }
 
