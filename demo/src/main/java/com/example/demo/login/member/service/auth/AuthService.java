@@ -2,9 +2,6 @@ package com.example.demo.login.member.service.auth;
 
 import com.example.demo.config.s3.S3Uploader;
 
-import com.example.demo.login.global.exception.PleaseAttachImage;
-import com.example.demo.login.global.exception.exceptions.InvalidRegistrationNumber;
-
 import com.example.demo.login.member.controller.auth.dto.LoginRequest;
 import com.example.demo.login.member.controller.auth.dto.LoginResponse;
 import com.example.demo.login.member.controller.auth.dto.NormalSignUpRequest;
@@ -49,11 +46,13 @@ public class AuthService {
 
     public Member signUp(SignUpRequest signUpRequest, MultipartFile corporationImage) {
         signUpValidator.validateSignupRequestFormat(signUpRequest);
+        signUpValidator.checkSpecialLetter(signUpRequest.memberPassword());
         signUpValidator.checkPasswordLength(signUpRequest.memberPassword());
 
         emailValidator.validateEmailFormat(signUpRequest.memberEmail());
         authValidator.checkDuplicateMemberNickName(signUpRequest.memberNickName());
         authValidator.checkDuplicateMemberEmail(signUpRequest.memberEmail());
+
 
         String encodedPassword = passwordEncoder.encode(signUpRequest.memberPassword());  // 암호화
         String imageUrl = s3Uploader.uploadFile(corporationImage);
@@ -68,6 +67,7 @@ public class AuthService {
         signUpValidator.normalValidateSignupRequestFormat(signUpRequest);
         emailValidator.validateEmailFormat(signUpRequest.memberEmail());
         signUpValidator.checkPasswordLength(signUpRequest.memberPassword());
+        signUpValidator.checkSpecialLetter(signUpRequest.memberPassword());
 
         authValidator.checkDuplicateMemberNickName(signUpRequest.memberNickName());
         authValidator.checkDuplicateMemberEmail(signUpRequest.memberEmail());
