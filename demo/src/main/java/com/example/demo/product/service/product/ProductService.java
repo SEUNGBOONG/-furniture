@@ -12,6 +12,7 @@ import com.example.demo.product.domain.repository.category.CategoryRepository;
 import com.example.demo.product.domain.entity.product.Product;
 import com.example.demo.product.domain.repository.product.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -74,6 +75,8 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
+
+    @Cacheable(value = "productByCategory")
     public List<ProductResponse> getProductsByCategory(Long categoryId) {
         return productRepository.findByCategoryId(categoryId).stream()
                 .map(p -> new ProductResponse(p.getId(), p.getName(), p.getDescription(), p.getPrice(), p.getCategory().getName(), p.getTagName(), p.getImage()))
