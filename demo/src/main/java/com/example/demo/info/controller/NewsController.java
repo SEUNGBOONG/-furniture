@@ -2,8 +2,6 @@ package com.example.demo.info.controller;
 
 import com.example.demo.info.domain.entity.NewsEntity;
 import com.example.demo.info.service.NewsService;
-import com.example.demo.info.util.InformationProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 

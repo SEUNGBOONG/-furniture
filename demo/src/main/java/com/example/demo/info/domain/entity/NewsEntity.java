@@ -21,4 +21,6 @@ public class NewsEntity {
 
     private String title;
 
+    private String image_url;
+
 }
