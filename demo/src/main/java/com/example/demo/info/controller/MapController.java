@@ -23,7 +23,6 @@ public class MapController {
     public ResponseEntity<Object> getMapCoordinates() {
         String address = Setting.ADDRESS.toString();  // 예시 주소
         String coordinates = kakaoMapService.getCoordinatesFromAddress(address);
-        // "위도,경도" 문자열을 쉼표로 분리하여 JSON 객체로 반환
         String[] coords = mapValidator.splitCoordinates(coordinates);
         double lat = mapValidator.parseDouble(coords[0]);
         double lon = mapValidator.parseDouble(coords[1]);
