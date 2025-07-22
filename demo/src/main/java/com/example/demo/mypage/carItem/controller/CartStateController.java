@@ -54,15 +54,7 @@ public class CartStateController {
 
     private static List<CartItemResponse> getCartItemResponses(final List<CartItem> cartItems) {
         return cartItems.stream()
-                .map(item -> new CartItemResponse(
-                        item.getId(),
-                        item.getProduct().getId(),
-                        item.getProduct().getName(),
-                        item.getProduct().getPrice(),
-                        item.getQuantity(),
-                        item.getTotalPrice(),
-                        item.getProduct().getImage()
-                ))
+                .map(CartItemResponse::fromEntity)
                 .collect(Collectors.toList());
     }
 }
