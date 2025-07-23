@@ -49,12 +49,6 @@ public class CartService {
         validateCartItem(cartItemId);
     }
 
-    private void validateCartItem(final Long cartItemId) {
-        CartItem cartItem = cartItemRepository.findById(cartItemId)
-                .orElseThrow(CartItemNotFoundException::new);
-        validateQuantity(cartItem);
-    }
-
     public void updateQuantityByCartItemId(Long memberId, Long cartItemId, int newQuantity) {
         Member member = memberValidator.getMember(memberId);
         CartItem cartItem = getCartItem(cartItemId, member);
@@ -80,6 +74,12 @@ public class CartService {
         if (updated == 0) {
             throw new RuntimeException();
         }
+    }
+
+    private void validateCartItem(final Long cartItemId) {
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(CartItemNotFoundException::new);
+        validateQuantity(cartItem);
     }
 
     private void validateQuantity(final CartItem cartItem) {
