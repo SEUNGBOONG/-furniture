@@ -2,7 +2,7 @@ package com.example.demo.mypage.carItem.domain.entity;
 
 import com.example.demo.common.exception.NegativeException;
 import com.example.demo.login.member.domain.member.Member;
-import com.example.demo.product.domain.entity.product.Product;
+import com.example.demo.product.domain.entity.product.ProductDetail;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -15,7 +15,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -27,9 +26,10 @@ public class CartItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // 이제 ProductDetail을 직접 참조함
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id")
-    private Product product;
+    @JoinColumn(name = "product_detail_id")
+    private ProductDetail productDetail;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
@@ -37,13 +37,16 @@ public class CartItem {
 
     private int quantity;
 
+    // 담을 당시의 가격(단가)
+    private int priceAtAdded;
+
     public void changeQuantity(int newQuantity) {
         validateNegativeQuantityException(newQuantity);
         this.quantity = newQuantity;
     }
 
     public int getTotalPrice() {
-        return product.getPrice() * quantity;
+        return priceAtAdded * quantity;
     }
 
     private static void validateNegativeQuantityException(final int newQuantity) {
@@ -51,5 +54,4 @@ public class CartItem {
             throw new NegativeException();
         }
     }
-
 }

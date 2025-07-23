@@ -55,7 +55,7 @@ public class CartController {
 
     private void putInAShoppingCart(final AddCartRequest request, final Long memberId) {
         cartService.addToCart(
-                request.getProductId(),
+                request.getProductDetailId(),
                 request.getQuantity(),
                 memberId);
     }

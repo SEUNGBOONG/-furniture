@@ -9,6 +9,8 @@ import com.example.demo.login.util.MemberValidator;
 import com.example.demo.mypage.carItem.domain.entity.CartItem;
 import com.example.demo.mypage.carItem.domain.repository.CartItemRepository;
 
+import com.example.demo.product.domain.entity.product.ProductDetail;
+import com.example.demo.product.domain.repository.product.ProductDetailRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,11 +22,20 @@ public class CartService {
 
     private final CartItemRepository cartItemRepository;
     private final MemberValidator memberValidator;
+    private final ProductDetailRepository productDetailRepository;
 
-    public void addToCart(Long productId, int quantity, Long memberId) {
-        Long exists = cartItemRepository.existsCartItem(memberId, productId);
-        validateExists(exists);
-        cartItemRepository.upsertCartItem(productId, memberId, quantity);
+    public void addToCart(Long productDetailId, int quantity, Long memberId) {
+        ProductDetail detail = productDetailRepository.findById(productDetailId)
+                .orElseThrow(() -> new IllegalArgumentException("상세 정보 없음"));
+
+        Member member = memberValidator.getMember(memberId);
+
+        cartItemRepository.upsertCartItem(
+                productDetailId,
+                member.getId(),
+                quantity,
+                detail.getPrice()
+        );
     }
 
     public void increaseQuantity(Long memberId, Long cartItemId) {
@@ -36,12 +47,6 @@ public class CartService {
         int updated = cartItemRepository.updateQuantityByAmount(cartItemId, memberId, -1);
         validateUpdate(updated);
         validateCartItem(cartItemId);
-    }
-
-    private void validateCartItem(final Long cartItemId) {
-        CartItem cartItem = cartItemRepository.findById(cartItemId)
-                .orElseThrow(CartItemNotFoundException::new);
-        validateQuantity(cartItem);
     }
 
     public void updateQuantityByCartItemId(Long memberId, Long cartItemId, int newQuantity) {
@@ -61,7 +66,7 @@ public class CartService {
     public void deleteSelectedItems(Long memberId, List<Long> productIds) {
         Member member = memberValidator.getMember(memberId);
 
-        List<CartItem> items = cartItemRepository.findByMemberAndProductIdIn(member, productIds);
+        List<CartItem> items = cartItemRepository.findByMemberAndProductIds(member, productIds);
         cartItemRepository.deleteAll(items);
     }
 
@@ -69,6 +74,12 @@ public class CartService {
         if (updated == 0) {
             throw new RuntimeException();
         }
+    }
+
+    private void validateCartItem(final Long cartItemId) {
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(CartItemNotFoundException::new);
+        validateQuantity(cartItem);
     }
 
     private void validateQuantity(final CartItem cartItem) {

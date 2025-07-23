@@ -7,6 +7,7 @@ import com.example.demo.mypage.carItem.controller.dto.CartSummaryResponse;
 import com.example.demo.mypage.carItem.domain.Amount;
 import com.example.demo.mypage.carItem.domain.entity.CartItem;
 import com.example.demo.mypage.carItem.service.CartService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,15 +55,7 @@ public class CartStateController {
 
     private static List<CartItemResponse> getCartItemResponses(final List<CartItem> cartItems) {
         return cartItems.stream()
-                .map(item -> new CartItemResponse(
-                        item.getId(),
-                        item.getProduct().getId(),
-                        item.getProduct().getName(),
-                        item.getProduct().getPrice(),
-                        item.getQuantity(),
-                        item.getTotalPrice(),
-                        item.getProduct().getImage()
-                ))
+                .map(CartItemResponse::fromEntity)
                 .collect(Collectors.toList());
     }
 }

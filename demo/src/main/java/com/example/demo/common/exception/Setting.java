@@ -1,7 +1,7 @@
 package com.example.demo.common.exception;
 
 public enum Setting {
-    EMAIL("tmdduqflfl@naver.com"),
+    EMAIL("01092494449@hanmail.net"),
     AUTH_NUMBER("인증번호"),
     SUCCEED_SENDER_CERTIFICATION_NUMBER("인증 코드가 전송되었습니다."),
     SUCCEED_CERTIFICATION_NUMBER("인증 성공!"),

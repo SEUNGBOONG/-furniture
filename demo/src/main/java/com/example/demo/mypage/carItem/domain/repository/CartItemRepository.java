@@ -12,17 +12,29 @@ import java.util.List;
 
 public interface CartItemRepository extends JpaRepository<CartItem, Long> {
     void deleteByMemberId(Long memberId);
-    List<CartItem> findByMemberAndProductIdIn(Member member, List<Long> productIds);
-
+    @Query("""
+    SELECT c FROM CartItem c
+    JOIN c.productDetail pd
+    JOIN pd.product p
+    WHERE c.member = :member AND p.id IN :productIds
+""")
+    List<CartItem> findByMemberAndProductIds(@Param("member") Member member,
+                                             @Param("productIds") List<Long> productIds);
     @Modifying
     @Transactional
-    @Query(value = "INSERT INTO cart_item (product_id, member_id, quantity) " +
-            "VALUES (:productId, :memberId, :quantity) " +
+    @Query(value = "INSERT INTO cart_item (product_detail_id, member_id, quantity, price_at_added) " +
+            "VALUES (:productDetailId, :memberId, :quantity, :priceAtAdded) " +
             "ON DUPLICATE KEY UPDATE quantity = quantity + :quantity", nativeQuery = true)
-    void upsertCartItem(Long productId, Long memberId, int quantity);
+    void upsertCartItem(@Param("productDetailId") Long productDetailId,
+                        @Param("memberId") Long memberId,
+                        @Param("quantity") int quantity,
+                        @Param("priceAtAdded") int priceAtAdded);
 
-    @Query("SELECT DISTINCT c FROM CartItem c JOIN FETCH c.product WHERE c.member.id = :memberId")
-    List<CartItem> findDistinctByMemberId(Long memberId);
+    @Query("SELECT DISTINCT c FROM CartItem c " +
+            "JOIN FETCH c.productDetail pd " +
+            "JOIN FETCH pd.product p " +
+            "WHERE c.member.id = :memberId")
+    List<CartItem> findDistinctByMemberId(@Param("memberId") Long memberId);
 
     @Modifying
     @Transactional
@@ -31,8 +43,7 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
                                @Param("memberId") Long memberId,
                                @Param("amount") int amount);
 
-
-    @Query(value = "SELECT EXISTS(SELECT 1 FROM cart_item WHERE member_id = :memberId AND product_id = :productId)", nativeQuery = true)
-    Long existsCartItem(@Param("memberId") Long memberId, @Param("productId") Long productId);
+    @Query(value = "SELECT EXISTS(SELECT 1 FROM cart_item WHERE member_id = :memberId AND product_detail_id = :productDetailId)", nativeQuery = true)
+    Long existsCartItem(@Param("memberId") Long memberId, @Param("productDetailId") Long productDetailId);
 
 }
