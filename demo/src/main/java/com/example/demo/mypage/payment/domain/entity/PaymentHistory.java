@@ -10,7 +10,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "payment")
 @Getter
@@ -53,6 +55,5 @@ public class PaymentHistory {
 
     // 결제자 ID 또는 이메일
     private String payer;
-
 
 }
