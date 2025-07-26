@@ -1,4 +1,4 @@
-package com.example.demo.info.controller;
+package com.example.demo.info.controller.company;
 
 import com.example.demo.info.controller.dto.CompanyHistoryImageDTO;
 import com.example.demo.info.controller.dto.CompanyHistoryItemDTO;
