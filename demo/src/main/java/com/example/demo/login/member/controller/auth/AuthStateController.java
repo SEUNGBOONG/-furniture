@@ -6,10 +6,9 @@ import com.example.demo.login.member.controller.auth.dto.AuthRequestDTO;
 import com.example.demo.login.member.controller.auth.dto.ChangePasswordRequest;
 import com.example.demo.login.member.controller.auth.dto.EmailAuthRequestDto;
 import com.example.demo.login.member.controller.auth.dto.EmailCheckRequest;
-import com.example.demo.login.member.domain.auth.AuthUtil;
+import com.example.demo.login.member.exception.exceptions.auth.AuthenticateEmailFirstException;
 import com.example.demo.login.member.service.auth.AuthService;
 import jakarta.mail.MessagingException;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -30,35 +29,29 @@ public class AuthStateController {
     private final AuthService authService;
 
     @PostMapping("/send-auth-code")
-    public ResponseEntity<String> sendAuthCode(@RequestBody EmailAuthRequestDto emailDto, HttpSession session)
+    public ResponseEntity<String> sendAuthCode(@RequestBody EmailAuthRequestDto emailDto)
             throws MessagingException, UnsupportedEncodingException {
-        String code = emailSenderUtil.sendEmail(emailDto.getEmail(), session);
-        session.setAttribute(emailDto.getEmail(), code);
-        session.setAttribute(AuthUtil.getAuthKey(emailDto.getEmail()), false);
+        emailSenderUtil.sendEmail(emailDto.getEmail());
         return ResponseEntity.ok(Setting.SUCCEED_SENDER_CERTIFICATION_NUMBER.toString());
     }
 
     @PostMapping("/verify-auth-code")
-    public ResponseEntity<String> verifyPasswordCode(@RequestBody AuthRequestDTO request, HttpSession session) {
-        String storedCode = (String) session.getAttribute(request.getEmail());
-        if (storedCode != null && storedCode.equals(request.getAuthCode())) {
-            session.removeAttribute(request.getEmail());
-            session.setAttribute(AuthUtil.getAuthKey(request.getEmail()), true);
-
+    public ResponseEntity<String> verifyPasswordCode(@RequestBody AuthRequestDTO request) {
+        boolean isVerified = emailSenderUtil.verifyAuthCode(request.getEmail(), request.getAuthCode());
+        if (isVerified) {
             return ResponseEntity.ok(Setting.SUCCEED_CERTIFICATION_NUMBER.toString());
         }
         return ResponseEntity.badRequest().body(Setting.FAIL_CERTIFICATION_NUMBER.toString());
     }
 
     @PostMapping("/change-password")
-    public ResponseEntity<String> changePassword(@RequestBody ChangePasswordRequest request, HttpSession session) {
-        Boolean isAuthenticated = (Boolean) session.getAttribute(AuthUtil.getAuthKey(request.getEmail()));
-        ResponseEntity<String> PLEASE_COMPLETE_EMAIL_VERIFICATION_FIRST = AuthUtil.getStringResponseEntity(isAuthenticated);
-        if (AuthUtil.isaBoolean(PLEASE_COMPLETE_EMAIL_VERIFICATION_FIRST))
-            return PLEASE_COMPLETE_EMAIL_VERIFICATION_FIRST;
+    public ResponseEntity<String> changePassword(@RequestBody ChangePasswordRequest request) {
+        if (!emailSenderUtil.isEmailVerified(request.getEmail())) {
+            throw new AuthenticateEmailFirstException();
+        }
 
         authService.changePassword(request.getEmail(), request.getNewPassword(), request.getNewPasswordConfirm());
-        session.removeAttribute(AuthUtil.getAuthKey(request.getEmail()));
+        emailSenderUtil.clearVerifiedFlag(request.getEmail());
         return ResponseEntity.ok(Setting.PASSWORD_CHANGE_SUCCESS.toString());
     }
 
@@ -71,5 +64,4 @@ public class AuthStateController {
             return ResponseEntity.status(409).body(Setting.EMAIL_ALREADY_EXISTS.toString());
         }
     }
-
 }
