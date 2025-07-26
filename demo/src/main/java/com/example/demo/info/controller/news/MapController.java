@@ -1,4 +1,4 @@
-package com.example.demo.info.controller;
+package com.example.demo.info.controller.news;
 
 import com.example.demo.common.exception.Setting;
 import com.example.demo.info.domain.MapValidator;

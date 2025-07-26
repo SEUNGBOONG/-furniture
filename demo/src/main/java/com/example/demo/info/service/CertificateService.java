@@ -1,7 +1,7 @@
 package com.example.demo.info.service;
 
-import com.example.demo.info.domain.entity.CertificateImage;
-import com.example.demo.info.domain.repository.CertificateImageRepository;
+import com.example.demo.info.domain.entity.certificate.CertificateImage;
+import com.example.demo.info.domain.repository.certificate.CertificateImageRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

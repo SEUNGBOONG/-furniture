@@ -1,6 +1,6 @@
-package com.example.demo.info.domain.repository;
+package com.example.demo.info.domain.repository.certificate;
 
-import com.example.demo.info.domain.entity.CertificateImage;
+import com.example.demo.info.domain.entity.certificate.CertificateImage;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

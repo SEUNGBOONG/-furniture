@@ -3,8 +3,8 @@ package com.example.demo.info.service;
 import com.example.demo.common.exception.NotFoundCompany;
 import com.example.demo.info.controller.dto.CompanyDetailDTO;
 import com.example.demo.info.controller.dto.CompanyImageDTO;
-import com.example.demo.info.domain.entity.CompanyInfo;
-import com.example.demo.info.domain.repository.CompanyInfoRepository;
+import com.example.demo.info.domain.entity.company.CompanyInfo;
+import com.example.demo.info.domain.repository.company.CompanyInfoRepository;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 

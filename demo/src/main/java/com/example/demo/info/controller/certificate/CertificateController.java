@@ -1,7 +1,7 @@
-package com.example.demo.info.controller;
+package com.example.demo.info.controller.certificate;
 
 import com.example.demo.config.s3.S3Uploader;
-import com.example.demo.info.domain.entity.CertificateImage;
+import com.example.demo.info.domain.entity.certificate.CertificateImage;
 import com.example.demo.info.service.CertificateService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
