@@ -21,7 +21,7 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
 
     public void createCategory(CategoryRequest request) {
-        // 카테고리 이름이 비어 있는지 확인 하는 로직
+
         ProductValidator.validateEmptyCategory(request);
 
         Category category = new Category(request.getName());
