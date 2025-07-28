@@ -1,4 +1,4 @@
-package com.example.demo.info.domain.entity;
+package com.example.demo.info.domain.entity.company;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,24 +10,31 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
 @Entity
-@Table(name = "company_history_item")
+@Table(name = "company_info")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CompanyHistoryItem {
+public class CompanyInfo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String title; // e.g. "1989-1999"
+    private String imageUrl;
 
-    @Column(length = 3000)
-    private String content; // 이력 상세
+    @Column(length = 1000)
+    private String description;
 
-    private String imageUrl1;
+    private String companyName;
+    private String ceo;
+    private String establishmentDate;
+    private String businessArea;
+    private String scale;
+    private String mainClient;
 
-    private String imageUrl2;
+    private String businessNumber;
+
 }

@@ -1,6 +1,5 @@
-package com.example.demo.info.domain.entity;
+package com.example.demo.info.domain.entity.address;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -12,29 +11,23 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "company_info")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CompanyInfo {
+@Table(name = "address_info")
+public class AddressInfo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String imageUrl;
-
-    @Column(length = 1000)
-    private String description;
-
-    private String companyName;
-    private String ceo;
-    private String establishmentDate;
-    private String businessArea;
-    private String scale;
-    private String mainClient;
-
-    private String businessNumber;
-
+    private String address;
+    private String phone;
+    private String fax;
+    private String email;
+    private String subway;
+    private String bus;
+    private String walk;
+    private String car;
 }

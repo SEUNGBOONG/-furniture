@@ -1,7 +1,7 @@
-package com.example.demo.info.controller;
+package com.example.demo.info.controller.address;
 
-import com.example.demo.info.domain.entity.AddressInfo;
-import com.example.demo.info.domain.repository.AddressInfoRepository;
+import com.example.demo.info.domain.entity.address.AddressInfo;
+import com.example.demo.info.domain.repository.address.AddressInfoRepository;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

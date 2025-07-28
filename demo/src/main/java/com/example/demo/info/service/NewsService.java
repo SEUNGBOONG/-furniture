@@ -1,7 +1,7 @@
 package com.example.demo.info.service;
 
-import com.example.demo.info.domain.entity.NewsEntity;
-import com.example.demo.info.domain.repository.NewsRepository;
+import com.example.demo.info.domain.entity.news.NewsEntity;
+import com.example.demo.info.domain.repository.news.NewsRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
