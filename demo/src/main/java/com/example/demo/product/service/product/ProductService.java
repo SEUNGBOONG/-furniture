@@ -30,7 +30,7 @@ public class ProductService {
     private final S3Uploader s3Uploader;
 
     // 상품 생성
-    public void createProduct(ProductRequest request, String imageUrl, String imageUrl2) {
+    public void createProduct(ProductRequest request, String imageUrl) {
         Category category = getCategory(request);
         Product product = getProduct(Product.builder(), request, category, imageUrl);
 
