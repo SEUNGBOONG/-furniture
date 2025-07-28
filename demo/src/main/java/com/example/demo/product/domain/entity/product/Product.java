@@ -41,6 +41,8 @@ public class Product {
 
     private String image;
 
+    private String image2;
+
     @OneToMany(mappedBy = "product")
     private List<ProductDetail> productDetails = new ArrayList<>();
 

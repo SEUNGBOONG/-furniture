@@ -30,7 +30,7 @@ public class ProductService {
     private final S3Uploader s3Uploader;
 
     // 상품 생성
-    public void createProduct(ProductRequest request, String imageUrl) {
+    public void createProduct(ProductRequest request, String imageUrl, String imageUrl2) {
         Category category = getCategory(request);
         Product product = getProduct(Product.builder(), request, category, imageUrl);
 
@@ -64,7 +64,7 @@ public class ProductService {
     // 기타 서비스 메서드
     public List<ProductResponse> getProductsByTagName(String tagName) {
         return productRepository.findByTagName(tagName).stream()
-                .map(p -> new ProductResponse(p.getId(), p.getName(), p.getDescription(), p.getPrice(), p.getCategory().getName(), p.getTagName(), p.getImage()))
+                .map(p -> new ProductResponse(p.getId(), p.getName(), p.getDescription(), p.getPrice(), p.getCategory().getName(), p.getTagName(), p.getImage(), p.getImage2()))
                 .collect(Collectors.toList());
     }
 
@@ -76,7 +76,7 @@ public class ProductService {
 
     public List<ProductResponse> getProductsByCategory(Long categoryId) {
         return productRepository.findByCategoryId(categoryId).stream()
-                .map(p -> new ProductResponse(p.getId(), p.getName(), p.getDescription(), p.getPrice(), p.getCategory().getName(), p.getTagName(), p.getImage()))
+                .map(p -> new ProductResponse(p.getId(), p.getName(), p.getDescription(), p.getPrice(), p.getCategory().getName(), p.getTagName(), p.getImage(), p.getImage2()))
                 .collect(Collectors.toList());
     }
 
