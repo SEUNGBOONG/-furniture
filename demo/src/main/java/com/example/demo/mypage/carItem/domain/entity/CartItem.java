@@ -37,7 +37,6 @@ public class CartItem {
 
     private int quantity;
 
-    // 담을 당시의 가격(단가)
     private int priceAtAdded;
 
     public void changeQuantity(int newQuantity) {

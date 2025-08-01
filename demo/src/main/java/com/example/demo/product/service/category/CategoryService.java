@@ -4,7 +4,7 @@ import com.example.demo.common.exception.Setting;
 
 import com.example.demo.product.controller.category.dto.CategoryRequest;
 import com.example.demo.product.controller.category.dto.CategoryResponse;
-import com.example.demo.product.util.ProductValidator;
+import com.example.demo.common.util.AdminValidator;
 import com.example.demo.product.domain.entity.category.Category;
 import com.example.demo.product.domain.repository.category.CategoryRepository;
 
@@ -21,8 +21,8 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
 
     public void createCategory(CategoryRequest request) {
-        // 카테고리 이름이 비어 있는지 확인 하는 로직
-        ProductValidator.validateEmptyCategory(request);
+
+        AdminValidator.validateEmptyCategory(request);
 
         Category category = new Category(request.getName());
         categoryRepository.save(category);

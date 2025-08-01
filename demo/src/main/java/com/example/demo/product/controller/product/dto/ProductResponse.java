@@ -13,5 +13,6 @@ public class ProductResponse {
     private String categoryName;
     private String tagName;
     private String image;
+    private String image2;
 }
 

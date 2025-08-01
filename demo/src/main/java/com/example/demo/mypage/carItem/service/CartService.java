@@ -107,9 +107,4 @@ public class CartService {
         return cartItem;
     }
 
-    private static void validateExists(final Long exists) {
-        if (exists != null && exists == 1L) {
-            throw new CartItemAlreadyExistsException();
-        }
-    }
 }
