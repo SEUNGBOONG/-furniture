@@ -4,7 +4,7 @@ import com.example.demo.admin.notice.controller.dto.NoticeRequest;
 import com.example.demo.admin.notice.domain.entity.Notice;
 import com.example.demo.admin.notice.service.NoticeService;
 import com.example.demo.login.global.annotation.Member;
-import com.example.demo.product.util.ProductValidator;
+import com.example.demo.common.util.AdminValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,7 +27,7 @@ public class NoticeController {
 
     @PostMapping
     public ResponseEntity<?> createNotice(@RequestBody NoticeRequest request, @Member Long memberId) {
-        ResponseEntity<String> FORBIDDEN = ProductValidator.getStringResponseEntity(memberId);
+        ResponseEntity<String> FORBIDDEN = AdminValidator.getStringResponseEntity(memberId);
         if (FORBIDDEN != null) return FORBIDDEN;
 
         return ResponseEntity.ok(noticeService.createNotice(request));
@@ -45,7 +45,7 @@ public class NoticeController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateNotice(@PathVariable Long id, @RequestBody NoticeRequest request, @Member Long memberId) {
-        ResponseEntity<String> FORBIDDEN = ProductValidator.getStringResponseEntity(memberId);
+        ResponseEntity<String> FORBIDDEN = AdminValidator.getStringResponseEntity(memberId);
         if (FORBIDDEN != null) return FORBIDDEN;
 
         return ResponseEntity.ok(noticeService.updateNotice(id, request));
@@ -53,7 +53,7 @@ public class NoticeController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteNotice(@PathVariable Long id, @Member Long memberId) {
-        ResponseEntity<String> FORBIDDEN = ProductValidator.getStringResponseEntity(memberId);
+        ResponseEntity<String> FORBIDDEN = AdminValidator.getStringResponseEntity(memberId);
         if (FORBIDDEN != null) return FORBIDDEN;
 
         noticeService.deleteNotice(id);

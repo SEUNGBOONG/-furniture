@@ -4,7 +4,7 @@ import com.example.demo.common.exception.Setting;
 
 import com.example.demo.product.controller.category.dto.CategoryRequest;
 import com.example.demo.product.controller.category.dto.CategoryResponse;
-import com.example.demo.product.util.ProductValidator;
+import com.example.demo.common.util.AdminValidator;
 import com.example.demo.product.domain.entity.category.Category;
 import com.example.demo.product.domain.repository.category.CategoryRepository;
 
@@ -22,7 +22,7 @@ public class CategoryService {
 
     public void createCategory(CategoryRequest request) {
 
-        ProductValidator.validateEmptyCategory(request);
+        AdminValidator.validateEmptyCategory(request);
 
         Category category = new Category(request.getName());
         categoryRepository.save(category);
