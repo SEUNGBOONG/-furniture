@@ -64,7 +64,7 @@ public class ProductService {
     // 기타 서비스 메서드
     public List<ProductResponse> getProductsByTagName(String tagName) {
         return productRepository.findByTagName(tagName).stream()
-                .map(p -> new ProductResponse(p.getId(), p.getName(), p.getDescription(), p.getPrice(), p.getCategory().getName(), p.getTagName(), p.getImage()))
+                .map(p -> new ProductResponse(p.getId(), p.getName(), p.getDescription(), p.getPrice(), p.getCategory().getName(), p.getTagName(), p.getImage(), p.getImage2()))
                 .collect(Collectors.toList());
     }
 
@@ -76,7 +76,7 @@ public class ProductService {
 
     public List<ProductResponse> getProductsByCategory(Long categoryId) {
         return productRepository.findByCategoryId(categoryId).stream()
-                .map(p -> new ProductResponse(p.getId(), p.getName(), p.getDescription(), p.getPrice(), p.getCategory().getName(), p.getTagName(), p.getImage()))
+                .map(p -> new ProductResponse(p.getId(), p.getName(), p.getDescription(), p.getPrice(), p.getCategory().getName(), p.getTagName(), p.getImage(), p.getImage2()))
                 .collect(Collectors.toList());
     }
 

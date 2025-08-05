@@ -1,124 +1,161 @@
-//package com.example.demo.mypage.payment.service;
-//
-//import com.example.demo.mypage.payment.controller.dto.TossApproveRequest;
-//import com.example.demo.mypage.payment.domain.entity.PaymentHistory;
-//import com.example.demo.mypage.payment.domain.repository.PaymentHistoryRepository;
-//import com.example.demo.mypage.payment.exception.PaymentErrorCode;
-//import com.example.demo.mypage.payment.exception.PaymentException;
-//import lombok.RequiredArgsConstructor;
-//import org.json.JSONObject;
-//import org.springframework.beans.factory.annotation.Value;
-//import org.springframework.http.HttpEntity;
-//import org.springframework.http.HttpHeaders;
-//import org.springframework.http.HttpMethod;
-//import org.springframework.http.HttpStatus;
-//import org.springframework.http.MediaType;
-//import org.springframework.http.ResponseEntity;
-//import org.springframework.stereotype.Service;
-//import org.springframework.web.client.RestTemplate;
-//
-//import java.nio.charset.StandardCharsets;
-//import java.time.LocalDateTime;
-//import java.util.Base64;
-//
-//@Service
-//@RequiredArgsConstructor
-//public class PaymentService {
-//
-//    private final PaymentHistoryRepository paymentHistoryRepository;
-//    private final RestTemplate restTemplate;
-//
-//    @Value("${toss.secret-key}")
-//    private String tossSecretKey;
-//
-//    public ResponseEntity<?> confirmAndSavePayment(TossApproveRequest request) {
-//
-//        String url = "https://api.tosspayments.com/v1/payments/confirm";
-//
-//        // 요청 바디 구성
-//        JSONObject body = new JSONObject();
-//        body.put("paymentKey", request.getPaymentKey());
-//        body.put("orderId", request.getOrderId());
-//        body.put("amount", request.getAmount());
-//
-//        // 인증 헤더 구성 (Basic Auth)
-//        String encodedAuth = Base64.getEncoder()
-//                .encodeToString((tossSecretKey + ":").getBytes(StandardCharsets.UTF_8));
-//
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.setContentType(MediaType.APPLICATION_JSON);
-//        headers.set("Authorization", "Basic " + encodedAuth);
-//
-//        HttpEntity<String> httpEntity = new HttpEntity<>(body.toString(), headers);
-//
-//        try {
-//            ResponseEntity<String> response = restTemplate.exchange(
-//                    url, HttpMethod.POST, httpEntity, String.class);
-//
-//            JSONObject json = new JSONObject(response.getBody());
-//
-//            PaymentHistory payment = PaymentHistory.builder()
-//                    .orderDate(LocalDateTime.now())
-//                    .paymentDate(LocalDateTime.now())
-//                    .orderNumber(json.getString("orderId"))
-//                    .paymentStatus(json.getString("status"))
-//                    .buyerName(json.optJSONObject("card") != null ? json.getJSONObject("card").optString("owner", "") : "")
-//                    .amount(json.getInt("totalAmount"))
-//                    .paymentMethod(json.getString("method"))
-//                    .productName(json.getString("orderName"))
-//                    .merchantId(json.getString("mId"))
-//                    .payer(json.optJSONObject("customer") != null ? json.getJSONObject("customer").optString("email", "") : "")
-//                    .build();
-//
-//            paymentHistoryRepository.save(payment);
-//
-//            return ResponseEntity.ok("결제 승인 및 저장 완료");
-//
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-//                    .body("결제 승인 실패: " + e.getMessage());
-//        }
-//    }
-//
-//    public ResponseEntity<?> getPaymentByOrderId(String orderId) {
-//        PaymentHistory history = paymentHistoryRepository.findByOrderNumber(orderId)
-//                .orElseThrow(() -> new PaymentException(PaymentErrorCode.NOT_FOUND_PAYMENT_BY_ORDER_ID));
-//
-//        return ResponseEntity.ok(history);
-//    }
-//
-//    public ResponseEntity<?> cancelPayment(TossApproveRequest request) {
-//        String url = "https://api.tosspayments.com/v1/payments/" + request.getPaymentKey() + "/cancel";
-//
-//        JSONObject body = new JSONObject();
-//        body.put("cancelReason", "사용자 요청 취소");
-//
-//        String encodedAuth = Base64.getEncoder()
-//                .encodeToString((tossSecretKey + ":").getBytes(StandardCharsets.UTF_8));
-//
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.setContentType(MediaType.APPLICATION_JSON);
-//        headers.set("Authorization", "Basic " + encodedAuth);
-//
-//        HttpEntity<String> httpEntity = new HttpEntity<>(body.toString(), headers);
-//
-//        try {
-//            ResponseEntity<String> response = restTemplate.exchange(
-//                    url, HttpMethod.POST, httpEntity, String.class);
-//
-//            JSONObject json = new JSONObject(response.getBody());
-//            String orderId = json.getString("orderId");
-//
-//            paymentHistoryRepository.findByOrderNumber(orderId).ifPresent(payment -> {
-//                payment.setPaymentStatus("CANCELED");
-//                paymentHistoryRepository.save(payment);
-//            });
-//
-//            return ResponseEntity.ok("결제 취소 완료");
-//
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-//                    .body("결제 취소 실패: " + e.getMessage());
-//        }
-//    }
-//}
+package com.example.demo.mypage.payment.service;
+
+import com.example.demo.mypage.payment.controller.dto.PaymentCancelRequestDTO;
+import com.example.demo.mypage.payment.controller.dto.PaymentRequestDTO;
+import com.example.demo.mypage.payment.domain.entity.PaymentHistory;
+import com.example.demo.mypage.payment.domain.repository.PaymentHistoryRepository;
+import com.example.demo.mypage.payment.exception.PaymentErrorCode;
+import com.example.demo.mypage.payment.exception.PaymentException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
+
+import java.time.LocalDateTime;
+import java.util.Map;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class PaymentService {
+
+    public static final String TOSS_REDIRECT_URL = "https://api.tosspayments.com/v1/payments/confirm";
+
+    private final PaymentHistoryRepository paymentHistoryRepository;
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    @Value("${toss.secret-key}")
+    private String tossSecretKey;
+
+    public void confirmPayment(PaymentRequestDTO dto) {
+        // 1. 결제 정보 선 저장
+        PaymentHistory history = paymentHistoryRepository.save(
+                PaymentHistory.builder()
+                        .paymentKey(dto.getPaymentKey())
+                        .orderId(dto.getOrderId())
+                        .amount(dto.getAmount())
+                        .requestedAt(LocalDateTime.now())
+                        .success(false)
+                        .build()
+        );
+
+        // 2. Toss 결제 승인 요청
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBasicAuth(tossSecretKey, ""); // Base64 Encoding 자동 처리
+
+        Map<String, Object> requestBody = Map.of(
+                "paymentKey", dto.getPaymentKey(),
+                "orderId", dto.getOrderId(),
+                "amount", dto.getAmount()
+        );
+
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.postForEntity(TOSS_REDIRECT_URL, request, String.class);
+
+            if (response.getStatusCode() == HttpStatus.OK) {
+                history.setSuccess(true);
+                history.setApprovedAt(LocalDateTime.now());
+                paymentHistoryRepository.save(history);
+            } else {
+                log.error("결제 실패 응답: {}", response.getBody());
+                throw new PaymentException(PaymentErrorCode.PAYMENT_CONFIRMATION_FAILED);
+            }
+
+        } catch (HttpClientErrorException e) {
+
+            history.setSuccess(false);
+            history.setApprovedAt(LocalDateTime.now());
+            paymentHistoryRepository.save(history);
+
+            throw new PaymentException(PaymentErrorCode.PAYMENT_CONFIRMATION_FAILED);
+        }
+    }
+
+    public String getPaymentDetails(String paymentKey) {
+        String url = "https://api.tosspayments.com/v1/payments/" + paymentKey;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBasicAuth(tossSecretKey, "");  // Toss Secret Key로 인증
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    entity,
+                    String.class
+            );
+
+            return response.getBody(); // 혹은 DTO로 매핑해도 OK
+        } catch (HttpClientErrorException e) {
+            log.error("결제 조회 실패: {}", e.getResponseBodyAsString());
+            throw new PaymentException(PaymentErrorCode.NOT_FOUND_PAYMENT_BY_ORDER_ID);
+        }
+    }
+
+    public String getPaymentByOrderId(String orderId) {
+        String url = "https://api.tosspayments.com/v1/payments/orders/" + orderId;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBasicAuth(tossSecretKey, "");
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    entity,
+                    String.class
+            );
+            return response.getBody();
+        } catch (HttpClientErrorException e) {
+            log.error("Toss 결제 조회 실패: {}", e.getResponseBodyAsString());
+            throw new PaymentException(PaymentErrorCode.NOT_FOUND_PAYMENT_BY_ORDER_ID);
+        }
+    }
+    // PaymentService.java
+    public void cancelPayment(PaymentCancelRequestDTO dto) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBasicAuth(tossSecretKey, "");
+
+        Map<String, Object> requestBody = Map.of(
+                "cancelReason", dto.getCancelReason()
+        );
+
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.postForEntity(
+                    "https://api.tosspayments.com/v1/payments/" + dto.getPaymentKey() + "/cancel",
+                    request,
+                    String.class
+            );
+
+            if (response.getStatusCode() == HttpStatus.OK) {
+                PaymentHistory history = paymentHistoryRepository
+                        .findByPaymentKey(dto.getPaymentKey())
+                        .orElseThrow(() -> new PaymentException(PaymentErrorCode.NOT_FOUND_PAYMENT_BY_ORDER_ID));
+
+                history.setSuccess(false);
+                history.setApprovedAt(LocalDateTime.now()); // 취소 처리일로 갱신
+                paymentHistoryRepository.save(history);
+            } else {
+                throw new PaymentException(PaymentErrorCode.PAYMENT_CANCELLATION_FAILED);
+            }
+
+        } catch (HttpClientErrorException e) {
+            throw new PaymentException(PaymentErrorCode.PAYMENT_CANCELLATION_FAILED);
+        }
+    }
+}

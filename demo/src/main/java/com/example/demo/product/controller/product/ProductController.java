@@ -7,7 +7,7 @@ import com.example.demo.product.controller.category.dto.CategoryResponse;
 import com.example.demo.product.controller.product.dto.ProductDetailSimpleDTO;
 import com.example.demo.product.controller.product.dto.ProductRequest;
 import com.example.demo.product.controller.product.dto.ProductResponse;
-import com.example.demo.product.util.ProductValidator;
+import com.example.demo.common.util.AdminValidator;
 import com.example.demo.product.domain.entity.product.Product;
 import com.example.demo.product.service.product.ProductDetailService;
 import com.example.demo.product.service.product.ProductLikeService;
@@ -46,7 +46,7 @@ public class ProductController {
             @RequestPart("product") ProductRequest dto,
             @RequestPart("image") MultipartFile image,
             @Member Long memberId) {
-        ResponseEntity<String> FORBIDDEN = ProductValidator.getStringResponseEntity(memberId);
+        ResponseEntity<String> FORBIDDEN = AdminValidator.getStringResponseEntity(memberId);
         if (FORBIDDEN != null) return FORBIDDEN;
 
         CompletableFuture<String> imageUrlFuture = productService.uploadImageAsync(image);
@@ -98,7 +98,7 @@ public class ProductController {
                                                 @RequestPart("image") MultipartFile image,
                                                 @Member Long memberId) {
         // 관리자 권한 체크
-        ResponseEntity<String> FORBIDDEN = ProductValidator.getStringResponseEntity(memberId);
+        ResponseEntity<String> FORBIDDEN = AdminValidator.getStringResponseEntity(memberId);
         if (FORBIDDEN != null) return FORBIDDEN;
 
         // 상품 업데이트
@@ -110,7 +110,7 @@ public class ProductController {
     public ResponseEntity<String> deleteProduct(@PathVariable Long productId,
                                                 @Member Long memberId) {
         // 관리자 권한 체크
-        ResponseEntity<String> FORBIDDEN = ProductValidator.getStringResponseEntity(memberId);
+        ResponseEntity<String> FORBIDDEN = AdminValidator.getStringResponseEntity(memberId);
         if (FORBIDDEN != null) return FORBIDDEN;
 
         // 상품 삭제
@@ -135,7 +135,7 @@ public class ProductController {
         List<Product> likedProducts = productLikeService.getLikedProducts(memberId);
 
         List<ProductResponse> response = likedProducts.stream()
-                .map(p -> new ProductResponse(p.getId(), p.getName(), p.getDescription(), p.getPrice(), p.getCategory().getName(), p.getTagName(), p.getImage()))
+                .map(p -> new ProductResponse(p.getId(), p.getName(), p.getDescription(), p.getPrice(), p.getCategory().getName(), p.getTagName(), p.getImage(), p.getImage2()))
                 .toList();
 
         return ResponseEntity.ok(response);
@@ -150,6 +150,7 @@ public class ProductController {
                 product.getCategory().getName(),
                 product.getTagName(),
                 product.getImage()
+                , product.getImage2()
         );
     }
 }

@@ -1,4 +1,4 @@
-package com.example.demo.product.util;
+package com.example.demo.common.util;
 
 import com.example.demo.common.exception.Setting;
 import com.example.demo.product.controller.category.dto.CategoryRequest;
@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ProductValidator {
+public class AdminValidator {
 
     public static ResponseEntity<String> getStringResponseEntity(final Long memberId) {
         if (!memberId.equals(5L)) {
