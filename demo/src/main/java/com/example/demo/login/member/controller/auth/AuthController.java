@@ -67,7 +67,7 @@ public class AuthController {
         jwtCookie.setPath("/");
         jwtCookie.setMaxAge(60 * 60);
          jwtCookie.setSecure(true);
-         jwtCookie.setDomain(".daemyungdesk.com");
+         jwtCookie.setDomain("daemyungdesk.com");
 
         response.addCookie(jwtCookie);
 
