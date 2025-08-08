@@ -71,7 +71,7 @@ public class AuthController {
 
         response.addCookie(jwtCookie);
 
-        return ResponseEntity.ok().body("로그인 성공 (JWT 쿠키 저장됨)");
+        return ResponseEntity.ok().body(loginResponse);
     }
 
     @PostMapping("/validate-corporation")
