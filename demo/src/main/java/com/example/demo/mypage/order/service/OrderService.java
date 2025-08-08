@@ -1,6 +1,8 @@
 package com.example.demo.mypage.order.service;
 
 import com.example.demo.login.member.domain.member.Member;
+import com.example.demo.login.member.exception.exceptions.MemberErrorCode;
+import com.example.demo.login.member.exception.exceptions.auth.NotFoundMemberId;
 import com.example.demo.login.member.infrastructure.auth.JwtTokenProvider;
 import com.example.demo.login.member.infrastructure.member.MemberJpaRepository;
 import com.example.demo.mypage.order.controller.dto.OrderRequestDTO;
@@ -29,7 +31,7 @@ public class OrderService {
     public void createOrder(OrderRequestDTO dto, String token) {
         Long memberId = jwtTokenProvider.verifyToken(token).getClaim("memberId").asLong();
         Member member = memberJpaRepository.findById(memberId)
-                .orElseThrow(() -> new RuntimeException("회원 정보를 찾을 수 없습니다."));
+                .orElseThrow(NotFoundMemberId::new);
 
         Order order = Order.builder()
                 .orderId(dto.getOrderId())
