@@ -4,6 +4,9 @@ import com.example.demo.mypage.order.controller.dto.OrderRequestDTO;
 import com.example.demo.mypage.order.domain.entity.Order;
 import com.example.demo.mypage.order.service.OrderService;
 import java.util.List;
+
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,9 +28,9 @@ public class OrderController {
     @PostMapping
     public ResponseEntity<String> createOrder(
             @RequestBody OrderRequestDTO dto,
-            @RequestHeader("Authorization") String authorizationHeader) {
+            HttpServletRequest request) {
 
-        String token = authorizationHeader.replace("Bearer ", "");
+        String token = extractTokenFromCookie(request);
         orderService.createOrder(dto, token);
 
         return ResponseEntity.ok("주문 등록 완료");
@@ -48,4 +51,15 @@ public class OrderController {
         return ResponseEntity.ok(orders);
     }
 
+
+    private String extractTokenFromCookie(HttpServletRequest request) {
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("token".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        throw new RuntimeException("JWT 토큰이 쿠키에 없음.");
+    }
 }
