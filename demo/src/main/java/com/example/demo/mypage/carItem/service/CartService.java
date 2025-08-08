@@ -1,7 +1,7 @@
 package com.example.demo.mypage.carItem.service;
 
-import com.example.demo.common.exception.CartItemAlreadyExistsException;
 import com.example.demo.common.exception.CartItemNotFoundException;
+import com.example.demo.login.global.exception.exceptions.NotFoundDetail;
 import com.example.demo.login.member.domain.member.Member;
 
 import com.example.demo.login.util.MemberValidator;
@@ -26,7 +26,7 @@ public class CartService {
 
     public void addToCart(Long productDetailId, int quantity, Long memberId) {
         ProductDetail detail = productDetailRepository.findById(productDetailId)
-                .orElseThrow(() -> new IllegalArgumentException("상세 정보 없음"));
+                .orElseThrow(NotFoundDetail::new);
 
         Member member = memberValidator.getMember(memberId);
 
