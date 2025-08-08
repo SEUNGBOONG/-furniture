@@ -5,7 +5,9 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponseWrapper;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -18,23 +20,35 @@ public class SameSiteCookieFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
 
-        chain.doFilter(request, response);
+        if (response instanceof HttpServletResponse httpServletResponse) {
+            HttpServletResponse wrappedResponse = new HttpServletResponseWrapper(httpServletResponse) {
+                @Override
+                public void addCookie(Cookie cookie) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(cookie.getName()).append("=").append(cookie.getValue()).append("; Path=")
+                            .append(cookie.getPath() == null ? "/" : cookie.getPath());
 
-        if (response instanceof HttpServletResponse res) {
-            Collection<String> headers = res.getHeaders("Set-Cookie");
-            boolean first = true;
-            for (String header : headers) {
-                // 이미 SameSite 설정이 있으면 중복 방지
-                if (header.toLowerCase().contains("samesite")) continue;
+                    if (cookie.getMaxAge() > 0) {
+                        sb.append("; Max-Age=").append(cookie.getMaxAge());
+                    }
 
-                String updatedHeader = header + "; SameSite=None";
-                if (first) {
-                    res.setHeader("Set-Cookie", updatedHeader);
-                    first = false;
-                } else {
-                    res.addHeader("Set-Cookie", updatedHeader);
+                    if (cookie.getSecure()) sb.append("; Secure");
+                    if (cookie.isHttpOnly()) sb.append("; HttpOnly");
+
+                    // 여기 추가됨!
+                    sb.append("; SameSite=None");
+
+                    if (cookie.getDomain() != null) {
+                        sb.append("; Domain=").append(cookie.getDomain());
+                    }
+
+                    super.addHeader("Set-Cookie", sb.toString());
                 }
-            }
+            };
+
+            chain.doFilter(request, wrappedResponse);
+        } else {
+            chain.doFilter(request, response);
         }
     }
 }
