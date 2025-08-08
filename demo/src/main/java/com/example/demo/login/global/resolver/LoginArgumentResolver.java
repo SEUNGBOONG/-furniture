@@ -3,7 +3,10 @@ package com.example.demo.login.global.resolver;
 import com.example.demo.login.global.annotation.Member;
 import com.example.demo.login.global.application.JwtTokenService;
 import com.example.demo.login.member.exception.exceptions.auth.NotFoundTokenException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+
+import java.util.Arrays;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
@@ -31,9 +34,27 @@ public class LoginArgumentResolver implements HandlerMethodArgumentResolver {
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
-        String tokenHeader = Optional.ofNullable(request.getHeader(TOKEN_HEADER_NAME))
-                .orElseThrow(NotFoundTokenException::new);
-        String token = tokenHeader.substring(7);
+
+        String token = null;
+        String tokenHeader = request.getHeader(TOKEN_HEADER_NAME);
+        if (tokenHeader != null && tokenHeader.startsWith("Bearer ")) {
+            token = tokenHeader.substring(7);
+        }
+
+        if (token == null) {
+            if (request.getCookies() != null) {
+                token = Arrays.stream(request.getCookies())
+                        .filter(cookie -> "token".equals(cookie.getName()))
+                        .findFirst()
+                        .map(Cookie::getValue)
+                        .orElse(null);
+            }
+        }
+
+        if (token == null) {
+            throw new NotFoundTokenException();
+        }
+
         return jwtTokenService.verifyAndExtractJwtToken(token);
     }
 }
