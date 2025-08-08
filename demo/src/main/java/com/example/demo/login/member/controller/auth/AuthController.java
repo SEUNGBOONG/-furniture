@@ -43,7 +43,8 @@ public class AuthController {
 
         Boolean isAuthenticated = (Boolean) session.getAttribute(AuthUtil.getAuthKey(signUpRequest.memberEmail()));
         ResponseEntity<String> PLEASE_COMPLETE_EMAIL_VERIFICATION_FIRST = AuthUtil.getStringResponseEntity(isAuthenticated);
-        if (AuthUtil.isaBoolean(PLEASE_COMPLETE_EMAIL_VERIFICATION_FIRST)) return PLEASE_COMPLETE_EMAIL_VERIFICATION_FIRST;
+        if (AuthUtil.isaBoolean(PLEASE_COMPLETE_EMAIL_VERIFICATION_FIRST))
+            return PLEASE_COMPLETE_EMAIL_VERIFICATION_FIRST;
 
         Boolean isCorpAuthenticated = (Boolean) session.getAttribute(getCorpAuthKey(signUpRequest.corporationNumber()));
         if (signUpRequest.checkCorporation() && (isCorpAuthenticated == null || !isCorpAuthenticated)) {
@@ -66,8 +67,9 @@ public class AuthController {
         jwtCookie.setHttpOnly(true);
         jwtCookie.setPath("/");
         jwtCookie.setMaxAge(60 * 60);
-         jwtCookie.setSecure(true);
-         jwtCookie.setDomain("daemyungdesk.com");
+        jwtCookie.setSecure(true);
+//        jwtCookie.setSecure(false);
+        jwtCookie.setDomain("daemyungdesk.com");
 
         response.addCookie(jwtCookie);
 

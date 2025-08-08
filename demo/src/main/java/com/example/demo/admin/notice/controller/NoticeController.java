@@ -1,6 +1,7 @@
 package com.example.demo.admin.notice.controller;
 
 import com.example.demo.admin.notice.controller.dto.NoticeRequest;
+import com.example.demo.admin.notice.controller.dto.NoticeResponse;
 import com.example.demo.admin.notice.domain.entity.Notice;
 import com.example.demo.admin.notice.service.NoticeService;
 import com.example.demo.login.global.annotation.Member;
@@ -30,7 +31,16 @@ public class NoticeController {
         ResponseEntity<String> FORBIDDEN = AdminValidator.getStringResponseEntity(memberId);
         if (FORBIDDEN != null) return FORBIDDEN;
 
-        return ResponseEntity.ok(noticeService.createNotice(request));
+        Notice notice = noticeService.createNotice(request);
+
+        // 응답 DTO로 반환
+        NoticeResponse response = new NoticeResponse(
+                notice.getId(),
+                notice.getTitle(),
+                notice.getContent()
+        );
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping
