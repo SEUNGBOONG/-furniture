@@ -79,14 +79,19 @@ public class AuthService {
     }
 
     @Transactional(readOnly = true)
-    public LoginResponse login(LoginRequest loginRequest) {
+    public Member loginAndReturnMember(LoginRequest loginRequest) {
         signUpValidator.validateLoginRequestFormat(loginRequest);
         Member member = authValidator.findMemberByEmail(loginRequest.memberEmail());
 
-        AuthValidator.validatePasswordEncoderException(passwordEncoder.matches(loginRequest.memberPassword(), member.getMemberPassword()));
+        AuthValidator.validatePasswordEncoderException(
+                passwordEncoder.matches(loginRequest.memberPassword(), member.getMemberPassword())
+        );
 
-        String token = jwtTokenProvider.createToken(member.getId());
-        return AuthMapper.toLoginResponse(token, member);
+        return member;
+    }
+
+    public String generateToken(Long memberId) {
+        return jwtTokenProvider.createToken(memberId);
     }
 
     @Transactional

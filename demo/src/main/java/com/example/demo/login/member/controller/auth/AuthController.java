@@ -7,6 +7,7 @@ import com.example.demo.login.member.controller.auth.dto.SignUpRequest;
 import com.example.demo.login.member.controller.auth.dto.SignUpResponse;
 
 import com.example.demo.login.member.domain.auth.AuthUtil;
+import com.example.demo.login.member.domain.member.Member;
 import com.example.demo.login.member.mapper.auth.AuthMapper;
 import com.example.demo.login.member.service.auth.AuthService;
 
@@ -21,7 +22,11 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
@@ -59,21 +64,38 @@ public class AuthController {
         return ResponseEntity.created(location).body(response);
     }
 
-    @PostMapping(value = "/login")
+    @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
-        LoginResponse loginResponse = authService.login(loginRequest);
+        Member member = authService.loginAndReturnMember(loginRequest); // 1. 멤버 반환
+        String token = authService.generateToken(member.getId());      // 2. 토큰 생성
 
-        Cookie jwtCookie = new Cookie("token", loginResponse.token());
+        // 3. 쿠키 세팅
+        Cookie jwtCookie = new Cookie("token", token);
         jwtCookie.setHttpOnly(true);
         jwtCookie.setPath("/");
         jwtCookie.setMaxAge(60 * 60);
         jwtCookie.setSecure(true);
-//        jwtCookie.setSecure(false);
         jwtCookie.setDomain("daemyungdesk.com");
 
         response.addCookie(jwtCookie);
 
+        // 4. 응답 (token 없음)
+        LoginResponse loginResponse = AuthMapper.toLoginResponse(member);
         return ResponseEntity.ok().body(loginResponse);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+        Cookie deleteCookie = new Cookie("token", null);
+        deleteCookie.setHttpOnly(true);
+        deleteCookie.setPath("/");
+        deleteCookie.setMaxAge(0); // 만료
+        // 운영 환경이라면 아래도 함께 설정
+        deleteCookie.setSecure(true);
+        deleteCookie.setDomain("daemyungdesk.com");
+
+        response.addCookie(deleteCookie);
+        return ResponseEntity.ok("로그아웃 되었습니다.");
     }
 
     @PostMapping("/validate-corporation")

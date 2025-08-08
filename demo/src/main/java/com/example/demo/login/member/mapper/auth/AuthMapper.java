@@ -46,9 +46,8 @@ public class AuthMapper {
         );
     }
 
-    public static LoginResponse toLoginResponse(String token, Member member) {
+    public static LoginResponse toLoginResponse(Member member) {
         return new LoginResponse(
-                token,
                 member.getId(),
                 member.getMemberName(),
                 member.getMemberNickName(),
