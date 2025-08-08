@@ -12,6 +12,8 @@ import com.example.demo.login.member.service.auth.AuthService;
 
 import com.example.demo.login.util.CorporationValidator;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -57,8 +59,19 @@ public class AuthController {
     }
 
     @PostMapping(value = "/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
-        return ResponseEntity.ok(authService.login(loginRequest));
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+        LoginResponse loginResponse = authService.login(loginRequest);
+
+        Cookie jwtCookie = new Cookie("token", loginResponse.token());
+        jwtCookie.setHttpOnly(true);
+        jwtCookie.setPath("/");
+        jwtCookie.setMaxAge(60 * 60);
+         jwtCookie.setSecure(true);
+         jwtCookie.setDomain(".daemyungdesk.com");
+
+        response.addCookie(jwtCookie);
+
+        return ResponseEntity.ok().body("로그인 성공 (JWT 쿠키 저장됨)");
     }
 
     @PostMapping("/validate-corporation")

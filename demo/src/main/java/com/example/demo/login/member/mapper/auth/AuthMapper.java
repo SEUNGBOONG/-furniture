@@ -27,7 +27,7 @@ public class AuthMapper {
         return Member.builder()
                 .memberEmail(request.memberEmail())
                 .memberName(request.memberName())
-                .memberPassword(encodedPassword)  // 수정
+                .memberPassword(encodedPassword)
                 .memberNickName(request.memberNickName())
                 .roadAddress(request.roadAddress())
                 .jibunAddress(request.jibunAddress())

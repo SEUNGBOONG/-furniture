@@ -43,7 +43,7 @@ public class ProductService {
         Category category = getCategory(request);
         Result result = new Result(product, category);
 
-        String imageUrl = s3Uploader.uploadFile(imageFile); // 이미지 다시 업로드
+        String imageUrl = s3Uploader.uploadFile(imageFile);
 
         Product updated = getProduct(Product.builder()
                 .id(result.product().getId()), request, result.category(), imageUrl);

@@ -26,7 +26,6 @@ public class CertificateController {
         this.certificateService = certificateService;
     }
 
-    // 사진 업로드 (id는 서버에서 자동 생성)
     @PostMapping("/upload")
     public ResponseEntity<CertificateImage> uploadCertificate(@RequestParam("file") MultipartFile file,
                                                               @RequestParam("tag") String tag,

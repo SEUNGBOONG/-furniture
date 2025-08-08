@@ -20,7 +20,6 @@ public class ProductLikeService {
 
     public boolean toggleLike(Long memberId, Product product) {
         Member member = memberValidator.getMember(memberId);
-
         return toggleFunction(product, member);
     }
 

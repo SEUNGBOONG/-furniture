@@ -15,7 +15,7 @@ public enum MemberErrorCode {
     INVALID_LOGIN_REQUEST(HttpStatus.BAD_REQUEST, "A007", "잘못된 로그인 입력입니다."),
     INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "A008", "비밀번호는 10자리 이상이어야 합니다."),
     INVALID_SPECIAL_PASSWORD(HttpStatus.BAD_REQUEST, "A009", "비밀번호에는 영문자와 특수문자가 포함되어야 합니다."),
-
+    NOT_FOUND_MEMBER_ID(HttpStatus.BAD_REQUEST,"M001", "회원 정보를 찾을수 없습니다."),
     NOT_FOUND_TOKEN_INFORMATION(HttpStatus.NOT_FOUND, "T001", "토큰 정보를 찾을 수 없습니다."),
     AUTHENTICATE_EMAIL_FIRST(HttpStatus.FORBIDDEN,"E_001", "먼저 이메일 인증을 완료해주세요.");
 
