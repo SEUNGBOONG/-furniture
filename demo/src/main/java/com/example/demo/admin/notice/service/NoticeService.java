@@ -6,7 +6,6 @@ import com.example.demo.admin.notice.domain.repository.NoticeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -23,8 +22,6 @@ public class NoticeService {
         return noticeRepository.save(Notice.builder()
                 .title(request.getTitle())
                 .content(request.getContent())
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
                 .build());
     }
 

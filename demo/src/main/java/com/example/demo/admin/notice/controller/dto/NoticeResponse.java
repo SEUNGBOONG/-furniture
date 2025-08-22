@@ -1,12 +1,11 @@
 package com.example.demo.admin.notice.controller.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
-@Getter
-@AllArgsConstructor
-public class NoticeResponse {
-    private Long id;
-    private String title;
-    private String content;
+public record NoticeResponse(
+        Long id,
+        String title,
+        String content
+) {
+    public static NoticeResponse from(com.example.demo.admin.notice.domain.entity.Notice n) {
+        return new NoticeResponse(n.getId(), n.getTitle(), n.getContent());
+    }
 }

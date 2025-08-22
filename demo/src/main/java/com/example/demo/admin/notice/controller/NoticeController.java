@@ -8,14 +8,7 @@ import com.example.demo.login.global.annotation.Member;
 import com.example.demo.common.util.AdminValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -32,25 +25,20 @@ public class NoticeController {
         if (FORBIDDEN != null) return FORBIDDEN;
 
         Notice notice = noticeService.createNotice(request);
-
-        // 응답 DTO로 반환
-        NoticeResponse response = new NoticeResponse(
-                notice.getId(),
-                notice.getTitle(),
-                notice.getContent()
-        );
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(NoticeResponse.from(notice));
     }
 
     @GetMapping
-    public ResponseEntity<List<Notice>> getAllNotices() {
-        return ResponseEntity.ok(noticeService.getAllNotices());
+    public ResponseEntity<List<NoticeResponse>> getAllNotices() {
+        var list = noticeService.getAllNotices().stream()
+                .map(NoticeResponse::from)
+                .toList();
+        return ResponseEntity.ok(list);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Notice> getNotice(@PathVariable Long id) {
-        return ResponseEntity.ok(noticeService.getNotice(id));
+    public ResponseEntity<NoticeResponse> getNotice(@PathVariable Long id) {
+        return ResponseEntity.ok(NoticeResponse.from(noticeService.getNotice(id)));
     }
 
     @PutMapping("/{id}")
@@ -58,7 +46,7 @@ public class NoticeController {
         ResponseEntity<String> FORBIDDEN = AdminValidator.getStringResponseEntity(memberId);
         if (FORBIDDEN != null) return FORBIDDEN;
 
-        return ResponseEntity.ok(noticeService.updateNotice(id, request));
+        return ResponseEntity.ok(NoticeResponse.from(noticeService.updateNotice(id, request)));
     }
 
     @DeleteMapping("/{id}")
