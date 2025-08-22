@@ -1,6 +1,7 @@
 package com.example.demo.login.member.controller.auth;
 
 import com.example.demo.common.exception.Setting;
+import com.example.demo.login.email.util.EmailSenderUtil;
 import com.example.demo.login.member.controller.auth.dto.NormalSignUpRequest;
 import com.example.demo.login.member.controller.auth.dto.SignUpResponse;
 import com.example.demo.login.member.domain.auth.AuthUtil;
@@ -24,16 +25,19 @@ import java.net.URI;
 public class NormalAuthController {
 
     private final AuthService authService;
+    private final EmailSenderUtil emailSenderUtil;
 
     @PostMapping("/normalMembers")
     public ResponseEntity<?> normalSignUp(@RequestBody NormalSignUpRequest request, HttpSession session) {
 
-        Boolean isAuthenticated = (Boolean) session.getAttribute(getAuthKey(request.memberEmail()));
-        ResponseEntity<String> PLEASE_COMPLETE_EMAIL_VERIFICATION_FIRST = AuthUtil.getStringResponseEntity(isAuthenticated);
-        if (AuthUtil.isaBoolean(PLEASE_COMPLETE_EMAIL_VERIFICATION_FIRST)) return PLEASE_COMPLETE_EMAIL_VERIFICATION_FIRST;
+        if (!emailSenderUtil.isEmailVerified(request.memberEmail())) {
+            return ResponseEntity.status(403)
+                    .body(Setting.PLEASE_COMPLETE_EMAIL_VERIFICATION_FIRST.toString());
+        }
 
         SignUpResponse response = AuthMapper.toSignUpResponse(authService.normalSignUp(request));
-        session.removeAttribute(getAuthKey(request.memberEmail()));
+
+        emailSenderUtil.clearVerifiedFlag(request.memberEmail());
 
         URI location = URI.create("/members/" + response.id());
         return ResponseEntity.created(location).body(response);

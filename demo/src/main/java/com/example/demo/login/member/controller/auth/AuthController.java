@@ -1,6 +1,7 @@
 package com.example.demo.login.member.controller.auth;
 
 import com.example.demo.common.exception.Setting;
+import com.example.demo.login.email.util.EmailSenderUtil;
 import com.example.demo.login.member.controller.auth.dto.LoginRequest;
 import com.example.demo.login.member.controller.auth.dto.LoginResponse;
 import com.example.demo.login.member.controller.auth.dto.SignUpRequest;
@@ -39,6 +40,7 @@ public class AuthController {
 
     private final AuthService authService;
     private final CorporationValidator corporationValidator;
+    private final EmailSenderUtil emailSenderUtil;
 
     @PostMapping(value = "/members", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> signUp(
@@ -46,10 +48,10 @@ public class AuthController {
             @RequestPart(value = "corporationImage") MultipartFile corporationImage,
             HttpSession session) {
 
-        Boolean isAuthenticated = (Boolean) session.getAttribute(AuthUtil.getAuthKey(signUpRequest.memberEmail()));
-        ResponseEntity<String> PLEASE_COMPLETE_EMAIL_VERIFICATION_FIRST = AuthUtil.getStringResponseEntity(isAuthenticated);
-        if (AuthUtil.isaBoolean(PLEASE_COMPLETE_EMAIL_VERIFICATION_FIRST))
-            return PLEASE_COMPLETE_EMAIL_VERIFICATION_FIRST;
+        if (!emailSenderUtil.isEmailVerified(signUpRequest.memberEmail())) {
+            return ResponseEntity.status(403)
+                    .body(Setting.PLEASE_COMPLETE_EMAIL_VERIFICATION_FIRST.toString());
+        }
 
         Boolean isCorpAuthenticated = (Boolean) session.getAttribute(getCorpAuthKey(signUpRequest.corporationNumber()));
         if (signUpRequest.checkCorporation() && (isCorpAuthenticated == null || !isCorpAuthenticated)) {
@@ -57,7 +59,9 @@ public class AuthController {
         }
 
         SignUpResponse response = AuthMapper.toSignUpResponse(authService.signUp(signUpRequest, corporationImage));
-        session.removeAttribute(AuthUtil.getAuthKey(signUpRequest.memberEmail()));
+
+        // ✅ 이메일 인증 플래그 정리
+        emailSenderUtil.clearVerifiedFlag(signUpRequest.memberEmail());
         session.removeAttribute(getCorpAuthKey(signUpRequest.corporationNumber()));
 
         URI location = URI.create("/members/" + response.id());
