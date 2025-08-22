@@ -29,8 +29,7 @@ public class NoticeService {
     }
 
     public Notice updateNotice(Long id, NoticeRequest request) {
-        Notice notice = noticeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("공지사항이 존재하지 않습니다."));
+        Notice notice = getOrElseThrow(id);
         notice.update(request.getTitle(), request.getContent());
         return notice;
     }
@@ -40,6 +39,10 @@ public class NoticeService {
     }
 
     public Notice getNotice(Long id) {
+        return getOrElseThrow(id);
+    }
+
+    private Notice getOrElseThrow(final Long id) {
         return noticeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("공지사항이 존재하지 않습니다."));
     }

@@ -13,6 +13,7 @@ import com.example.demo.product.domain.entity.product.ProductDetail;
 import com.example.demo.product.domain.repository.product.ProductDetailRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -24,6 +25,7 @@ public class CartService {
     private final MemberValidator memberValidator;
     private final ProductDetailRepository productDetailRepository;
 
+    @Transactional
     public void addToCart(Long productDetailId, int quantity, Long memberId) {
         ProductDetail detail = productDetailRepository.findById(productDetailId)
                 .orElseThrow(NotFoundDetail::new);
@@ -38,27 +40,32 @@ public class CartService {
         );
     }
 
+    @Transactional
     public void increaseQuantity(Long memberId, Long cartItemId) {
         int updated = cartItemRepository.updateQuantityByAmount(cartItemId, memberId, 1);
         validateUpdate(updated);
     }
 
+    @Transactional
     public void decreaseQuantity(Long memberId, Long cartItemId) {
         int updated = cartItemRepository.updateQuantityByAmount(cartItemId, memberId, -1);
         validateUpdate(updated);
         validateCartItem(cartItemId);
     }
 
+    @Transactional
     public void updateQuantityByCartItemId(Long memberId, Long cartItemId, int newQuantity) {
         Member member = memberValidator.getMember(memberId);
         CartItem cartItem = getCartItem(cartItemId, member);
         validateUpdateQuantity(newQuantity, cartItem);
     }
 
+    @Transactional
     public List<CartItem> getCartItems(Long memberId) {
         return cartItemRepository.findDistinctByMemberId(memberId);
     }
 
+    @Transactional
     public void clearCart(Long memberId) {
         cartItemRepository.deleteByMemberId(memberId);
     }

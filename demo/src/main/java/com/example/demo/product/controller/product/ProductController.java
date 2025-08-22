@@ -52,7 +52,6 @@ public class ProductController {
         CompletableFuture<String> imageUrlFuture = productService.uploadImageAsync(image);
 
         String imageUrl = imageUrlFuture.join();
-
         productService.createProduct(dto, imageUrl);
 
         return ResponseEntity.ok(Setting.PRODUCT_CREATE_SUCCESS.toString());
