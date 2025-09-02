@@ -78,8 +78,7 @@ public class AuthController {
         jwtCookie.setHttpOnly(true);
         jwtCookie.setPath("/");
         jwtCookie.setMaxAge(60 * 60);
-        jwtCookie.setSecure(true);
-        jwtCookie.setDomain("daemyungdesk.com");
+        jwtCookie.setSecure(false);
 
         response.addCookie(jwtCookie);
 
@@ -95,8 +94,8 @@ public class AuthController {
         deleteCookie.setPath("/");
         deleteCookie.setMaxAge(0); // 만료
         // 운영 환경이라면 아래도 함께 설정
-        deleteCookie.setSecure(true);
-        deleteCookie.setDomain("daemyungdesk.com");
+        deleteCookie.setSecure(false);
+//        deleteCookie.setDomain("daemyungdesk.com");
 
         response.addCookie(deleteCookie);
         return ResponseEntity.ok("로그아웃 되었습니다.");

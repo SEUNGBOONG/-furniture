@@ -5,32 +5,39 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.joda.time.LocalDateTime;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+@Table(name = "orders")
 public class Order {
 
     @Id
     private String orderId;
 
     private int totalAmount;
-    private LocalDateTime orderDate;
-    private LocalDateTime paymentDate;
 
-    private String status;
+    private LocalDateTime orderDate;
+
+    private LocalDateTime paymentDate;   // ✅ 결제 완료 시점
+
+    @Column(nullable = false)
+    private String status;               // ✅ 주문 상태 (PENDING, PAID, CANCELED 등)
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<OrderItem> products = new ArrayList<>();
 
     @Column(nullable = false)
@@ -38,6 +45,9 @@ public class Order {
 
     @Column(nullable = false)
     private String memberName;
+
+    @Column(nullable = false)
+    private Long memberId;
 
     @Column(nullable = false)
     private String phoneNumber;
@@ -51,7 +61,23 @@ public class Order {
     @Column(nullable = false)
     private String zipCode;
 
+    // OrderItem 연결
     public void addItems(List<OrderItem> items) {
+        for (OrderItem i : items) {
+            i.setOrder(this);
+        }
         this.products.addAll(items);
+    }
+
+    // ✅ 결제 승인 처리
+    public void markPaid(LocalDateTime at) {
+        this.status = "PAID";
+        this.paymentDate = at;
+    }
+
+    // ✅ 결제 취소 처리
+    public void markCanceled() {
+        this.status = "CANCELED";
+        this.paymentDate = null;
     }
 }
