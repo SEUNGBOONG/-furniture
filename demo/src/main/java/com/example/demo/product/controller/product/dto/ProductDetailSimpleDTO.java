@@ -12,7 +12,8 @@ public class ProductDetailSimpleDTO implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private Long id;      // ✅ detail PK 추가
+    private Long id;       // ✅ detail id
     private String model;
     private String size;
+    private int price;     // ✅ price 추가
 }

@@ -8,21 +8,22 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ProductDetailService {
 
     private final ProductDetailRepository productDetailRepository;
 
-    // productId 기준으로 여러 개 조회 후 DTO 리스트 반환
     @Cacheable(value = "productDetails")
     public List<ProductDetailSimpleDTO> getProductDetailsByProductId(Long productId) {
         List<ProductDetail> productDetails = productDetailRepository.findByProduct_Id(productId);
         return productDetails.stream()
                 .map(pd -> new ProductDetailSimpleDTO(
-                        pd.getId(),       // ✅ PK 추가
+                        pd.getId(),
                         pd.getModel(),
-                        pd.getSize()
+                        pd.getSize(),
+                        pd.getPrice() // ✅ price 매핑
                 ))
                 .toList();
     }
