@@ -20,7 +20,7 @@ public class ProductLike {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    // 상품 상세 (사이즈/모델별)
+    // 상품 상세 (사이즈/모델 단위)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_detail_id", nullable = false)
     private ProductDetail productDetail;

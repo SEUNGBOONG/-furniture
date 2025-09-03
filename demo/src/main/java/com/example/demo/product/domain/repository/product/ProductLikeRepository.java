@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ProductLikeRepository extends JpaRepository<ProductLike, Long> {
-    Optional<ProductLike> findByMemberAndProductDetail(Member member, ProductDetail productDetail);
+
+    Optional<ProductLike> findByMemberAndProductDetail(Member member, ProductDetail detail);
+
     List<ProductLike> findAllByMemberId(Long memberId);
 }

@@ -4,8 +4,8 @@ import com.example.demo.login.member.domain.member.Member;
 import com.example.demo.login.util.MemberValidator;
 import com.example.demo.product.domain.entity.product.ProductDetail;
 import com.example.demo.product.domain.entity.product.ProductLike;
-import com.example.demo.product.domain.repository.product.ProductLikeRepository;
 import com.example.demo.product.domain.repository.product.ProductDetailRepository;
+import com.example.demo.product.domain.repository.product.ProductLikeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +20,7 @@ public class ProductLikeService {
     private final ProductDetailRepository productDetailRepository;
     private final MemberValidator memberValidator;
 
-    // 찜 토글 (사이즈 단위)
+    // ✅ 찜 토글 (사이즈 단위)
     public boolean toggleLike(Long memberId, Long productDetailId) {
         Member member = memberValidator.getMember(memberId);
         ProductDetail productDetail = productDetailRepository.findById(productDetailId)
@@ -40,7 +40,7 @@ public class ProductLikeService {
         }
     }
 
-    // 내가 찜한 상품 상세 조회
+    // ✅ 내가 찜한 상품 상세 조회
     public List<ProductDetail> getLikedProductDetails(Long memberId) {
         List<ProductLike> likes = productLikeRepository.findAllByMemberId(memberId);
         return likes.stream()

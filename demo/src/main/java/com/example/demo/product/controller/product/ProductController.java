@@ -153,8 +153,8 @@ public class ProductController {
                 product.getPrice(),
                 product.getCategory().getName(),
                 product.getTagName(),
-                product.getImage()
-                , product.getImage2()
+                product.getImage(),
+                product.getImage2()
         );
     }
 }
