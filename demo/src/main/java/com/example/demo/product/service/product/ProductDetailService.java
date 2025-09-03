@@ -8,7 +8,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class ProductDetailService {
@@ -20,8 +19,11 @@ public class ProductDetailService {
     public List<ProductDetailSimpleDTO> getProductDetailsByProductId(Long productId) {
         List<ProductDetail> productDetails = productDetailRepository.findByProduct_Id(productId);
         return productDetails.stream()
-                .map(pd -> new ProductDetailSimpleDTO(pd.getModel(), pd.getSize()))
+                .map(pd -> new ProductDetailSimpleDTO(
+                        pd.getId(),       // ✅ PK 추가
+                        pd.getModel(),
+                        pd.getSize()
+                ))
                 .toList();
     }
 }
-
