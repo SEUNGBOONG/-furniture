@@ -9,6 +9,7 @@ import com.example.demo.product.controller.product.dto.ProductRequest;
 import com.example.demo.product.controller.product.dto.ProductResponse;
 import com.example.demo.common.util.AdminValidator;
 import com.example.demo.product.domain.entity.product.Product;
+import com.example.demo.product.domain.entity.product.ProductDetail;
 import com.example.demo.product.service.product.ProductDetailService;
 import com.example.demo.product.service.product.ProductLikeService;
 import com.example.demo.product.service.product.ProductService;
@@ -117,27 +118,31 @@ public class ProductController {
         return ResponseEntity.ok(Setting.PRODUCT_DELETE_SUCCESS.toString());
     }
 
-    @PostMapping("/{productId}/like-toggle")
-    public ResponseEntity<?> toggleLike(@PathVariable Long productId,
-                                        @AuthenticationPrincipal @Member Long memberId) {
-        Product product = productService.findById(productId);
-        boolean isLiked = productLikeService.toggleLike(memberId, product);
-
+    @PostMapping("/product-details/{detailId}/like-toggle")
+    public ResponseEntity<?> toggleLikeDetail(@PathVariable Long detailId,
+                                              @Member Long memberId) {
+        boolean isLiked = productLikeService.toggleLike(memberId, detailId);
         return ResponseEntity.ok(Map.of(
                 "liked", isLiked,
                 "message", isLiked ? "찜 추가됨" : "찜 해제됨"
         ));
     }
 
-    @GetMapping("/likes")
-    public ResponseEntity<?> getLikedProducts(@AuthenticationPrincipal @Member Long memberId) {
-        List<Product> likedProducts = productLikeService.getLikedProducts(memberId);
+    @GetMapping("/likes/details")
+    public ResponseEntity<?> getLikedDetails(@Member Long memberId) {
+        List<ProductDetail> likedDetails = productLikeService.getLikedProductDetails(memberId);
 
-        List<ProductResponse> response = likedProducts.stream()
-                .map(p -> new ProductResponse(p.getId(), p.getName(), p.getDescription(), p.getPrice(), p.getCategory().getName(), p.getTagName(), p.getImage(), p.getImage2()))
-                .toList();
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(
+                likedDetails.stream()
+                        .map(d -> Map.of(
+                                "id", d.getId(),
+                                "model", d.getModel(),
+                                "size", d.getSize(),
+                                "price", d.getPrice(),
+                                "productName", d.getProduct().getName()
+                        ))
+                        .toList()
+        );
     }
 
     private static ProductResponse getProductResponse(final Product product) {
