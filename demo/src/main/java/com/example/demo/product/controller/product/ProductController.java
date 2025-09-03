@@ -139,7 +139,8 @@ public class ProductController {
                                 "model", d.getModel(),
                                 "size", d.getSize(),
                                 "price", d.getPrice(),
-                                "productName", d.getProduct().getName()
+                                "productName", d.getProduct().getName(),
+                                "image", d.getProduct().getImage()   // ✅ image만 포함
                         ))
                         .toList()
         );
