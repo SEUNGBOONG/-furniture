@@ -87,8 +87,13 @@ public class ProductController {
     }
 
     @GetMapping("/product-details/by-product/{productId}")
-    public ResponseEntity<List<ProductDetailSimpleDTO>> getProductDetailsByProductId(@PathVariable Long productId) {
-        List<ProductDetailSimpleDTO> dtos = productDetailService.getProductDetailsByProductId(productId);
+    public ResponseEntity<List<ProductDetailSimpleDTO>> getProductDetailsByProductId(
+            @PathVariable Long productId,
+            @Member Long memberId) {
+        List<ProductDetailSimpleDTO> dtos = (memberId != null)
+                ? productDetailService.getProductDetailsByProductId(productId, memberId)
+                : productDetailService.getProductDetailsByProductId(productId);
+
         return ResponseEntity.ok(dtos);
     }
 
