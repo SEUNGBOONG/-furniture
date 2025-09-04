@@ -16,5 +16,4 @@ public class ProductDetailSimpleDTO implements Serializable {
     private String model;
     private String size;
     private int price;     // ✅ price 추가
-    private boolean isLiked; // ✅ 추가
 }

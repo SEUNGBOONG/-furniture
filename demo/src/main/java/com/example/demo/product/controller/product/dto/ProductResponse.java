@@ -14,5 +14,6 @@ public class ProductResponse {
     private String tagName;
     private String image;
     private String image2;
+    boolean isLiked;
 }
 

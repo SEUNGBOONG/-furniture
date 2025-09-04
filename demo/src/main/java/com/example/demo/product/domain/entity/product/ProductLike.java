@@ -15,13 +15,12 @@ public class ProductLike {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 회원
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    // 상품 상세 (사이즈/모델 단위)
+    // ✅ 상품 단위로 찜
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_detail_id", nullable = false)
-    private ProductDetail productDetail;
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
 }
