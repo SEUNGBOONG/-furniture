@@ -105,8 +105,7 @@ public class ProductController {
 
     // ✅ 카테고리별 상품 조회
     @GetMapping("/categories/{categoryId}")
-    public ResponseEntity<List<ProductResponse>> getProductsByCategory(@PathVariable Long categoryId,
-                                                                       @Member Long memberId) {
+    public ResponseEntity<List<ProductResponse>> getProductsByCategory(@PathVariable Long categoryId) {
         List<Product> products = productService.getProductsByCategory(categoryId);
         return ResponseEntity.ok(
                 products.stream()
@@ -119,7 +118,7 @@ public class ProductController {
                                 p.getTagName(),
                                 p.getImage(),
                                 p.getImage2(),
-                                memberId != null && productLikeService.isProductLiked(memberId, p.getId())
+                                false // 로그인 정보 없으니 무조건 false
                         ))
                         .toList()
         );

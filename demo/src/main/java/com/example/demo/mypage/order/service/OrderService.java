@@ -6,6 +6,8 @@ import com.example.demo.login.member.infrastructure.member.MemberJpaRepository;
 import com.example.demo.mypage.carItem.domain.entity.CartItem;
 import com.example.demo.mypage.carItem.domain.repository.CartItemRepository;
 import com.example.demo.mypage.order.controller.dto.OrderCreateRequest;
+import com.example.demo.mypage.order.controller.dto.OrderItemResponse;
+import com.example.demo.mypage.order.controller.dto.OrderResponse;
 import com.example.demo.mypage.order.domain.entity.Order;
 import com.example.demo.mypage.order.domain.entity.OrderItem;
 import com.example.demo.mypage.order.domain.repository.OrderRepository;
@@ -94,5 +96,37 @@ public class OrderService {
     public List<Order> getAllOrdersPaged(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("orderDate").descending());
         return orderRepository.findAll(pageable).getContent();
+    }
+
+    /**
+     * ✅ Order → OrderResponse 변환
+     */
+    @Transactional(readOnly = true)
+    public OrderResponse toOrderResponse(Order order) {
+        List<OrderItemResponse> items = order.getProducts().stream()
+                .map(i -> new OrderItemResponse(
+                        i.getProductId(),
+                        i.getProductName(),
+                        i.getSize(),
+                        i.getUnitPrice(),
+                        i.getQuantity(),
+                        i.getTotalPrice(),
+                        null // ProductDetail → Product.image 매핑 원하면 넣기
+                ))
+                .toList();
+
+        return new OrderResponse(
+                order.getOrderId(),
+                order.getTotalAmount(),
+                order.getStatus(),
+                order.getOrderDate(),
+                order.getPaymentDate(),
+                order.getMemberName(),
+                order.getPhoneNumber(),
+                order.getRoadAddress(),
+                order.getJibunAddress(),
+                order.getZipCode(),
+                items
+        );
     }
 }

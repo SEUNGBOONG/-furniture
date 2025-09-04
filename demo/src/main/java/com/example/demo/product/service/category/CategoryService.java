@@ -28,6 +28,12 @@ public class CategoryService {
         categoryRepository.save(category);
     }
 
+    public CategoryResponse getCategoryById(Long categoryId) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다."));
+        return CategoryResponse.from(category);
+    }
+
     public void updateCategory(Long categoryId, CategoryRequest request) {
         Category category = validateNotFoundCategory(categoryId);
         category.updateName(request.getName());
