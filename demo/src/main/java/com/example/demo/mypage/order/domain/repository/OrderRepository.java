@@ -12,3 +12,4 @@ public interface OrderRepository extends JpaRepository<Order, String> {
     @Query("SELECT o FROM Order o JOIN FETCH o.products WHERE o.orderId = :orderId")
     Optional<Order> findByOrderIdWithItems(@Param("orderId") String orderId);
 }
+
