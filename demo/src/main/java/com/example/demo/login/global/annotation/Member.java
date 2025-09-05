@@ -5,7 +5,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import java.lang.annotation.*;
+
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
+@Documented
 public @interface Member {
+    boolean required() default true;
 }

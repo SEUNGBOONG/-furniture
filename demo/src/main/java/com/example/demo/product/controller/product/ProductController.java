@@ -49,7 +49,7 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponse> getProductById(@PathVariable Long id,
-                                                          @Member Long memberId) {
+                                                          @Member(required = false)Long memberId) {
         Product product = productService.findById(id);
 
         boolean isLiked = (memberId != null) && productLikeService.isProductLiked(memberId, id);
@@ -157,6 +157,12 @@ public class ProductController {
     @PostMapping("/{productId}/like-toggle")
     public ResponseEntity<?> toggleLike(@PathVariable Long productId,
                                         @Member Long memberId) {
+        if (memberId == null) {
+            return ResponseEntity.status(401).body(Map.of(
+                    "message", "로그인이 필요합니다."
+            ));
+        }
+
         boolean isLiked = productLikeService.toggleLike(memberId, productId);
         return ResponseEntity.ok(Map.of(
                 "liked", isLiked,

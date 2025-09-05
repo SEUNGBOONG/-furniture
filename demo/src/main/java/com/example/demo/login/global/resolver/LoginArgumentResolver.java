@@ -32,7 +32,8 @@ public class LoginArgumentResolver implements HandlerMethodArgumentResolver {
     }
 
     @Override
-    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
+                                  NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
 
         String token = null;
@@ -41,18 +42,17 @@ public class LoginArgumentResolver implements HandlerMethodArgumentResolver {
             token = tokenHeader.substring(7);
         }
 
-        if (token == null) {
-            if (request.getCookies() != null) {
-                token = Arrays.stream(request.getCookies())
-                        .filter(cookie -> "token".equals(cookie.getName()))
-                        .findFirst()
-                        .map(Cookie::getValue)
-                        .orElse(null);
-            }
+        if (token == null && request.getCookies() != null) {
+            token = Arrays.stream(request.getCookies())
+                    .filter(cookie -> "token".equals(cookie.getName()))
+                    .findFirst()
+                    .map(Cookie::getValue)
+                    .orElse(null);
         }
 
         if (token == null) {
-            throw new NotFoundTokenException();
+            // 토큰 없는 경우 null 반환 → @Member(required = false)인 경우 컨트롤러에서 null 받음
+            return null;
         }
 
         return jwtTokenService.verifyAndExtractJwtToken(token);
