@@ -171,8 +171,15 @@ public class ProductController {
     }
 
     // ✅ 내가 찜한 상품 조회
+// ✅ 내가 찜한 상품 조회
     @GetMapping("/likes")
-    public ResponseEntity<?> getLikedProducts(@Member Long memberId) {
+    public ResponseEntity<?> getLikedProducts(@Member(required = false) Long memberId) {
+        if (memberId == null) {
+            return ResponseEntity.status(401).body(Map.of(
+                    "message", "로그인이 필요합니다."
+            ));
+        }
+
         List<Product> likedProducts = productLikeService.getLikedProducts(memberId);
         return ResponseEntity.ok(
                 likedProducts.stream()
