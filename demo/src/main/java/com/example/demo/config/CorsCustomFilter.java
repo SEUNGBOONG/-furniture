@@ -15,9 +15,15 @@ public class CorsCustomFilter extends OncePerRequestFilter {
                                     final HttpServletResponse response,
                                     final FilterChain filterChain) throws ServletException, IOException {
 
-        response.setHeader("Access-Control-Allow-Origin", "https://daemyungdesk.com");
+        String origin = request.getHeader("Origin");
+
+        // 허용할 Origin 목록
+        if ("https://daemyungdesk.com".equals(origin) || "http://localhost:3000".equals(origin)) {
+            response.setHeader("Access-Control-Allow-Origin", origin);
+        }
+
         response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-        response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, Cookie");
         response.setHeader("Access-Control-Allow-Credentials", "true");
         response.setHeader("Access-Control-Max-Age", "3600");
 

@@ -47,9 +47,6 @@ public class ProductController {
         return ResponseEntity.ok(Setting.PRODUCT_CREATE_SUCCESS.toString());
     }
 
-    // ✅ 단일 상품 조회 (좋아요 여부 포함)
-// ✅ 단일 상품 조회 (로그인 안해도 가능)
-// ✅ 단일 상품 조회 (로그인 안해도 가능, 로그인하면 liked 반영)
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponse> getProductById(@PathVariable Long id,
                                                           @Member Long memberId) {
