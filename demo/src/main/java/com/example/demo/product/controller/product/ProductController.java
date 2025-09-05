@@ -49,9 +49,13 @@ public class ProductController {
 
     // ✅ 단일 상품 조회 (좋아요 여부 포함)
 // ✅ 단일 상품 조회 (로그인 안해도 가능)
+// ✅ 단일 상품 조회 (로그인 안해도 가능, 로그인하면 liked 반영)
     @GetMapping("/{id}")
-    public ResponseEntity<ProductResponse> getProductById(@PathVariable Long id) {
+    public ResponseEntity<ProductResponse> getProductById(@PathVariable Long id,
+                                                          @Member Long memberId) {
         Product product = productService.findById(id);
+
+        boolean isLiked = (memberId != null) && productLikeService.isProductLiked(memberId, id);
 
         ProductResponse response = new ProductResponse(
                 product.getId(),
@@ -62,7 +66,7 @@ public class ProductController {
                 product.getTagName(),
                 product.getImage(),
                 product.getImage2(),
-                false // 로그인 정보 없으니 항상 false
+                isLiked
         );
         return ResponseEntity.ok(response);
     }

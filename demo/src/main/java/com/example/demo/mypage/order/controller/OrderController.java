@@ -1,5 +1,6 @@
 package com.example.demo.mypage.order.controller;
 
+import com.example.demo.common.util.AdminValidator;
 import com.example.demo.login.global.annotation.Member;
 import com.example.demo.mypage.order.controller.dto.OrderCreateRequest;
 import com.example.demo.mypage.order.controller.dto.OrderResponse;
@@ -10,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/orders")
@@ -26,22 +26,33 @@ public class OrderController {
         return ResponseEntity.ok(order);
     }
 
+    // ✅ 내 주문 조회 (로그인된 사용자 본인 것만)
+    @GetMapping("/my")
+    public ResponseEntity<List<OrderResponse>> getMyOrders(@Member Long memberId) {
+        return ResponseEntity.ok(
+                orderService.getOrdersByMember(memberId).stream()
+                        .map(orderService::toOrderResponse)
+                        .toList()
+        );
+    }
+
+    // ✅ 관리자 전용 주문 전체 조회
+    @GetMapping("/admin")
+    public ResponseEntity<List<OrderResponse>> getAllOrders(@Member Long memberId) {
+        ResponseEntity<String> FORBIDDEN = AdminValidator.getStringResponseEntity(memberId);
+        if (FORBIDDEN != null) return (ResponseEntity) FORBIDDEN;
+
+        return ResponseEntity.ok(
+                orderService.getAllOrdersPaged(0, 50).stream()
+                        .map(orderService::toOrderResponse)
+                        .toList()
+        );
+    }
+
     // ✅ 단건 조회 (DTO 반환)
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderResponse> getOrder(@PathVariable String orderId) {
         Order order = orderService.getOrder(orderId);
         return ResponseEntity.ok(orderService.toOrderResponse(order));
-    }
-
-    // ✅ 전체 조회 (DTO 반환)
-    @GetMapping
-    public ResponseEntity<List<OrderResponse>> getAllOrders(@RequestParam(defaultValue = "1") int page,
-                                                            @RequestParam(defaultValue = "10") int size) {
-        List<Order> orders = orderService.getAllOrdersPaged(page - 1, size);
-        return ResponseEntity.ok(
-                orders.stream()
-                        .map(orderService::toOrderResponse)
-                        .toList()
-        );
     }
 }
