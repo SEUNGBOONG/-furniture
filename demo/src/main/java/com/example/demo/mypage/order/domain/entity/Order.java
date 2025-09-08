@@ -61,6 +61,13 @@ public class Order {
     @Column(nullable = false)
     private String zipCode;
 
+    // 그대로 boolean shipped 필드 유지
+    private boolean shipped;
+
+    public void setShipped(boolean shipped) {
+        this.shipped = shipped;
+    }
+
     // OrderItem 연결
     public void addItems(List<OrderItem> items) {
         for (OrderItem i : items) {

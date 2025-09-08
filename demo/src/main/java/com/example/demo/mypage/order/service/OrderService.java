@@ -136,4 +136,12 @@ public class OrderService {
                 .filter(o -> o.getMemberId().equals(memberId))
                 .toList();
     }
+
+    @Transactional
+    public void updateShippedStatus(String orderId, boolean shipped) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("해당 주문이 없습니다: " + orderId));
+        order.setShipped(shipped); // 저장 버튼 누른 값으로 반영
+        orderRepository.save(order);
+    }
 }

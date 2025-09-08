@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/orders")
@@ -47,6 +49,21 @@ public class OrderController {
                         .map(orderService::toOrderResponse)
                         .toList()
         );
+    }
+
+    @PutMapping("/admin/{orderId}/ship")
+    public ResponseEntity<Map<String, Object>> updateOrderShipped(@PathVariable String orderId,
+                                                                  @RequestParam boolean shipped,
+                                                                  @Member Long memberId) {
+        ResponseEntity<String> FORBIDDEN = AdminValidator.getStringResponseEntity(memberId);
+        if (FORBIDDEN != null) return (ResponseEntity) FORBIDDEN;
+
+        orderService.updateShippedStatus(orderId, shipped);
+        return ResponseEntity.ok(Map.of(
+                "orderId", orderId,
+                "shipped", shipped,
+                "message", shipped ? "배송 시작으로 저장되었습니다." : "배송 미시작으로 저장되었습니다."
+        ));
     }
 
     // ✅ 단건 조회 (DTO 반환)
