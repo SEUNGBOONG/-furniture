@@ -5,6 +5,7 @@ import com.example.demo.login.member.exception.exceptions.auth.NotFoundMemberId;
 import com.example.demo.login.member.infrastructure.member.MemberJpaRepository;
 import com.example.demo.mypage.carItem.domain.entity.CartItem;
 import com.example.demo.mypage.carItem.domain.repository.CartItemRepository;
+import com.example.demo.mypage.notification.util.OrderCompletedEvent;
 import com.example.demo.mypage.order.controller.dto.OrderCreateRequest;
 import com.example.demo.mypage.order.controller.dto.OrderItemResponse;
 import com.example.demo.mypage.order.controller.dto.OrderResponse;
@@ -12,6 +13,7 @@ import com.example.demo.mypage.order.domain.entity.Order;
 import com.example.demo.mypage.order.domain.entity.OrderItem;
 import com.example.demo.mypage.order.domain.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -29,6 +31,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final CartItemRepository cartItemRepository;
     private final MemberJpaRepository memberJpaRepository;
+    private final ApplicationEventPublisher eventPublisher; // ✅ 이벤트 발행기 추가
 
     /**
      * 주문 생성
@@ -76,8 +79,13 @@ public class OrderService {
 
         order.addItems(items);
 
-        // 주문 저장 (CartItem 삭제는 PaymentService에서 결제 성공 시 처리)
-        return orderRepository.save(order);
+        // ✅ DB 저장
+        Order savedOrder = orderRepository.save(order);
+
+        // ✅ 주문 완료 이벤트 발행
+        eventPublisher.publishEvent(new OrderCompletedEvent(savedOrder));
+
+        return savedOrder;
     }
 
     /**

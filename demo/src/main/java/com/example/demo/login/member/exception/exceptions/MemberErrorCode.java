@@ -17,7 +17,10 @@ public enum MemberErrorCode {
     INVALID_SPECIAL_PASSWORD(HttpStatus.BAD_REQUEST, "A009", "비밀번호에는 영문자와 특수문자가 포함되어야 합니다."),
     NOT_FOUND_MEMBER_ID(HttpStatus.BAD_REQUEST,"M001", "회원 정보를 찾을수 없습니다."),
     NOT_FOUND_TOKEN_INFORMATION(HttpStatus.NOT_FOUND, "T001", "토큰 정보를 찾을 수 없습니다."),
-    AUTHENTICATE_EMAIL_FIRST(HttpStatus.FORBIDDEN,"E_001", "먼저 이메일 인증을 완료해주세요.");
+    AUTHENTICATE_EMAIL_FIRST(HttpStatus.FORBIDDEN,"E_001", "먼저 이메일 인증을 완료해주세요."),
+
+    // ✅ 추가
+    NOT_AUTHENTICATED(HttpStatus.UNAUTHORIZED, "A010", "로그인이 필요합니다.");
 
     private final HttpStatus httpStatus;
     private final String customCode;
