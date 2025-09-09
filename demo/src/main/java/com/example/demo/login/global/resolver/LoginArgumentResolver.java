@@ -30,7 +30,6 @@ public class LoginArgumentResolver implements HandlerMethodArgumentResolver {
         boolean isMemberIdType = Long.class.isAssignableFrom(parameter.getParameterType());
         return isLoginAnnotation && isMemberIdType;
     }
-
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
                                   NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
@@ -51,10 +50,16 @@ public class LoginArgumentResolver implements HandlerMethodArgumentResolver {
         }
 
         if (token == null) {
-            // 토큰 없는 경우 null 반환 → @Member(required = false)인 경우 컨트롤러에서 null 받음
+            // 🚨 토큰 자체가 없을 경우
             return null;
         }
 
-        return jwtTokenService.verifyAndExtractJwtToken(token);
+        try {
+            // 🚨 토큰이 있지만 잘못된 경우 → 예외 대신 null 반환
+            return jwtTokenService.verifyAndExtractJwtToken(token);
+        } catch (Exception e) {
+            System.out.println("Invalid token in LoginArgumentResolver: " + e.getMessage());
+            return null;
+        }
     }
 }
