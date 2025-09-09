@@ -2,6 +2,8 @@ package com.example.demo.mypage.order.controller;
 
 import com.example.demo.common.util.AdminValidator;
 import com.example.demo.login.global.annotation.Member;
+import com.example.demo.login.member.exception.exceptions.MemberErrorCode;
+import com.example.demo.login.member.exception.exceptions.MemberException;
 import com.example.demo.mypage.order.controller.dto.OrderCreateRequest;
 import com.example.demo.mypage.order.controller.dto.OrderResponse;
 import com.example.demo.mypage.order.domain.entity.Order;
@@ -31,6 +33,9 @@ public class OrderController {
     // ✅ 내 주문 조회 (로그인된 사용자 본인 것만)
     @GetMapping("/my")
     public ResponseEntity<List<OrderResponse>> getMyOrders(@Member Long memberId) {
+        if (memberId == null) {
+            throw new MemberException(MemberErrorCode.NOT_AUTHENTICATED);
+        }
         return ResponseEntity.ok(
                 orderService.getOrdersByMember(memberId).stream()
                         .map(orderService::toOrderResponse)
