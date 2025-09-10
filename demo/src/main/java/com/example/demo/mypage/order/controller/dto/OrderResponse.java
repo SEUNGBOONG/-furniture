@@ -1,3 +1,4 @@
+// com.example.demo.mypage.order.controller.dto.OrderResponse.java
 package com.example.demo.mypage.order.controller.dto;
 
 import lombok.AllArgsConstructor;
@@ -20,6 +21,8 @@ public class OrderResponse {
     private String roadAddress;
     private String jibunAddress;
     private String zipCode;
+
+    private boolean shipped; // ✅ 배송 여부 추가
 
     private List<OrderItemResponse> items;
 }

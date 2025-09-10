@@ -55,6 +55,7 @@ public class OrderService {
                 .totalAmount(totalAmount)
                 .orderDate(LocalDateTime.now())
                 .status("PENDING")
+                .shipped(false)
                 .memberId(member.getId())
                 .memberEmail(member.getMemberEmail())
                 .memberName(member.getMemberName())
@@ -119,7 +120,7 @@ public class OrderService {
                         i.getUnitPrice(),
                         i.getQuantity(),
                         i.getTotalPrice(),
-                        null // ProductDetail → Product.image 매핑 원하면 넣기
+                        null
                 ))
                 .toList();
 
@@ -134,9 +135,11 @@ public class OrderService {
                 order.getRoadAddress(),
                 order.getJibunAddress(),
                 order.getZipCode(),
+                order.isShipped(), // ✅ 배송 여부 내려줌
                 items
         );
     }
+
 
     @Transactional(readOnly = true)
     public List<Order> getOrdersByMember(Long memberId) {

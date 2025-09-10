@@ -29,6 +29,8 @@ public class Order {
 
     private int totalAmount;
 
+    private boolean shipped;
+
     private LocalDateTime orderDate;
 
     private LocalDateTime paymentDate;   // ✅ 결제 완료 시점
@@ -60,9 +62,6 @@ public class Order {
 
     @Column(nullable = false)
     private String zipCode;
-
-    // 그대로 boolean shipped 필드 유지
-    private boolean shipped;
 
     public void setShipped(boolean shipped) {
         this.shipped = shipped;

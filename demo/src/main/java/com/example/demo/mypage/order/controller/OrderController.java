@@ -64,6 +64,7 @@ public class OrderController {
         if (FORBIDDEN != null) return (ResponseEntity) FORBIDDEN;
 
         orderService.updateShippedStatus(orderId, shipped);
+
         return ResponseEntity.ok(Map.of(
                 "orderId", orderId,
                 "shipped", shipped,
