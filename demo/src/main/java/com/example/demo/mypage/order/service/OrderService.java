@@ -9,11 +9,13 @@ import com.example.demo.mypage.notification.util.OrderCompletedEvent;
 import com.example.demo.mypage.order.controller.dto.OrderCreateRequest;
 import com.example.demo.mypage.order.controller.dto.OrderItemResponse;
 import com.example.demo.mypage.order.controller.dto.OrderResponse;
+import com.example.demo.mypage.order.controller.dto.PagedResponse;
 import com.example.demo.mypage.order.domain.entity.Order;
 import com.example.demo.mypage.order.domain.entity.OrderItem;
 import com.example.demo.mypage.order.domain.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -102,9 +104,21 @@ public class OrderService {
      * 주문 전체 조회 (페이징)
      */
     @Transactional(readOnly = true)
-    public List<Order> getAllOrdersPaged(int page, int size) {
+    public PagedResponse<OrderResponse> getAllOrdersPaged(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("orderDate").descending());
-        return orderRepository.findAll(pageable).getContent();
+        Page<Order> orders = orderRepository.findAll(pageable);
+
+        List<OrderResponse> content = orders.getContent().stream()
+                .map(this::toOrderResponse)
+                .toList();
+
+        return new PagedResponse<>(
+                content,
+                orders.getNumber(),
+                orders.getSize(),
+                orders.getTotalElements(),
+                orders.getTotalPages()
+        );
     }
 
     /**

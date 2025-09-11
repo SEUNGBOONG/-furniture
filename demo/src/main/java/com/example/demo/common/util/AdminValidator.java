@@ -11,8 +11,9 @@ import org.springframework.stereotype.Component;
 public class AdminValidator {
 
     public static ResponseEntity<String> getStringResponseEntity(final Long memberId) {
-        if (!memberId.equals(5L)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Setting.FORBIDDEN_ONLY_ADMIN.toString());
+        if (memberId == null || !memberId.equals(5L)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Setting.FORBIDDEN_ONLY_ADMIN.toString());
         }
         return null;
     }

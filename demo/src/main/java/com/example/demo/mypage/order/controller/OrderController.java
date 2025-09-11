@@ -6,6 +6,7 @@ import com.example.demo.login.member.exception.exceptions.MemberErrorCode;
 import com.example.demo.login.member.exception.exceptions.MemberException;
 import com.example.demo.mypage.order.controller.dto.OrderCreateRequest;
 import com.example.demo.mypage.order.controller.dto.OrderResponse;
+import com.example.demo.mypage.order.controller.dto.PagedResponse;
 import com.example.demo.mypage.order.domain.entity.Order;
 import com.example.demo.mypage.order.service.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -45,15 +46,15 @@ public class OrderController {
 
     // ✅ 관리자 전용 주문 전체 조회
     @GetMapping("/admin")
-    public ResponseEntity<List<OrderResponse>> getAllOrders(@Member Long memberId) {
+    public ResponseEntity<PagedResponse<OrderResponse>> getAllOrders(
+            @Member Long memberId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
         ResponseEntity<String> FORBIDDEN = AdminValidator.getStringResponseEntity(memberId);
         if (FORBIDDEN != null) return (ResponseEntity) FORBIDDEN;
 
-        return ResponseEntity.ok(
-                orderService.getAllOrdersPaged(0, 50).stream()
-                        .map(orderService::toOrderResponse)
-                        .toList()
-        );
+        return ResponseEntity.ok(orderService.getAllOrdersPaged(page, size));
     }
 
     @PutMapping("/admin/{orderId}/ship")
