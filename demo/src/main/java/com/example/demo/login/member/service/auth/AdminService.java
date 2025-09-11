@@ -3,8 +3,8 @@ package com.example.demo.login.member.service.auth;
 import com.example.demo.common.util.AdminValidator;
 import com.example.demo.login.member.controller.member.dto.MemberCorporationDto;
 import com.example.demo.login.member.controller.member.dto.MemberDto;
-import com.example.demo.login.member.controller.member.dto.PagedResponse;
 import com.example.demo.login.member.controller.auth.dto.MemberAdminResponse;
+import com.example.demo.login.member.controller.member.dto.PagedResponse;
 import com.example.demo.login.member.domain.member.Member;
 import com.example.demo.login.member.infrastructure.member.MemberJpaRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +28,7 @@ public class AdminService {
     }
 
     // ✅ 일반 회원 조회
+    // ✅ 일반 회원 조회
     public PagedResponse<MemberDto> getNormalMembers(int page) {
         int offset = (page - 1) * PAGE_SIZE;
         List<Member> members = memberJpaRepository.findNormalMembers(PAGE_SIZE, offset);
@@ -43,7 +44,9 @@ public class AdminService {
                 ))
                 .toList();
 
-        return new PagedResponse<>(total, dtos);
+        int totalPages = (int) Math.ceil((double) total / PAGE_SIZE);
+
+        return new PagedResponse<>(dtos, total, totalPages, page, PAGE_SIZE);
     }
 
     // ✅ 사업자 회원 조회
@@ -64,6 +67,8 @@ public class AdminService {
                 ))
                 .toList();
 
-        return new PagedResponse<>(total, dtos);
+        int totalPages = (int) Math.ceil((double) total / PAGE_SIZE);
+
+        return new PagedResponse<>(dtos, total, totalPages, page, PAGE_SIZE);
     }
 }
