@@ -164,10 +164,7 @@ public class OrderService {
 
     @Transactional(readOnly = true)
     public List<Order> getOrdersByMember(Long memberId) {
-
-        return orderRepository.findAll().stream()
-                .filter(o -> o.getMemberId().equals(memberId))
-                .toList();
+        return orderRepository.findByMemberIdOrderByOrderDateDesc(memberId);
     }
 
     @Transactional
