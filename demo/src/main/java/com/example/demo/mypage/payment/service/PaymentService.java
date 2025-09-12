@@ -1,5 +1,6 @@
 package com.example.demo.mypage.payment.service;
 
+import com.example.demo.mypage.order.controller.dto.TossPaymentResponse;
 import com.example.demo.mypage.payment.controller.dto.PaymentCancelRequestDTO;
 import com.example.demo.mypage.payment.controller.dto.PaymentRequestDTO;
 import com.example.demo.mypage.payment.domain.entity.PaymentHistory;
@@ -30,7 +31,7 @@ public class PaymentService {
 
     private final PaymentHistoryRepository paymentHistoryRepository;
     private final OrderRepository orderRepository;
-    private final CartItemRepository cartItemRepository; // ✅ 장바구니 접근
+    private final CartItemRepository cartItemRepository;
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${toss.secret-key}")
@@ -41,7 +42,6 @@ public class PaymentService {
      */
     @Transactional
     public void confirmPayment(PaymentRequestDTO dto) {
-        // 결제 이력 저장 (초기 상태: 실패)
         PaymentHistory history = paymentHistoryRepository.save(
                 PaymentHistory.builder()
                         .paymentKey(dto.getPaymentKey())
@@ -52,7 +52,6 @@ public class PaymentService {
                         .build()
         );
 
-        // 주문 검증
         Order order = orderRepository.findById(dto.getOrderId())
                 .orElseThrow(() -> new PaymentException(PaymentErrorCode.NOT_FOUND_PAYMENT_BY_ORDER_ID));
 
@@ -73,26 +72,23 @@ public class PaymentService {
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
 
         try {
-            ResponseEntity<String> response =
-                    restTemplate.postForEntity(TOSS_REDIRECT_URL, request, String.class);
+            ResponseEntity<TossPaymentResponse> response =
+                    restTemplate.postForEntity(TOSS_REDIRECT_URL, request, TossPaymentResponse.class);
 
             if (response.getStatusCode() == HttpStatus.OK) {
-                // ✅ 결제 성공
+                TossPaymentResponse body = response.getBody();
+
                 history.setSuccess(true);
                 history.setApprovedAt(LocalDateTime.now());
                 paymentHistoryRepository.save(history);
 
-                // 주문 상태 갱신 (PENDING → PAID)
-                order.markPaid(LocalDateTime.now());
+                // ✅ 결제 승인 처리 (가상계좌, 현금영수증 포함)
+                order.markPaid(LocalDateTime.now(), body);
                 orderRepository.save(order);
 
-                // ✅ 장바구니 비우기 (로그인된 회원 기준)
+                // ✅ 장바구니 비우기
                 cartItemRepository.deleteByMemberId(order.getMemberId());
-
             } else {
-                log.error("결제 실패 응답: {}", response.getBody());
-                history.setApprovedAt(LocalDateTime.now());
-                paymentHistoryRepository.save(history);
                 throw new PaymentException(PaymentErrorCode.PAYMENT_CONFIRMATION_FAILED);
             }
 
@@ -103,9 +99,8 @@ public class PaymentService {
             throw new PaymentException(PaymentErrorCode.PAYMENT_CONFIRMATION_FAILED);
         }
     }
-    /**
-     * 결제 단건 조회
-     */
+
+    // ✅ 결제 단건 조회
     public String getPaymentDetails(String paymentKey) {
         String url = "https://api.tosspayments.com/v1/payments/" + paymentKey;
         HttpHeaders headers = new HttpHeaders();
@@ -123,9 +118,7 @@ public class PaymentService {
         }
     }
 
-    /**
-     * 주문 ID 기준 결제 조회
-     */
+    // ✅ 주문 ID 기준 결제 조회
     public String getPaymentByOrderId(String orderId) {
         String url = "https://api.tosspayments.com/v1/payments/orders/" + orderId;
         HttpHeaders headers = new HttpHeaders();
@@ -143,9 +136,7 @@ public class PaymentService {
         }
     }
 
-    /**
-     * 결제 취소
-     */
+    // ✅ 결제 취소
     @Transactional
     public void cancelPayment(PaymentCancelRequestDTO dto) {
         HttpHeaders headers = new HttpHeaders();

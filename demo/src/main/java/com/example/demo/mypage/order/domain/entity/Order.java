@@ -1,16 +1,8 @@
 package com.example.demo.mypage.order.domain.entity;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.example.demo.mypage.order.controller.dto.TossPaymentResponse;
+import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -28,15 +20,18 @@ public class Order {
     private String orderId;
 
     private int totalAmount;
-
     private boolean shipped;
-
     private LocalDateTime orderDate;
-
-    private LocalDateTime paymentDate;   // ✅ 결제 완료 시점
+    private LocalDateTime paymentDate;
 
     @Column(nullable = false)
-    private String status;               // ✅ 주문 상태 (PENDING, PAID, CANCELED 등)
+    private String status;
+
+    private String paymentMethod;        // 카드 / 가상계좌 / 간편결제
+    private String virtualAccountNumber; // 가상계좌 번호
+    private String virtualBankCode;      // 은행 코드
+    private LocalDateTime virtualDueDate;// 입금 기한
+    private boolean cashReceiptIssued;   // 현금영수증 발급 여부
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     @Builder.Default
@@ -67,7 +62,6 @@ public class Order {
         this.shipped = shipped;
     }
 
-    // OrderItem 연결
     public void addItems(List<OrderItem> items) {
         for (OrderItem i : items) {
             i.setOrder(this);
@@ -75,10 +69,21 @@ public class Order {
         this.products.addAll(items);
     }
 
-    // ✅ 결제 승인 처리
-    public void markPaid(LocalDateTime at) {
+    // ✅ 결제 승인 처리 (카드/가상계좌/현금영수증 포함)
+    public void markPaid(LocalDateTime at, TossPaymentResponse dto) {
         this.status = "PAID";
         this.paymentDate = at;
+        this.paymentMethod = dto.getMethod();
+
+        if (dto.getVirtualAccount() != null) {
+            this.virtualAccountNumber = dto.getVirtualAccount().getAccountNumber();
+            this.virtualBankCode = dto.getVirtualAccount().getBankCode();
+            this.virtualDueDate = LocalDateTime.parse(dto.getVirtualAccount().getDueDate());
+        }
+
+        if (dto.getCashReceipt() != null) {
+            this.cashReceiptIssued = dto.getCashReceipt().isIssued();
+        }
     }
 
     // ✅ 결제 취소 처리
