@@ -10,30 +10,47 @@ import lombok.NoArgsConstructor;
 public class TossPaymentResponse {
     private String paymentKey;
     private String orderId;
-    private String status;   // e.g., "DONE"
-    private String method;   // ✅ "CARD", "VIRTUAL_ACCOUNT", "EASY_PAY"
+    private String status;
+    private String method;
+    private String approvedAt;
 
-    private String approvedAt; // 결제 승인 시각 (ISO string)
+    private VirtualAccount virtualAccount;
+    private CashReceipt cashReceipt;
+    private Card card;
+    private Transfer transfer;
+    private EasyPay easyPay;
 
-    private VirtualAccount virtualAccount; // ✅ 가상계좌 정보
-    private CashReceipt cashReceipt;       // ✅ 현금영수증 정보
-
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
+    @Getter @NoArgsConstructor @AllArgsConstructor
     public static class VirtualAccount {
-        private String accountNumber; // 가상계좌 번호
-        private String bankCode;      // 은행 코드 (e.g., 088 = 신한)
-        private String customerName;  // 입금자명
-        private String dueDate;       // 입금 만료일시 (ISO string)
+        private String accountNumber;
+        private String bankCode;
+        private String customerName;
+        private String dueDate;
     }
 
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
+    @Getter @NoArgsConstructor @AllArgsConstructor
     public static class CashReceipt {
-        private boolean issued;       // 발급 여부
-        private String type;          // "소득공제용", "지출증빙용"
-        private String receiptUrl;    // 국세청 조회 URL
+        private boolean issued;
+        private String type;
+        private String receiptUrl;
+    }
+
+    @Getter @NoArgsConstructor @AllArgsConstructor
+    public static class Card {
+        private String company;
+        private String number;
+        private int installmentPlanMonths;
+        private boolean isInterestFree;
+    }
+
+    @Getter @NoArgsConstructor @AllArgsConstructor
+    public static class Transfer {
+        private String bankCode;
+        private String accountNumber;
+    }
+
+    @Getter @NoArgsConstructor @AllArgsConstructor
+    public static class EasyPay {
+        private String provider;
     }
 }

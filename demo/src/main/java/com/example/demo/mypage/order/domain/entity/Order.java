@@ -71,22 +71,37 @@ public class Order {
     }
 
     // ✅ 결제 승인 처리 (카드/가상계좌/현금영수증 포함)
+// Order.java
     public void markPaid(LocalDateTime at, TossPaymentResponse dto) {
         this.status = "PAID";
         this.paymentDate = at;
-        this.paymentMethod = dto.getMethod();
+        this.paymentMethod = dto.getMethod(); // 공통 필드
 
+        // ✅ 가상계좌
         if (dto.getVirtualAccount() != null) {
             this.virtualAccountNumber = dto.getVirtualAccount().getAccountNumber();
             this.virtualBankCode = dto.getVirtualAccount().getBankCode();
-
-            // ✅ LocalDateTime.parse → OffsetDateTime.parse 로 교체
-            this.virtualDueDate = OffsetDateTime.parse(dto.getVirtualAccount().getDueDate())
-                    .toLocalDateTime();
+            this.virtualDueDate = LocalDateTime.parse(dto.getVirtualAccount().getDueDate());
         }
 
+        // ✅ 현금영수증
         if (dto.getCashReceipt() != null) {
             this.cashReceiptIssued = dto.getCashReceipt().isIssued();
+        }
+
+        // ✅ 카드
+        if (dto.getCard() != null) {
+            this.paymentMethod = "CARD"; // 카드 결제라고 명시
+        }
+
+        // ✅ 계좌이체
+        if (dto.getTransfer() != null) {
+            this.paymentMethod = "TRANSFER"; // 계좌이체라고 명시
+        }
+
+        // ✅ 간편결제
+        if (dto.getEasyPay() != null) {
+            this.paymentMethod = "EASY_PAY"; // 간편결제
         }
     }
 
