@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,7 +79,10 @@ public class Order {
         if (dto.getVirtualAccount() != null) {
             this.virtualAccountNumber = dto.getVirtualAccount().getAccountNumber();
             this.virtualBankCode = dto.getVirtualAccount().getBankCode();
-            this.virtualDueDate = LocalDateTime.parse(dto.getVirtualAccount().getDueDate());
+
+            // ✅ LocalDateTime.parse → OffsetDateTime.parse 로 교체
+            this.virtualDueDate = OffsetDateTime.parse(dto.getVirtualAccount().getDueDate())
+                    .toLocalDateTime();
         }
 
         if (dto.getCashReceipt() != null) {
