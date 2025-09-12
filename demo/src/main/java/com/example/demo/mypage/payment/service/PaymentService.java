@@ -82,7 +82,7 @@ public class PaymentService {
                 history.setApprovedAt(LocalDateTime.now());
                 paymentHistoryRepository.save(history);
 
-                // ✅ 결제 승인 처리 (가상계좌, 현금영수증 포함)
+                // ✅ 가상계좌 / 현금영수증 포함 결제 승인 처리
                 order.markPaid(LocalDateTime.now(), body);
                 orderRepository.save(order);
 
