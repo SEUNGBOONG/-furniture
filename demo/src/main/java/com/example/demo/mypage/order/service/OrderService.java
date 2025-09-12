@@ -149,11 +149,18 @@ public class OrderService {
                 order.getRoadAddress(),
                 order.getJibunAddress(),
                 order.getZipCode(),
-                order.isShipped(), // ✅ 배송 여부 내려줌
+                order.isShipped(),
+
+                // ✅ 추가된 부분
+                order.getPaymentMethod(),
+                order.getVirtualAccountNumber(),
+                order.getVirtualBankCode(),
+                order.getVirtualDueDate(),
+                order.isCashReceiptIssued(),
+
                 items
         );
     }
-
 
     @Transactional(readOnly = true)
     public List<Order> getOrdersByMember(Long memberId) {
