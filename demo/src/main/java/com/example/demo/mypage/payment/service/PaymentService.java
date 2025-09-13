@@ -40,8 +40,9 @@ public class PaymentService {
     /**
      * 결제 승인
      */
+
     @Transactional
-    public void confirmPayment(PaymentRequestDTO dto) {
+    public TossPaymentResponse confirmPayment(PaymentRequestDTO dto) {
         PaymentHistory history = paymentHistoryRepository.save(
                 PaymentHistory.builder()
                         .paymentKey(dto.getPaymentKey())
@@ -82,12 +83,14 @@ public class PaymentService {
                 history.setApprovedAt(LocalDateTime.now());
                 paymentHistoryRepository.save(history);
 
-                // ✅ 가상계좌 / 현금영수증 포함 결제 승인 처리
+                // ✅ 결제 승인 처리 (카드/가상계좌/간편결제)
                 order.markPaid(LocalDateTime.now(), body);
                 orderRepository.save(order);
 
                 // ✅ 장바구니 비우기
                 cartItemRepository.deleteByMemberId(order.getMemberId());
+
+                return body; // 컨트롤러로 TossPaymentResponse 반환
             } else {
                 throw new PaymentException(PaymentErrorCode.PAYMENT_CONFIRMATION_FAILED);
             }

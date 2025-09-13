@@ -84,14 +84,9 @@ public class Order {
             this.virtualBankCode = dto.getVirtualAccount().getBankCode();
 
             try {
-                // dueDate는 OffsetDateTime 형식이므로 안전하게 파싱
-                this.virtualDueDate = java.time.OffsetDateTime
-                        .parse(dto.getVirtualAccount().getDueDate())
-                        .toLocalDateTime();
+                this.virtualDueDate = OffsetDateTime.parse(dto.getVirtualAccount().getDueDate()).toLocalDateTime();
             } catch (Exception e) {
-                // 혹시 파싱 실패하면 로그만 남기고 null 유지
                 System.err.println("⚠️ 가상계좌 dueDate 파싱 실패: " + dto.getVirtualAccount().getDueDate());
-                this.virtualDueDate = null;
             }
         }
 

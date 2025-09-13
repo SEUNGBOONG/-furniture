@@ -1,5 +1,6 @@
 package com.example.demo.mypage.payment.controller;
 
+import com.example.demo.mypage.order.controller.dto.TossPaymentResponse;
 import com.example.demo.mypage.payment.controller.dto.PaymentCancelRequestDTO;
 import com.example.demo.mypage.payment.controller.dto.PaymentRequestDTO;
 import com.example.demo.mypage.payment.service.PaymentService;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/payments")
@@ -20,9 +23,16 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @PostMapping("/confirm")
-    public ResponseEntity<?> confirmPayment(@RequestBody PaymentRequestDTO dto) {
-        paymentService.confirmPayment(dto);
-        return ResponseEntity.ok("결제 승인 처리됨");
+    public ResponseEntity<Map<String, Object>> confirmPayment(@RequestBody PaymentRequestDTO dto) {
+        TossPaymentResponse result = paymentService.confirmPayment(dto);
+        return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "message", "결제 승인 처리됨",
+                "paymentKey", result.getPaymentKey(),
+                "orderId", result.getOrderId(),
+                "method", result.getMethod(),
+                "virtualAccount", result.getVirtualAccount() // 계좌 있으면 같이 내려줌
+        ));
     }
 
     @GetMapping("/{paymentKey}")
