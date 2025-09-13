@@ -72,36 +72,32 @@ public class Order {
 
     // ✅ 결제 승인 처리 (카드/가상계좌/현금영수증 포함)
 // Order.java
+    // ✅ 결제 승인 처리 (카드/가상계좌/현금영수증 포함)
     public void markPaid(LocalDateTime at, TossPaymentResponse dto) {
         this.status = "PAID";
         this.paymentDate = at;
-        this.paymentMethod = dto.getMethod(); // 공통 필드
+        this.paymentMethod = dto.getMethod();
 
-        // ✅ 가상계좌
+        // 가상계좌 처리
         if (dto.getVirtualAccount() != null) {
             this.virtualAccountNumber = dto.getVirtualAccount().getAccountNumber();
             this.virtualBankCode = dto.getVirtualAccount().getBankCode();
-            this.virtualDueDate = LocalDateTime.parse(dto.getVirtualAccount().getDueDate());
+
+            try {
+                // dueDate는 OffsetDateTime 형식이므로 안전하게 파싱
+                this.virtualDueDate = java.time.OffsetDateTime
+                        .parse(dto.getVirtualAccount().getDueDate())
+                        .toLocalDateTime();
+            } catch (Exception e) {
+                // 혹시 파싱 실패하면 로그만 남기고 null 유지
+                System.err.println("⚠️ 가상계좌 dueDate 파싱 실패: " + dto.getVirtualAccount().getDueDate());
+                this.virtualDueDate = null;
+            }
         }
 
-        // ✅ 현금영수증
+        // 현금영수증 처리
         if (dto.getCashReceipt() != null) {
             this.cashReceiptIssued = dto.getCashReceipt().isIssued();
-        }
-
-        // ✅ 카드
-        if (dto.getCard() != null) {
-            this.paymentMethod = "CARD"; // 카드 결제라고 명시
-        }
-
-        // ✅ 계좌이체
-        if (dto.getTransfer() != null) {
-            this.paymentMethod = "TRANSFER"; // 계좌이체라고 명시
-        }
-
-        // ✅ 간편결제
-        if (dto.getEasyPay() != null) {
-            this.paymentMethod = "EASY_PAY"; // 간편결제
         }
     }
 
