@@ -78,10 +78,10 @@ public class AuthController {
         jwtCookie.setHttpOnly(true);
         jwtCookie.setPath("/");
         jwtCookie.setMaxAge(60 * 60);
-//        jwtCookie.setSecure(true);
-//        jwtCookie.setDomain("daemyungdesk.com");
-        jwtCookie.setDomain("localhost");  // 또는 아예 setDomain 빼기
-        jwtCookie.setSecure(false);        // http 환경에서는 Secure 금지
+        jwtCookie.setSecure(true);
+        jwtCookie.setDomain("daemyungdesk.com");
+//        jwtCookie.setDomain("localhost");  // 또는 아예 setDomain 빼기
+//        jwtCookie.setSecure(false);        // http 환경에서는 Secure 금지
         response.addCookie(jwtCookie);
 
         // 4. 응답 (token 없음)
@@ -96,10 +96,10 @@ public class AuthController {
         deleteCookie.setPath("/");
         deleteCookie.setMaxAge(0); // 만료
         // 운영 환경이라면 아래도 함께 설정
-//        deleteCookie.setSecure(true);
-//        deleteCookie.setDomain("daemyungdesk.com");
-        deleteCookie.setSecure(false);
-        deleteCookie.setDomain("localhost");
+        deleteCookie.setSecure(true);
+        deleteCookie.setDomain("daemyungdesk.com");
+//        deleteCookie.setSecure(false);
+//        deleteCookie.setDomain("localhost");
 
         response.addCookie(deleteCookie);
         return ResponseEntity.ok("로그아웃 되었습니다.");
