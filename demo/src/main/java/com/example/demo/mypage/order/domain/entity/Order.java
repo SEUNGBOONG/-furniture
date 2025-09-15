@@ -9,6 +9,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+// com.example.demo.mypage.order.domain.entity.Order
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -26,7 +27,7 @@ public class Order {
     private LocalDateTime paymentDate;
 
     @Column(nullable = false)
-    private String status;
+    private String status; // PENDING, WAITING_FOR_DEPOSIT, DONE, CANCELED 등
 
     private String paymentMethod;        // 카드 / 가상계좌 / 간편결제
     private String virtualAccountNumber; // 가상계좌 번호
@@ -70,30 +71,31 @@ public class Order {
         this.products.addAll(items);
     }
 
-    // ✅ 결제 승인 처리 (카드/가상계좌/현금영수증 포함)
-// Order.java
-    // ✅ 결제 승인 처리 (카드/가상계좌/현금영수증 포함)
+    // ✅ Toss 결제 승인 처리 (WAITING_FOR_DEPOSIT / DONE / CANCELED 등 그대로 반영)
     public void markPaid(LocalDateTime at, TossPaymentResponse dto) {
-        this.status = "PAID";
+        this.status = dto.getStatus(); // ✅ Toss 응답 status 그대로 저장
         this.paymentDate = at;
         this.paymentMethod = dto.getMethod();
 
-        // 가상계좌 처리
         if (dto.getVirtualAccount() != null) {
             this.virtualAccountNumber = dto.getVirtualAccount().getAccountNumber();
             this.virtualBankCode = dto.getVirtualAccount().getBankCode();
-
             try {
                 this.virtualDueDate = OffsetDateTime.parse(dto.getVirtualAccount().getDueDate()).toLocalDateTime();
             } catch (Exception e) {
-                System.err.println("⚠️ 가상계좌 dueDate 파싱 실패: " + dto.getVirtualAccount().getDueDate());
+                System.err.println("⚠️ dueDate 파싱 실패: " + dto.getVirtualAccount().getDueDate());
             }
         }
 
-        // 현금영수증 처리
         if (dto.getCashReceipt() != null) {
             this.cashReceiptIssued = dto.getCashReceipt().isIssued();
         }
+    }
+
+    // ✅ Toss Webhook → 입금 완료 처리
+    public void markDepositCompleted(LocalDateTime at) {
+        this.status = "DONE";
+        this.paymentDate = at;
     }
 
     // ✅ 결제 취소 처리

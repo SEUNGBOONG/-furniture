@@ -5,7 +5,6 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
 @Getter
 @AllArgsConstructor
 public class OrderResponse {
@@ -16,18 +15,18 @@ public class OrderResponse {
     private LocalDateTime paymentDate;
 
     private String memberName;
-    private String phoneNumber;
+    private String phoneNumber;   // ✅ 이미 있음
     private String roadAddress;
     private String jibunAddress;
     private String zipCode;
 
     private boolean shipped;
 
-    private String paymentMethod;        // ✅ 결제 수단 (CARD, VIRTUAL_ACCOUNT 등)
-    private String virtualAccountNumber; // ✅ 가상계좌 번호
-    private String virtualBankCode;      // ✅ 은행 코드
-    private LocalDateTime virtualDueDate;// ✅ 입금 기한
-    private boolean cashReceiptIssued;   // ✅ 현금영수증 발급 여부
+    private String paymentMethod;
+    private String virtualAccountNumber;
+    private String virtualBankCode;
+    private LocalDateTime virtualDueDate;
+    private boolean cashReceiptIssued;
 
     private List<OrderItemResponse> items;
 }

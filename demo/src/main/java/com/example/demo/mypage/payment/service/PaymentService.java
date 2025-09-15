@@ -40,7 +40,6 @@ public class PaymentService {
     /**
      * 결제 승인
      */
-
     @Transactional
     public TossPaymentResponse confirmPayment(PaymentRequestDTO dto) {
         PaymentHistory history = paymentHistoryRepository.save(
@@ -83,14 +82,14 @@ public class PaymentService {
                 history.setApprovedAt(LocalDateTime.now());
                 paymentHistoryRepository.save(history);
 
-                // ✅ 결제 승인 처리 (카드/가상계좌/간편결제)
+                // ✅ Toss 응답 status 그대로 반영
                 order.markPaid(LocalDateTime.now(), body);
                 orderRepository.save(order);
 
                 // ✅ 장바구니 비우기
                 cartItemRepository.deleteByMemberId(order.getMemberId());
 
-                return body; // 컨트롤러로 TossPaymentResponse 반환
+                return body;
             } else {
                 throw new PaymentException(PaymentErrorCode.PAYMENT_CONFIRMATION_FAILED);
             }
@@ -102,6 +101,29 @@ public class PaymentService {
             throw new PaymentException(PaymentErrorCode.PAYMENT_CONFIRMATION_FAILED);
         }
     }
+
+    // ✅ Toss Webhook 처리
+    @Transactional
+    public void handleWebhook(TossPaymentResponse dto) {
+        log.info("📩 Toss Webhook 수신: orderId={}, status={}", dto.getOrderId(), dto.getStatus());
+
+        Order order = orderRepository.findById(dto.getOrderId())
+                .orElseThrow(() -> new PaymentException(PaymentErrorCode.NOT_FOUND_PAYMENT_BY_ORDER_ID));
+
+        if ("DONE".equals(dto.getStatus())) {
+            order.markDepositCompleted(LocalDateTime.now());
+            orderRepository.save(order);
+
+            PaymentHistory history = paymentHistoryRepository.findByPaymentKey(dto.getPaymentKey())
+                    .orElseThrow(() -> new PaymentException(PaymentErrorCode.NOT_FOUND_PAYMENT_BY_ORDER_ID));
+            history.setApprovedAt(LocalDateTime.now());
+            history.setSuccess(true);
+            paymentHistoryRepository.save(history);
+
+            log.info("✅ 입금 완료 처리됨: orderId={}", dto.getOrderId());
+        }
+    }
+
     // ✅ 결제 단건 조회
     public String getPaymentDetails(String paymentKey) {
         String url = "https://api.tosspayments.com/v1/payments/" + paymentKey;

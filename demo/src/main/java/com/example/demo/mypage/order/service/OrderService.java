@@ -124,7 +124,6 @@ public class OrderService {
     /**
      * ✅ Order → OrderResponse 변환
      */
-    @Transactional(readOnly = true)
     public OrderResponse toOrderResponse(Order order) {
         List<OrderItemResponse> items = order.getProducts().stream()
                 .map(i -> new OrderItemResponse(
@@ -145,19 +144,16 @@ public class OrderService {
                 order.getOrderDate(),
                 order.getPaymentDate(),
                 order.getMemberName(),
-                order.getPhoneNumber(),
+                order.getPhoneNumber(),   // ✅ 여기서 포함됨
                 order.getRoadAddress(),
                 order.getJibunAddress(),
                 order.getZipCode(),
                 order.isShipped(),
-
-                // ✅ 추가된 부분
                 order.getPaymentMethod(),
                 order.getVirtualAccountNumber(),
                 order.getVirtualBankCode(),
                 order.getVirtualDueDate(),
                 order.isCashReceiptIssued(),
-
                 items
         );
     }
