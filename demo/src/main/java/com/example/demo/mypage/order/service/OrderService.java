@@ -163,6 +163,24 @@ public class OrderService {
         return orderRepository.findByMemberIdOrderByOrderDateDesc(memberId);
     }
 
+    @Transactional(readOnly = true)
+    public PagedResponse<OrderResponse> getOrdersByMemberPaged(Long memberId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("orderDate").descending());
+        Page<Order> orders = orderRepository.findByMemberId(memberId, pageable);
+
+        List<OrderResponse> content = orders.getContent().stream()
+                .map(this::toOrderResponse)
+                .toList();
+
+        return new PagedResponse<>(
+                content,
+                orders.getNumber(),
+                orders.getSize(),
+                orders.getTotalElements(),
+                orders.getTotalPages()
+        );
+    }
+
     @Transactional
     public void updateShippedStatus(String orderId, boolean shipped) {
         Order order = orderRepository.findById(orderId)

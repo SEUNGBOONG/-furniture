@@ -32,16 +32,18 @@ public class OrderController {
     }
 
     // ✅ 내 주문 조회 (로그인된 사용자 본인 것만)
+// ✅ 내 주문 조회 (로그인된 사용자 본인 것만, 페이징 적용)
     @GetMapping("/my")
-    public ResponseEntity<List<OrderResponse>> getMyOrders(@Member Long memberId) {
+    public ResponseEntity<PagedResponse<OrderResponse>> getMyOrders(
+            @Member Long memberId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
         if (memberId == null) {
             throw new MemberException(MemberErrorCode.NOT_AUTHENTICATED);
         }
-        return ResponseEntity.ok(
-                orderService.getOrdersByMember(memberId).stream()
-                        .map(orderService::toOrderResponse)
-                        .toList()
-        );
+
+        return ResponseEntity.ok(orderService.getOrdersByMemberPaged(memberId, page, size));
     }
 
     // ✅ 관리자 전용 주문 전체 조회
