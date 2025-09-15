@@ -6,12 +6,7 @@ import com.example.demo.mypage.payment.controller.dto.PaymentRequestDTO;
 import com.example.demo.mypage.payment.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -26,13 +21,19 @@ public class PaymentController {
     public ResponseEntity<Map<String, Object>> confirmPayment(@RequestBody PaymentRequestDTO dto) {
         TossPaymentResponse result = paymentService.confirmPayment(dto);
         return ResponseEntity.ok(Map.of(
-                "status", "success",
+                "status", result.getStatus(),
                 "message", "결제 승인 처리됨",
                 "paymentKey", result.getPaymentKey(),
                 "orderId", result.getOrderId(),
                 "method", result.getMethod(),
-                "virtualAccount", result.getVirtualAccount() // 계좌 있으면 같이 내려줌
+                "virtualAccount", result.getVirtualAccount()
         ));
+    }
+
+    @PostMapping("/webhook")
+    public ResponseEntity<String> handleWebhook(@RequestBody TossPaymentResponse dto) {
+        paymentService.handleWebhook(dto);
+        return ResponseEntity.ok("✅ Webhook 처리 완료");
     }
 
     @GetMapping("/{paymentKey}")
