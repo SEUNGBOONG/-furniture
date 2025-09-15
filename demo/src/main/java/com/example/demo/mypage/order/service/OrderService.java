@@ -163,6 +163,13 @@ public class OrderService {
         return orderRepository.findByMemberIdOrderByOrderDateDesc(memberId);
     }
 
+    @Transactional
+    public void deleteOrder(String orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("해당 주문이 없습니다: " + orderId));
+        orderRepository.delete(order); // ✅ Cascade 로 OrderItem 같이 삭제됨
+    }
+
     @Transactional(readOnly = true)
     public PagedResponse<OrderResponse> getOrdersByMemberPaged(Long memberId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("orderDate").descending());

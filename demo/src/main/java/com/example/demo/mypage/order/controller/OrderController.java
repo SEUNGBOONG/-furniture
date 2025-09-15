@@ -46,6 +46,23 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getOrdersByMemberPaged(memberId, page, size));
     }
 
+    // ✅ 관리자 전용 주문 삭제
+    @DeleteMapping("/admin/{orderId}")
+    public ResponseEntity<Map<String, Object>> deleteOrder(
+            @PathVariable String orderId,
+            @Member Long memberId) {
+
+        ResponseEntity<String> FORBIDDEN = AdminValidator.getStringResponseEntity(memberId);
+        if (FORBIDDEN != null) return (ResponseEntity) FORBIDDEN;
+
+        orderService.deleteOrder(orderId);
+
+        return ResponseEntity.ok(Map.of(
+                "orderId", orderId,
+                "message", "주문이 삭제되었습니다."
+        ));
+    }
+
     // ✅ 관리자 전용 주문 전체 조회
     @GetMapping("/admin")
     public ResponseEntity<PagedResponse<OrderResponse>> getAllOrders(
