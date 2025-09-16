@@ -1,5 +1,6 @@
 package com.example.demo.mypage.payment.controller;
 
+import com.example.demo.login.global.annotation.Member;
 import com.example.demo.mypage.order.controller.dto.TossPaymentResponse;
 import com.example.demo.mypage.payment.controller.dto.PaymentCancelRequestDTO;
 import com.example.demo.mypage.payment.controller.dto.PaymentRequestDTO;
@@ -54,9 +55,12 @@ public class PaymentController {
         return ResponseEntity.ok(result);
     }
 
+
+    // ✅ 로그인한 사용자만 취소 가능
     @PostMapping("/cancel")
-    public ResponseEntity<?> cancelPayment(@RequestBody PaymentCancelRequestDTO dto) {
-        paymentService.cancelPayment(dto);
+    public ResponseEntity<?> cancelPayment(@RequestBody PaymentCancelRequestDTO dto,
+                                           @Member Long memberId) {
+        paymentService.cancelPayment(dto, memberId);
         return ResponseEntity.ok("결제 취소 완료");
     }
 }

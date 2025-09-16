@@ -180,7 +180,19 @@ public class PaymentService {
 
     // ✅ 결제 취소
     @Transactional
-    public void cancelPayment(PaymentCancelRequestDTO dto) {
+    public void cancelPayment(PaymentCancelRequestDTO dto, Long memberId) {
+        PaymentHistory history = paymentHistoryRepository
+                .findByPaymentKey(dto.getPaymentKey())
+                .orElseThrow(() -> new PaymentException(PaymentErrorCode.NOT_FOUND_PAYMENT_BY_ORDER_ID));
+
+        Order order = orderRepository.findById(history.getOrderId())
+                .orElseThrow(() -> new PaymentException(PaymentErrorCode.NOT_FOUND_PAYMENT_BY_ORDER_ID));
+
+        // ✅ 본인 주문만 취소 가능
+        if (!order.getMemberId().equals(memberId)) {
+            throw new PaymentException(PaymentErrorCode.INVALID_PAYMENT_REQUEST, "FORBIDDEN", "본인 결제만 취소할 수 있습니다.");
+        }
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBasicAuth(tossSecretKey, "");
@@ -196,15 +208,10 @@ public class PaymentService {
             );
 
             if (response.getStatusCode() == HttpStatus.OK) {
-                PaymentHistory history = paymentHistoryRepository
-                        .findByPaymentKey(dto.getPaymentKey())
-                        .orElseThrow(() -> new PaymentException(PaymentErrorCode.NOT_FOUND_PAYMENT_BY_ORDER_ID));
                 history.setSuccess(false);
                 history.setApprovedAt(LocalDateTime.now());
                 paymentHistoryRepository.save(history);
 
-                Order order = orderRepository.findById(history.getOrderId())
-                        .orElseThrow(() -> new PaymentException(PaymentErrorCode.NOT_FOUND_PAYMENT_BY_ORDER_ID));
                 order.markCanceled();
                 orderRepository.save(order);
             } else {
