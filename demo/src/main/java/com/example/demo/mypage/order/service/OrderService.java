@@ -101,12 +101,18 @@ public class OrderService {
     }
 
     /**
-     * 주문 전체 조회 (페이징)
+     * 관리자 주문 전체 조회 (페이징 + status 필터)
      */
     @Transactional(readOnly = true)
-    public PagedResponse<OrderResponse> getAllOrdersPaged(int page, int size) {
+    public PagedResponse<OrderResponse> getAllOrdersPaged(int page, int size, String status) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("orderDate").descending());
-        Page<Order> orders = orderRepository.findAll(pageable);
+
+        Page<Order> orders;
+        if (status != null && !status.isBlank()) {
+            orders = orderRepository.findByStatus(status, pageable);
+        } else {
+            orders = orderRepository.findAll(pageable);
+        }
 
         List<OrderResponse> content = orders.getContent().stream()
                 .map(this::toOrderResponse)
@@ -144,7 +150,7 @@ public class OrderService {
                 order.getOrderDate(),
                 order.getPaymentDate(),
                 order.getMemberName(),
-                order.getPhoneNumber(),   // ✅ 여기서 포함됨
+                order.getPhoneNumber(),
                 order.getRoadAddress(),
                 order.getJibunAddress(),
                 order.getZipCode(),
@@ -170,10 +176,19 @@ public class OrderService {
         orderRepository.delete(order); // ✅ Cascade 로 OrderItem 같이 삭제됨
     }
 
+    /**
+     * 내 주문 조회 (페이징 + status 필터)
+     */
     @Transactional(readOnly = true)
-    public PagedResponse<OrderResponse> getOrdersByMemberPaged(Long memberId, int page, int size) {
+    public PagedResponse<OrderResponse> getOrdersByMemberPaged(Long memberId, int page, int size, String status) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("orderDate").descending());
-        Page<Order> orders = orderRepository.findByMemberId(memberId, pageable);
+
+        Page<Order> orders;
+        if (status != null && !status.isBlank()) {
+            orders = orderRepository.findByMemberIdAndStatus(memberId, status, pageable);
+        } else {
+            orders = orderRepository.findByMemberId(memberId, pageable);
+        }
 
         List<OrderResponse> content = orders.getContent().stream()
                 .map(this::toOrderResponse)

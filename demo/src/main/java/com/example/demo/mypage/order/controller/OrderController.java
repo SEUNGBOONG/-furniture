@@ -32,18 +32,22 @@ public class OrderController {
     }
 
     // ✅ 내 주문 조회 (로그인된 사용자 본인 것만)
-// ✅ 내 주문 조회 (로그인된 사용자 본인 것만, 페이징 적용)
     @GetMapping("/my")
     public ResponseEntity<PagedResponse<OrderResponse>> getMyOrders(
             @Member Long memberId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String status) {
+        return ResponseEntity.ok(orderService.getOrdersByMemberPaged(memberId, page, size, status));
+    }
 
-        if (memberId == null) {
-            throw new MemberException(MemberErrorCode.NOT_AUTHENTICATED);
-        }
-
-        return ResponseEntity.ok(orderService.getOrdersByMemberPaged(memberId, page, size));
+    @GetMapping("/admin")
+    public ResponseEntity<PagedResponse<OrderResponse>> getAllOrders(
+            @Member Long memberId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String status) {
+        return ResponseEntity.ok(orderService.getAllOrdersPaged(page, size, status));
     }
 
     // ✅ 관리자 전용 주문 삭제
@@ -64,17 +68,7 @@ public class OrderController {
     }
 
     // ✅ 관리자 전용 주문 전체 조회
-    @GetMapping("/admin")
-    public ResponseEntity<PagedResponse<OrderResponse>> getAllOrders(
-            @Member Long memberId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
 
-        ResponseEntity<String> FORBIDDEN = AdminValidator.getStringResponseEntity(memberId);
-        if (FORBIDDEN != null) return (ResponseEntity) FORBIDDEN;
-
-        return ResponseEntity.ok(orderService.getAllOrdersPaged(page, size));
-    }
 
     @PutMapping("/admin/{orderId}/ship")
     public ResponseEntity<Map<String, Object>> updateOrderShipped(@PathVariable String orderId,

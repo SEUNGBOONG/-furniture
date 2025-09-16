@@ -9,14 +9,18 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
-
 public interface OrderRepository extends JpaRepository<Order, String> {
 
     @Query("SELECT o FROM Order o JOIN FETCH o.products WHERE o.orderId = :orderId")
     Optional<Order> findByOrderIdWithItems(@Param("orderId") String orderId);
 
-    // ✅ 회원별 주문 전체 조회 (최신순)
     List<Order> findByMemberIdOrderByOrderDateDesc(Long memberId);
-    // 기존 단순 List 메소드 대신 페이징 지원 메소드 추가
+
     Page<Order> findByMemberId(Long memberId, Pageable pageable);
+
+    // ✅ status 조건도 포함한 버전
+    Page<Order> findByMemberIdAndStatus(Long memberId, String status, Pageable pageable);
+
+    // ✅ 관리자용 status 조건 검색
+    Page<Order> findByStatus(String status, Pageable pageable);
 }
