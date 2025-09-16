@@ -10,6 +10,8 @@ import com.example.demo.mypage.payment.exception.PaymentException;
 import com.example.demo.mypage.order.domain.entity.Order;
 import com.example.demo.mypage.order.domain.repository.OrderRepository;
 import com.example.demo.mypage.carItem.domain.repository.CartItemRepository;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -78,7 +80,6 @@ public class PaymentService {
             if (response.getStatusCode() == HttpStatus.OK) {
                 TossPaymentResponse body = response.getBody();
 
-                // ✅ 결제 방식 로깅 추가
                 log.info("💳 결제 승인 완료: orderId={}, method={}, status={}",
                         dto.getOrderId(), body.getMethod(), body.getStatus());
 
@@ -97,10 +98,25 @@ public class PaymentService {
             }
 
         } catch (HttpClientErrorException e) {
-            log.error("결제 승인 요청 실패: {}", e.getResponseBodyAsString());
+            String body = e.getResponseBodyAsString();
+            log.error(" 결제 승인 요청 실패: {}", body);
+
             history.setApprovedAt(LocalDateTime.now());
             paymentHistoryRepository.save(history);
-            throw new PaymentException(PaymentErrorCode.PAYMENT_CONFIRMATION_FAILED);
+
+            try {
+                JsonNode json = new ObjectMapper().readTree(body);
+                String tossCode = json.path("code").asText();
+                String tossMessage = json.path("message").asText();
+
+                if ("INSUFFICIENT_BALANCE".equals(tossCode)) {
+                    throw new PaymentException(PaymentErrorCode.INSUFFICIENT_BALANCE, tossCode, tossMessage);
+                } else {
+                    throw new PaymentException(PaymentErrorCode.PAYMENT_CONFIRMATION_FAILED, tossCode, tossMessage);
+                }
+            } catch (Exception parseEx) {
+                throw new PaymentException(PaymentErrorCode.PAYMENT_CONFIRMATION_FAILED);
+            }
         }
     }
 
