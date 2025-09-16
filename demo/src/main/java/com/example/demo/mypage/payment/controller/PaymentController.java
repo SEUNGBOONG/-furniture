@@ -20,14 +20,20 @@ public class PaymentController {
     @PostMapping("/confirm")
     public ResponseEntity<Map<String, Object>> confirmPayment(@RequestBody PaymentRequestDTO dto) {
         TossPaymentResponse result = paymentService.confirmPayment(dto);
-        return ResponseEntity.ok(Map.of(
-                "status", result.getStatus(),
-                "message", "결제 승인 처리됨",
-                "paymentKey", result.getPaymentKey(),
-                "orderId", result.getOrderId(),
-                "method", result.getMethod(),
-                "virtualAccount", result.getVirtualAccount()
-        ));
+
+        Map<String, Object> response = new java.util.HashMap<>();
+        response.put("status", result.getStatus());
+        response.put("message", "결제 승인 처리됨");
+        response.put("paymentKey", result.getPaymentKey());
+        response.put("orderId", result.getOrderId());
+        response.put("method", result.getMethod());
+
+        // 가상계좌 결제일 때만 추가
+        if (result.getVirtualAccount() != null) {
+            response.put("virtualAccount", result.getVirtualAccount());
+        }
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/webhook")

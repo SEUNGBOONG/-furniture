@@ -78,15 +78,17 @@ public class PaymentService {
             if (response.getStatusCode() == HttpStatus.OK) {
                 TossPaymentResponse body = response.getBody();
 
+                // ✅ 결제 방식 로깅 추가
+                log.info("💳 결제 승인 완료: orderId={}, method={}, status={}",
+                        dto.getOrderId(), body.getMethod(), body.getStatus());
+
                 history.setSuccess(true);
                 history.setApprovedAt(LocalDateTime.now());
                 paymentHistoryRepository.save(history);
 
-                // ✅ Toss 응답 status 그대로 반영
                 order.markPaid(LocalDateTime.now(), body);
                 orderRepository.save(order);
 
-                // ✅ 장바구니 비우기
                 cartItemRepository.deleteByMemberId(order.getMemberId());
 
                 return body;
