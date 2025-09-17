@@ -1,17 +1,19 @@
 package com.example.demo.product.controller.product;
 
 import com.example.demo.common.exception.Setting;
+import com.example.demo.common.util.AdminValidator;
 import com.example.demo.login.global.annotation.Member;
 import com.example.demo.product.controller.category.dto.CategoryResponse;
 import com.example.demo.product.controller.product.dto.ProductDetailSimpleDTO;
 import com.example.demo.product.controller.product.dto.ProductRequest;
 import com.example.demo.product.controller.product.dto.ProductResponse;
-import com.example.demo.common.util.AdminValidator;
 import com.example.demo.product.domain.entity.product.Product;
+import com.example.demo.product.domain.entity.product.ProductImage;
+import com.example.demo.product.domain.entity.product.ProductDetailImage;
+import com.example.demo.product.service.product.ProductDetailImageService;
 import com.example.demo.product.service.product.ProductDetailService;
 import com.example.demo.product.service.product.ProductLikeService;
 import com.example.demo.product.service.product.ProductService;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +31,7 @@ public class ProductController {
     private final ProductService productService;
     private final ProductDetailService productDetailService;
     private final ProductLikeService productLikeService;
+    private final ProductDetailImageService productDetailImageService;
 
     // ✅ 상품 등록
     @PostMapping(consumes = "multipart/form-data")
@@ -43,16 +46,23 @@ public class ProductController {
         CompletableFuture<String> imageUrlFuture = productService.uploadImageAsync(image);
         String imageUrl = imageUrlFuture.join();
 
-        productService.createProduct(dto, imageUrl);
+        productService.createProduct(dto, imageUrl, null); // detailImages는 추후 추가
         return ResponseEntity.ok(Setting.PRODUCT_CREATE_SUCCESS.toString());
     }
 
+    // ✅ 단일 상품 조회 (대표 + 썸네일 + 상세이미지 포함)
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponse> getProductById(@PathVariable Long id,
-                                                          @Member(required = false)Long memberId) {
+                                                          @Member(required = false) Long memberId) {
         Product product = productService.findById(id);
 
         boolean isLiked = (memberId != null) && productLikeService.isProductLiked(memberId, id);
+
+        List<String> extraImages = product.getImages().stream()
+                .map(ProductImage::getUrl)
+                .toList();
+
+        List<String> detailImages = productDetailImageService.getDetailImagesByProduct(product.getId());
 
         ProductResponse response = new ProductResponse(
                 product.getId(),
@@ -62,7 +72,8 @@ public class ProductController {
                 product.getCategory().getName(),
                 product.getTagName(),
                 product.getImage(),
-                product.getImage2(),
+                extraImages,
+                detailImages,
                 isLiked
         );
         return ResponseEntity.ok(response);
@@ -83,7 +94,8 @@ public class ProductController {
                                 p.getCategory().getName(),
                                 p.getTagName(),
                                 p.getImage(),
-                                p.getImage2(),
+                                p.getImages().stream().map(ProductImage::getUrl).toList(),
+                                productDetailImageService.getDetailImagesByProduct(p.getId()),
                                 memberId != null && productLikeService.isProductLiked(memberId, p.getId())
                         ))
                         .toList()
@@ -116,7 +128,8 @@ public class ProductController {
                                 p.getCategory().getName(),
                                 p.getTagName(),
                                 p.getImage(),
-                                p.getImage2(),
+                                p.getImages().stream().map(ProductImage::getUrl).toList(),
+                                productDetailImageService.getDetailImagesByProduct(p.getId()),
                                 false // 로그인 정보 없으니 무조건 false
                         ))
                         .toList()
@@ -138,7 +151,7 @@ public class ProductController {
         ResponseEntity<String> FORBIDDEN = AdminValidator.getStringResponseEntity(memberId);
         if (FORBIDDEN != null) return FORBIDDEN;
 
-        productService.updateProduct(productId, dto, image);
+        productService.updateProduct(productId, dto, image, null); // detailImages는 추후 추가
         return ResponseEntity.ok(Setting.PRODUCT_UPDATE_SUCCESS.toString());
     }
 
@@ -171,7 +184,6 @@ public class ProductController {
     }
 
     // ✅ 내가 찜한 상품 조회
-// ✅ 내가 찜한 상품 조회
     @GetMapping("/likes")
     public ResponseEntity<?> getLikedProducts(@Member(required = false) Long memberId) {
         if (memberId == null) {
@@ -191,7 +203,8 @@ public class ProductController {
                                 p.getCategory().getName(),
                                 p.getTagName(),
                                 p.getImage(),
-                                p.getImage2(),
+                                p.getImages().stream().map(ProductImage::getUrl).toList(),
+                                productDetailImageService.getDetailImagesByProduct(p.getId()),
                                 true // ✅ 조회되는 건 전부 좋아요한 상품
                         ))
                         .toList()

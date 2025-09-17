@@ -6,8 +6,10 @@ import com.example.demo.product.controller.category.dto.CategoryResponse;
 import com.example.demo.product.controller.product.dto.ProductRequest;
 import com.example.demo.product.domain.entity.category.Category;
 import com.example.demo.product.domain.entity.product.Product;
+import com.example.demo.product.domain.entity.product.ProductImage;
 import com.example.demo.product.domain.repository.category.CategoryRepository;
 import com.example.demo.product.domain.repository.product.ProductRepository;
+import com.example.demo.product.domain.repository.product.ProductImageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -23,17 +25,26 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final ProductImageRepository productImageRepository;
     private final S3Uploader s3Uploader;
 
     // ✅ 상품 생성
-    public void createProduct(ProductRequest request, String imageUrl) {
+    public void createProduct(ProductRequest request, String imageUrl, List<String> extraImageUrls) {
         Category category = getCategory(request);
         Product product = buildProduct(Product.builder(), request, category, imageUrl);
+
+        // 추가 이미지 저장
+        if (extraImageUrls != null) {
+            for (String url : extraImageUrls) {
+                product.addImage(ProductImage.builder().url(url).build());
+            }
+        }
+
         productRepository.save(product);
     }
 
     // ✅ 상품 수정
-    public void updateProduct(Long productId, ProductRequest request, MultipartFile imageFile) {
+    public void updateProduct(Long productId, ProductRequest request, MultipartFile imageFile, List<MultipartFile> extraFiles) {
         Product product = getProduct(productId);
         Category category = getCategory(request);
 
@@ -41,6 +52,15 @@ public class ProductService {
 
         Product updated = buildProduct(Product.builder()
                 .id(product.getId()), request, category, imageUrl);
+
+        // 기존 이미지 비우고 새로 추가
+        updated.getImages().clear();
+        if (extraFiles != null) {
+            for (MultipartFile f : extraFiles) {
+                String url = s3Uploader.uploadFile(f);
+                updated.addImage(ProductImage.builder().url(url).build());
+            }
+        }
 
         productRepository.save(updated);
     }
