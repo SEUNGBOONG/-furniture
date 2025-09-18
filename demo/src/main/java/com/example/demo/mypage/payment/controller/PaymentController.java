@@ -55,7 +55,6 @@ public class PaymentController {
         return ResponseEntity.ok(result);
     }
 
-
     // ✅ 로그인한 사용자만 취소 가능
     @PostMapping("/cancel")
     public ResponseEntity<?> cancelPayment(@RequestBody PaymentCancelRequestDTO dto,

@@ -6,6 +6,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class PaymentCancelRequestDTO {
-    private String paymentKey;
+    private String orderId;       // ✅ orderId만 받도록
     private String cancelReason;
 }

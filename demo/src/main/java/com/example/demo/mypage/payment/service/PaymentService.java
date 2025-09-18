@@ -181,18 +181,21 @@ public class PaymentService {
     // ✅ 결제 취소
     @Transactional
     public void cancelPayment(PaymentCancelRequestDTO dto, Long memberId) {
-        PaymentHistory history = paymentHistoryRepository
-                .findByPaymentKey(dto.getPaymentKey())
+        // 1. orderId로 Order 찾기
+        Order order = orderRepository.findById(dto.getOrderId())
                 .orElseThrow(() -> new PaymentException(PaymentErrorCode.NOT_FOUND_PAYMENT_BY_ORDER_ID));
 
-        Order order = orderRepository.findById(history.getOrderId())
-                .orElseThrow(() -> new PaymentException(PaymentErrorCode.NOT_FOUND_PAYMENT_BY_ORDER_ID));
-
-        // ✅ 본인 주문만 취소 가능
+        // 2. 본인 주문인지 확인
         if (!order.getMemberId().equals(memberId)) {
             throw new PaymentException(PaymentErrorCode.INVALID_PAYMENT_REQUEST, "FORBIDDEN", "본인 결제만 취소할 수 있습니다.");
         }
 
+        // 3. paymentKey 찾기 (DB 우선, 없으면 Toss API 조회)
+        String paymentKey = paymentHistoryRepository.findByOrderId(dto.getOrderId())
+                .map(PaymentHistory::getPaymentKey)
+                .orElseGet(() -> fetchPaymentKeyFromToss(dto.getOrderId()));
+
+        // 4. Toss 결제 취소 요청
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBasicAuth(tossSecretKey, "");
@@ -202,15 +205,18 @@ public class PaymentService {
 
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(
-                    "https://api.tosspayments.com/v1/payments/" + dto.getPaymentKey() + "/cancel",
+                    "https://api.tosspayments.com/v1/payments/" + paymentKey + "/cancel",
                     request,
                     String.class
             );
 
             if (response.getStatusCode() == HttpStatus.OK) {
-                history.setSuccess(false);
-                history.setApprovedAt(LocalDateTime.now());
-                paymentHistoryRepository.save(history);
+                // DB 업데이트
+                paymentHistoryRepository.findByPaymentKey(paymentKey).ifPresent(history -> {
+                    history.setSuccess(false);
+                    history.setApprovedAt(LocalDateTime.now());
+                    paymentHistoryRepository.save(history);
+                });
 
                 order.markCanceled();
                 orderRepository.save(order);
@@ -222,4 +228,23 @@ public class PaymentService {
             throw new PaymentException(PaymentErrorCode.PAYMENT_CANCELLATION_FAILED);
         }
     }
+
+    private String fetchPaymentKeyFromToss(String orderId) {
+        String url = "https://api.tosspayments.com/v1/payments/orders/" + orderId;
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBasicAuth(tossSecretKey, "");
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(
+                    url, HttpMethod.GET, new HttpEntity<>(headers), String.class
+            );
+            JsonNode json = new ObjectMapper().readTree(response.getBody());
+            return json.path("paymentKey").asText();
+        } catch (Exception e) {
+            log.error("Toss 결제 조회 실패 (orderId={}): {}", orderId, e.getMessage());
+            throw new PaymentException(PaymentErrorCode.NOT_FOUND_PAYMENT_BY_ORDER_ID);
+        }
+    }
+
 }
