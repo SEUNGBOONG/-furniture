@@ -185,8 +185,12 @@ public class PaymentService {
         Order order = orderRepository.findById(dto.getOrderId())
                 .orElseThrow(() -> new PaymentException(PaymentErrorCode.NOT_FOUND_PAYMENT_BY_ORDER_ID));
 
+        // 🔎 로그 찍기 (누가 취소 요청했는지, 주문 실제 소유자는 누구인지 확인)
+        log.info("❌ 결제 취소 요청: 요청한 memberId={}, 주문 memberId={}", memberId, order.getMemberId());
+
         // 2. 본인 주문인지 확인
         if (!order.getMemberId().equals(memberId)) {
+            log.warn("🚨 결제 취소 거부: 요청자 id={} / 주문자 id={}", memberId, order.getMemberId());
             throw new PaymentException(PaymentErrorCode.INVALID_PAYMENT_REQUEST, "FORBIDDEN", "본인 결제만 취소할 수 있습니다.");
         }
 
@@ -220,11 +224,14 @@ public class PaymentService {
 
                 order.markCanceled();
                 orderRepository.save(order);
+
+                log.info("✅ 결제 취소 완료: orderId={}, paymentKey={}", dto.getOrderId(), paymentKey);
             } else {
+                log.error("❌ 결제 취소 실패: Toss API 응답 코드={}", response.getStatusCode());
                 throw new PaymentException(PaymentErrorCode.PAYMENT_CANCELLATION_FAILED);
             }
         } catch (HttpClientErrorException e) {
-            log.error("결제 취소 요청 실패: {}", e.getResponseBodyAsString());
+            log.error("❌ 결제 취소 요청 실패: {}", e.getResponseBodyAsString());
             throw new PaymentException(PaymentErrorCode.PAYMENT_CANCELLATION_FAILED);
         }
     }
