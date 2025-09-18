@@ -43,8 +43,7 @@ public class LoginArgumentResolver implements HandlerMethodArgumentResolver {
 
         if (token == null && request.getCookies() != null) {
             token = Arrays.stream(request.getCookies())
-                    .filter(cookie ->
-                            "token".equals(cookie.getName()) || "accessToken".equals(cookie.getName()))
+                    .filter(cookie -> "token".equals(cookie.getName()))
                     .findFirst()
                     .map(Cookie::getValue)
                     .orElse(null);
