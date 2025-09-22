@@ -18,7 +18,9 @@ public class CorsCustomFilter extends OncePerRequestFilter {
         String origin = request.getHeader("Origin");
 
         // 허용할 Origin 목록
-        if ("https://daemyungdesk.com".equals(origin) || "http://localhost:3000".equals(origin)) {
+        if ("https://daemyungdesk.com".equals(origin)
+                || "https://www.daemyungdesk.com".equals(origin)  // 추가
+                || "http://localhost:3000".equals(origin)) {
             response.setHeader("Access-Control-Allow-Origin", origin);
         }
 
