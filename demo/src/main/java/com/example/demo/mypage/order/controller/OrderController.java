@@ -47,6 +47,9 @@ public class OrderController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String status) {
+        ResponseEntity<String> FORBIDDEN = AdminValidator.getStringResponseEntity(memberId);
+        if (FORBIDDEN != null) return (ResponseEntity) FORBIDDEN;
+
         return ResponseEntity.ok(orderService.getAllOrdersPaged(page, size, status));
     }
 
