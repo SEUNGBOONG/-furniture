@@ -16,7 +16,7 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(
                 "https://daemyungdesk.com",
-                "https://www.daemyungdesk.com",
+                "https://www.daemyungdesk.com", "https://osh.daemyungdesk.com",
                 "http://localhost:3000"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
